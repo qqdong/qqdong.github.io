@@ -4,6 +4,30 @@
   
     
     <entry>
+      <title><![CDATA[1718总结与计划]]></title>
+      <url>https://qqdong.github.io/2018/02/16/summary-2018/</url>
+      <content type="html"><![CDATA[<h4 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h4><ul>
+<li>17年总结</li>
+<li>18年计划</li>
+</ul>
+]]></content>
+      
+        <categories>
+            
+            <category> summary </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> summary </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[hexo使用七牛作为文件存储]]></title>
       <url>https://qqdong.github.io/2016/08/19/hexo-qiniu-pic/</url>
       <content type="html"><![CDATA[<h3 id="注册七牛账号"><a href="#注册七牛账号" class="headerlink" title="注册七牛账号"></a>注册七牛账号</h3><p>进入 <a href="https://portal.qiniu.com/signup?code=3ldwahs7n653m" target="_blank" rel="noopener">七牛</a> 官网注册账号</p>
