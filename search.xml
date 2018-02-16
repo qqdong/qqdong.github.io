@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  
+  
+    
+    <entry>
+      <title><![CDATA[hexo使用七牛作为文件存储]]></title>
+      <url>https://qqdong.github.io/2016/08/19/hexo-qiniu-pic/</url>
+      <content type="html"><![CDATA[<h3 id="注册七牛账号"><a href="#注册七牛账号" class="headerlink" title="注册七牛账号"></a>注册七牛账号</h3><p>进入 <a href="https://portal.qiniu.com/signup?code=3ldwahs7n653m" target="_blank" rel="noopener">七牛</a> 官网注册账号</p>
+<h3 id="安装hexo七牛插件"><a href="#安装hexo七牛插件" class="headerlink" title="安装hexo七牛插件"></a>安装hexo七牛插件</h3><p>插件地址：<a href="https://github.com/gyk001/hexo-qiniu-sync" target="_blank" rel="noopener">点击</a></p>
+<p>文档说明比较全，按照README.md文件一步一步安装、配置即可</p>
+<h3 id="本地上传图片"><a href="#本地上传图片" class="headerlink" title="本地上传图片"></a>本地上传图片</h3><p>hexo qiniu sync<br><em>同步本地图片到七牛</em></p>
+<p>hexo qiniu sync2<br><em>增加同步上传那些本地与七牛空间有差异的文件</em></p>
+<h3 id="在md文件中使用图片"><a href="#在md文件中使用图片" class="headerlink" title="在md文件中使用图片"></a>在md文件中使用图片</h3><p>{ % qnimg test/demo.png title:图片标题 alt:图片说明 ‘class:class1 class2’  % }<br>其中是qnimg是七牛插件定义的标签</p>
+<p>附上是我的配置<br><img title="七牛插件配置" alt="七牛插件配置" src="http://oc3r3rke2.bkt.clouddn.com/static/images/blog/hexo-qiniu-config.png"></p>
+]]></content>
+      
+        <categories>
+            
+            <category> hexo </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> hexo </tag>
+            
+            <tag> qiniu </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[hexo常用命令]]></title>
+      <url>https://qqdong.github.io/2016/08/18/hexo-command/</url>
+      <content type="html"><![CDATA[<p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
+<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
+<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
+<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
+<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
+<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
+<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
+<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
+<p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="noopener">Deployment</a></p>
+]]></content>
+      
+        <categories>
+            
+            <category> hexo </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> hexo </tag>
+            
+        </tags>
+        
+    </entry>
+    
+  
+  
+</search>
