@@ -1,12 +1,373 @@
-<?xml version="1.0" encoding="utf-8"?>
-<search>
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="spring boot" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="「1718总结与计划」中提到，18年要对部分项目拆分，进行服务化，并对代码进行重构。公司技术委员会也推荐使用spring boot，之前在各个技术网站中也了解过，它可以大大简化spring配置和各个组件的使用，与其关系密切的Spring Cloud可以很好支持微服务的开发。 为了后续项目的应用，想利用这2天看下《深入实践Spring Boot》，这本书是17年双十一期间在京东上买的，一直懒着没看。">
+<meta name="keywords" content="spring boot">
+<meta property="og:type" content="article">
+<meta property="og:title" content="《深入实践Spring Boot》阅读笔记之一：基础应用开发">
+<meta property="og:url" content="https://qqdong.github.io/2018/02/19/深入实践Spring Boot-学习笔记一/index.html">
+<meta property="og:site_name" content="情情说">
+<meta property="og:description" content="「1718总结与计划」中提到，18年要对部分项目拆分，进行服务化，并对代码进行重构。公司技术委员会也推荐使用spring boot，之前在各个技术网站中也了解过，它可以大大简化spring配置和各个组件的使用，与其关系密切的Spring Cloud可以很好支持微服务的开发。 为了后续项目的应用，想利用这2天看下《深入实践Spring Boot》，这本书是17年双十一期间在京东上买的，一直懒着没看。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15190424636299.jpg">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15190428625483.jpg">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15190456204109.jpg">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15190491796642.jpg">
+<meta property="og:updated_time" content="2018-02-19T14:53:11.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="《深入实践Spring Boot》阅读笔记之一：基础应用开发">
+<meta name="twitter:description" content="「1718总结与计划」中提到，18年要对部分项目拆分，进行服务化，并对代码进行重构。公司技术委员会也推荐使用spring boot，之前在各个技术网站中也了解过，它可以大大简化spring配置和各个组件的使用，与其关系密切的Spring Cloud可以很好支持微服务的开发。 为了后续项目的应用，想利用这2天看下《深入实践Spring Boot》，这本书是17年双十一期间在京东上买的，一直懒着没看。">
+<meta name="twitter:image" content="http://oc3r3rke2.bkt.clouddn.com/15190424636299.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://qqdong.github.io/2018/02/19/深入实践Spring Boot-学习笔记一/"/>
+
+
+
+
+
+  <title>《深入实践Spring Boot》阅读笔记之一：基础应用开发 | 情情说</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?48e81d160a0773a1af5455493c416547";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
   
   
     
-    <entry>
-      <title><![CDATA[《深入实践Spring Boot》阅读笔记之一：基础应用开发]]></title>
-      <url>https://qqdong.github.io/2018/02/19/%E6%B7%B1%E5%85%A5%E5%AE%9E%E8%B7%B5Spring%20Boot-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B8%80/</url>
-      <content type="html"><![CDATA[<p>「1718总结与计划」中提到，18年要对部分项目拆分，进行服务化，并对代码进行重构。公司技术委员会也推荐使用spring boot，之前在各个技术网站中也了解过，它可以大大简化spring配置和各个组件的使用，与其关系密切的Spring Cloud可以很好支持微服务的开发。</p>
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">情情说</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">记录工作、学习和生活</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/02/19/深入实践Spring Boot-学习笔记一/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="情情">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="情情说">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">《深入实践Spring Boot》阅读笔记之一：基础应用开发</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-02-19T21:28:00+08:00">
+                2018-02-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/spring/" itemprop="url" rel="index">
+                    <span itemprop="name">spring</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>「1718总结与计划」中提到，18年要对部分项目拆分，进行服务化，并对代码进行重构。公司技术委员会也推荐使用spring boot，之前在各个技术网站中也了解过，它可以大大简化spring配置和各个组件的使用，与其关系密切的Spring Cloud可以很好支持微服务的开发。</p>
 <p>为了后续项目的应用，想利用这2天看下《深入实践Spring Boot》，这本书是17年双十一期间在京东上买的，一直懒着没看。这本书偏应用，适合初学者看，正文内容也就240多页，看的会比较轻松。</p>
 <p>目前，看完了第一部分，约占全书1/2内容，计划初七上班前看完这本书。我会分3篇文章进行介绍，这编文章首先介绍下这本书的整体结构，然后总结下第一部分的内容。</p>
 <p>我不会介绍实现过程，只是把这本书想要讲的内容串起来，重点说明下我认为重要的内容。想深入实践的，可以直接看这本书，也可以通过文中的一些概念搜索相关的文章阅读。</p>
@@ -76,267 +437,391 @@
 <blockquote>
 <p>好多实现细节，我没有展现出来，一方面会显得篇幅太长，主次不鲜明，另一方面作者把所有代码都放到github了（<a href="https://github.com/chenfromsz?tab=repositories" target="_blank" rel="noopener">http://github.com/chenfromsz</a>）。后续在公司项目中实践好，我再谈谈自己的使用经验。</p>
 </blockquote>
-]]></content>
+
       
-        <categories>
-            
-            <category> spring </category>
-            
-        </categories>
-        
-        
-        <tags>
-            
-            <tag> spring boot </tag>
-            
-        </tags>
-        
-    </entry>
+    </div>
     
-    <entry>
-      <title><![CDATA[2018年公众号文章计划]]></title>
-      <url>https://qqdong.github.io/2018/02/18/2018%E5%85%AC%E4%BC%97%E5%8F%B7%E6%96%87%E7%AB%A0%E8%AE%A1%E5%88%92/</url>
-      <content type="html"><![CDATA[<p>18年，无论是工作还是生活，都将更忙，今年是很关键的一年。</p>
-<p>公司业务发展迅猛，对人才的培养也很重视，自己要跟上公司的步伐，在技术和管理上更进一步。</p>
-<p>为了充分利用业余时间，把平时看视频、无意义的熬夜时间，用在「写公众号文章」，将自己的技术学习、业务实现进行总结、分享，让自己更充实，更有动力。</p>
-<p>书上得来终觉浅，将学习的技术与业务实现相结合，相互促进。</p>
-<p>希望大家关注我，给我一些动力，18年一起进步。</p>
-<a id="more"></a>
-<h4 id="主要内容"><a href="#主要内容" class="headerlink" title="主要内容"></a>主要内容</h4><p>18年想对一些技术深入研究，当然，都是与项目相关的技术，会介绍在实际项目中的应用。</p>
-<p>会更加关注团队管理和协作，有意识地去学习相关知识，向身边优秀的同事学习。</p>
-<p>下面从技术、业务实现、团队协作列举将要写的内容。</p>
-<h5 id="技术"><a href="#技术" class="headerlink" title="技术"></a>技术</h5><ul>
-<li>CAS 单点登录</li>
-<li>Shiro 权限控制</li>
-<li>多线程开发</li>
-<li>Spring Boot 实践</li>
-<li>Netty 源码探究</li>
-</ul>
-<h5 id="业务实现"><a href="#业务实现" class="headerlink" title="业务实现"></a>业务实现</h5><ul>
-<li>分布式会话实现（多系统）</li>
-<li>多语言实现</li>
-<li>多租户多时区实现</li>
-<li>消息平台实现</li>
-<li>项目重构和服务化</li>
-</ul>
-<h5 id="团队协作"><a href="#团队协作" class="headerlink" title="团队协作"></a>团队协作</h5><ul>
-<li>编码规范</li>
-<li>代码review</li>
-<li>工作流规范推进</li>
-<li>团队沟通和协作     </li>
-</ul>
-<h4 id="执行方案"><a href="#执行方案" class="headerlink" title="执行方案"></a>执行方案</h4><p>有想法就迈出了第一步，希望自己能够坚持执行，执行过程中要遵从基本的原则，规划好时间。</p>
-<h5 id="基本原则"><a href="#基本原则" class="headerlink" title="基本原则"></a>基本原则</h5><ul>
-<li>学习的技术要与项目相关，一方面使项目更好的完成，一方面加深对相关技术的理解；</li>
-<li>以公司项目为重心，全身心投入，利用空余时间学习、总结相关技术，编写公众号文章；</li>
-<li>一定要尽最大努力保证文章质量，让自己满意；</li>
-</ul>
-<h5 id="时间规划"><a href="#时间规划" class="headerlink" title="时间规划"></a>时间规划</h5><p>18年初，我的小孩要出生了，将会投入许多时间。16年底，我报了人大在职研究生，周六还要去上课。    </p>
-<p>平时应该少看电视视频，多锻炼，保持持好精神状态。   </p>
-<p>希望自己能做到：</p>
-<ul>
-<li>每周至少产出一篇文章，特殊情况除外；</li>
-<li>每天晚上、周六日，抽出时间学习、总结相关技术；</li>
-</ul>
-]]></content>
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
       
-        <categories>
-            
-            <category> summary </category>
-            
-        </categories>
-        
-        
-        <tags>
-            
-            <tag> plan </tag>
-            
-        </tags>
-        
-    </entry>
-    
-    <entry>
-      <title><![CDATA[1718总结与计划]]></title>
-      <url>https://qqdong.github.io/2018/02/16/summary-2018/</url>
-      <content type="html"><![CDATA[<p>2018年已经悄然到来，回望过去一年，收获很多，感恩很多；未来一年，内心充满了期待，无论是工作还是生活，将会发生很大变化。大年初一的晚上，将自己的所思所想记录下来，与大家分享，激励自己18年更努力。</p>
-<h4 id="17年总结"><a href="#17年总结" class="headerlink" title="17年总结"></a>17年总结</h4><p>我目前就职于小米，在『小米网智能客服项目』从事开发工作，项目主要包含在线客服、智能机器人、智能数据分析三大块，另外还包括热线、邮件、工单等模块。    </p>
-<p>16年3月份，我加入这个团队，当时就4个人，每个人负责多个子项目。经过了解，项目初期想做的功能很多，设计的比较大，很多人投入进来，形成了很多个子服务。所以17年上半年之前，我一直在维护项目，解决线上的一些问题，实现业务的一些小需求。另外，当时小米的管理比较扁平化，项目管理和团队管理也不是很规范，自己也比较松散，技术和团队协作能力提升的都比较少。</p>
-<p>17年下半年，小米发展增速明显，国内和国外的业绩都有了很大提升。管理上也开始重视起来，招了很多项目经理，『小米网智能客服项目』有了产品功能规划，开发团队也慢慢扩大，慢慢变得好起来。</p>
-<p>还有一点对我影响很大，我们团队的开发负责人，17年中旬加入进来，有10多年的开发、管理经验，从他身上，在任务规划、执行力、团队协作上学到了很多。</p>
-<p>下面从主要工作、线上问题处理、规划执行能力、家庭几个方面总结自己过去的一年。</p>
-<a id="more"></a>
-<h5 id="主要工作"><a href="#主要工作" class="headerlink" title="主要工作"></a>主要工作</h5><p>我主要负责在线客服，使用到的主要技术点：</p>
-<ul>
-<li>NIO</li>
-<li>多线程</li>
-<li>WebSocket协议</li>
-<li>会话状态管理</li>
-<li>CAS单点登录</li>
-<li>Shiro权限控制</li>
-</ul>
-<p>使用到的主要框架和组件：</p>
-<ul>
-<li>SSM</li>
-<li>Redis</li>
-<li>RabbitMQ</li>
-<li>ZooKeeper</li>
-<li>Thrift</li>
-</ul>
-<h6 id="消息平台"><a href="#消息平台" class="headerlink" title="消息平台"></a>消息平台</h6><p>在线客服最重要的一点是保证用户和客服能够在线沟通，类似于IM。现有系统缺少消息确认、重发机制，多终端消息同步也不支持，17年在技术负责人的指导下，重构了『在线实时聊天』模块，进行了抽象，变为通用的『消息平台』：</p>
-<ul>
-<li>长连接接入层还是使用netty实现的websocket通道，比之前更通用，扩展其他协议也很方便，另外可支持多实例部署，随时重启；</li>
-<li>消息存储层，为了方便，使用MySQL+Redis进行存储，保证了消息的有循序，实现了消息确认和重发机制；</li>
-</ul>
-<p>有点遗憾的是，17年下半年规划需求比较多且比较紧急，人也比较少，没能够正式上线，18年一定要推进上线。</p>
-<h6 id="maven依赖统一管理-amp-工具类封装"><a href="#maven依赖统一管理-amp-工具类封装" class="headerlink" title="maven依赖统一管理&amp;工具类封装"></a>maven依赖统一管理&amp;工具类封装</h6><p>前面说到，项目有很多子服务，每个服务maven的配置都很相似，更新维护都要修改所有的服务，不是很方便。经过调研和思考，决定将公共的依赖、版本声明、构建过程、maven插件统一管理，抽象出一个parent pom。</p>
-<p>maven本身就支持parent pom，每个子项目只需声明下继承父pom，就可以直接声明需要的依赖，不需要再声明版本，构建过程。</p>
-<p>另外，将公司其他组的一些工具类，也声明在父pom中。客服项目特有的一些工具类移到父pom所在项目，并在父pom中声明。</p>
-<h6 id="国内和海外代码分支合并"><a href="#国内和海外代码分支合并" class="headerlink" title="国内和海外代码分支合并"></a>国内和海外代码分支合并</h6><p>因历史原因，国内和海外代码分支是不同的分支，海外的功能较国内相对较少，而且海外有近1年未更新了。一次，业务提出一个海外需求，该需求在国内分支已经实现。经过确认，海外有的功能，国内都有，而且交互和操作都相同，只是一些基础存储组件不同。最终决定，合并国内和海外分支，方便以后功能扩展，节约开发时间和维护成本。</p>
-<p>升级过程熬了2个通宵（不是连续的），过程在此就不详细描述了，简单总结下：   </p>
-<ul>
-<li>大的变更上线前，一定要做好回滚预案， 升级失败可及时回滚，不影响现有业务；</li>
-<li>条件允许，最好有预上线环境，尽量完全模拟线上，因为海外网络结构比较复杂，虽然测试环境测试正常，上线后可能出现各种问题；</li>
-<li>上线时，相关人都要在场，有问题时及时协调处理；</li>
-</ul>
-<h6 id="推进协作开发规范"><a href="#推进协作开发规范" class="headerlink" title="推进协作开发规范"></a>推进协作开发规范</h6><p>相信大部分团队都在使用git进行代码版本控制，但真正用好git，多人协作开发一个项目，需要规定一套工作流规范。</p>
-<p>我借鉴网上比较流行的git flow规范，形成了相关规范，对各种场景的使用进行了说明，并做了一次分享，现在已经在项目中试运行，明年会加强推进。</p>
-<blockquote>
-<p>扩展阅读：</p>
-</blockquote>
-<ul>
-<li><a href="http://git.oschina.net/progit/3-Git-%E5%88%86%E6%94%AF.html" target="_blank" rel="noopener">分支系统介绍</a></li>
-<li><a href="http://danielkummer.github.io/git-flow-cheatsheet/index.zh_CN.html#getting_started" target="_blank" rel="noopener">git-flow工具</a></li>
-</ul>
-<h5 id="线上问题处理"><a href="#线上问题处理" class="headerlink" title="线上问题处理"></a>线上问题处理</h5><p>问题处理也是很重要的能力，更能提现一个人的能力，遇到问题时，首先不要排斥，它是提升自己能力的一个机会，问题解决后，要进行总结回顾，下次遇到相似问题时可以快速定位和处理。</p>
-<p>17年遇到了不少问题，下面列举2个问题总结（当时总结的）。</p>
-<h6 id="测试环境-客服端无法访问"><a href="#测试环境-客服端无法访问" class="headerlink" title="测试环境-客服端无法访问"></a>测试环境-客服端无法访问</h6><ul>
-<li>问题描述 <ul>
-<li>浏览器访问测试环境客服端时，直接提示502错误，后台服务不可用;</li>
-</ul>
-</li>
-<li>排查过程<ul>
-<li>查看resin服务器日志和程序日志，未发现异常;</li>
-<li>查看cpu指标，未发现异常;</li>
-<li>查看jvm内存使用情况、垃圾回收情况，未发现异常;</li>
-<li>查看jvm栈，发现有好多线程在同一处等待数据库资源，可能数据库资源已被耗尽;</li>
-<li>重点关注“线程等待的代码”，打开数据库连接池日志，在本地尝试复现;</li>
-<li>同事在本地复现，发现调用snaker（一个开源的工作流框架）的一些方法时，占用很多连接， 用完后并没有释放;</li>
-<li>同事通过review代码，发现，在Service类加上Spring事务管理器后，问题解决;</li>
-<li>通过查看snaker源码，snaker在处理工作流时，旨在最后一次操作还回连接，如果未开启事务管理， 会获取多个连接，但仅释放最后一次连接，导致连接泄漏;</li>
-</ul>
-</li>
-<li>总结<ul>
-<li>排查问题时，不应太着急，理清思路，一步步进行排查;</li>
-<li>珍视排查问题的机会，从中会学到很多;</li>
-</ul>
-</li>
-</ul>
-<h6 id="海外正式环境-ip白名单问题"><a href="#海外正式环境-ip白名单问题" class="headerlink" title="海外正式环境-ip白名单问题"></a>海外正式环境-ip白名单问题</h6><ul>
-<li>问题处理过程<ul>
-<li>2018/02/04，发现时常有提示【ip禁止访问】的问题，当时觉得可能自己的网络不稳定，没有在意；</li>
-<li>2018/02/05，业务开始反馈多个客服出现【ip禁止访问】的问题，我和同事开始介入排查；</li>
-<li>尝试重启服务解决这个问题，但无效；</li>
-<li>临时关闭ip白名单功能，让业务可以正常使用；</li>
-<li>2018/02/06上午，我尝试开启ip白名单功能，但还是出现【ip禁止访问的问题】;但发现服务端打印的访问者(我的内网机器)ip和我真实的不同；（curl cip.cc）</li>
-<li>把发现的情况告诉运维，运维开始排查；</li>
-<li>2018/02/06下午，4点半左右，运维定位到问题:信息部将某个域名公网IP转发到专线出口，说是为了解决国内到新加坡走国际链路慢的问题;</li>
-<li>5点半左右，我添加对应的网段到ip白名单中，开启ip白名单功能；</li>
-<li>后续观察，问题解决；</li>
-</ul>
-</li>
-<li>总结<ul>
-<li>不放过一个异常的现象，也不排斥和害怕处理这些问题；<ul>
-<li>明确：线上问题处理能力是很重要的能力；</li>
-<li>整体上分析问题出现的可能原因；</li>
-</ul>
-</li>
-<li>如果线上一直运行正常，突然某个功能不可用，就要考虑外部的一些因素了，尤其是网络；</li>
-</ul>
-</li>
-</ul>
-<h5 id="规划执行能力"><a href="#规划执行能力" class="headerlink" title="规划执行能力"></a>规划执行能力</h5><p>从团队负责人身上，获益最大的就是规划执行能力，让我做事有条不紊，有始有终，更充实、更有效。</p>
-<p>下面分享下我们团队和我的规划执行过程</p>
-<ul>
-<li>每月初进行月度总结和规划；</li>
-<li>每周四下午填写周报，我会详细总结上周计划完成情况、下周计划；（特别重要，会特别认真填写）</li>
-<li>每周五进行进行周会；</li>
-<li>每周五，我会把下周主要工作同步到outlook日历中，细分每一天的任务；</li>
-<li>协作过程<ul>
-<li>接到需求后，产品先进行分析，给出产品文档和初步的原型设计；</li>
-<li>开发阅读和理解产品文档，记录下疑问；</li>
-<li>产品和开发一起参加需求确认人，对一些细节和疑问进行讨论，确定最终的需求和原型；</li>
-</ul>
-</li>
-<li>其他<ul>
-<li>团队任务使用teambition进行管理，可查看团队所有任务；</li>
-<li>重点任务，每天下班前会进行沟通，确保任务按计划执行；</li>
-</ul>
-</li>
-</ul>
-<p>我严格执行了上面的过程，获益良多。</p>
-<h5 id="家庭"><a href="#家庭" class="headerlink" title="家庭"></a>家庭</h5><p>篇幅原因，就不多说了，总结两点：</p>
-<ul>
-<li>老婆辛苦了，怀了小宝宝，我没能好好照顾你，感谢你的包容；</li>
-<li>感谢丈母娘，专门辞去工作照顾你的女儿，辛苦了；</li>
-</ul>
-<h4 id="18年计划"><a href="#18年计划" class="headerlink" title="18年计划"></a>18年计划</h4><h5 id="技术学习"><a href="#技术学习" class="headerlink" title="技术学习"></a>技术学习</h5><p>我会深入学习以下相关技术：</p>
-<ul>
-<li>即时通讯</li>
-<li>NIO</li>
-<li>消息系统</li>
-<li>分布式缓存</li>
-<li>spring boot</li>
-<li>数据分析</li>
-</ul>
-<h5 id="管理能力"><a href="#管理能力" class="headerlink" title="管理能力"></a>管理能力</h5><p>18年，我将带个小组，多花精力在管理上，阅读相关数据，向身边优秀的人多学习，加强小组、部门间的协作沟通。</p>
-<h5 id="家庭-1"><a href="#家庭-1" class="headerlink" title="家庭"></a>家庭</h5><p>3月份，我的宝宝就要出生了，我会多花点时间学习如何与她沟通。<br>老婆会更辛苦，我会多包容她，陪着她。</p>
-]]></content>
+        <div class="post-tags">
+          
+            <a href="/tags/spring-boot/" rel="tag"># spring boot</a>
+          
+        </div>
       
-        <categories>
-            
-            <category> summary </category>
-            
-        </categories>
-        
-        
-        <tags>
-            
-            <tag> summary </tag>
-            
-        </tags>
-        
-    </entry>
-    
-    <entry>
-      <title><![CDATA[hexo使用七牛作为文件存储]]></title>
-      <url>https://qqdong.github.io/2018/02/16/hexo-qiniu-pic/</url>
-      <content type="html"><![CDATA[<h3 id="注册七牛账号"><a href="#注册七牛账号" class="headerlink" title="注册七牛账号"></a>注册七牛账号</h3><p>进入 <a href="https://portal.qiniu.com/signup?code=3ldwahs7n653m" target="_blank" rel="noopener">七牛</a> 官网注册账号</p>
-<h3 id="安装hexo七牛插件"><a href="#安装hexo七牛插件" class="headerlink" title="安装hexo七牛插件"></a>安装hexo七牛插件</h3><p>插件地址：<a href="https://github.com/gyk001/hexo-qiniu-sync" target="_blank" rel="noopener">点击</a></p>
-<p>文档说明比较全，按照README.md文件一步一步安装、配置即可</p>
-<h3 id="本地上传图片"><a href="#本地上传图片" class="headerlink" title="本地上传图片"></a>本地上传图片</h3><p>hexo qiniu sync<br><em>同步本地图片到七牛</em></p>
-<p>hexo qiniu sync2<br><em>增加同步上传那些本地与七牛空间有差异的文件</em></p>
-<a id="more"></a>
-<h3 id="在md文件中使用图片"><a href="#在md文件中使用图片" class="headerlink" title="在md文件中使用图片"></a>在md文件中使用图片</h3><p>{ % qnimg test/demo.png title:图片标题 alt:图片说明 ‘class:class1 class2’  % }<br>其中是qnimg是七牛插件定义的标签</p>
-<p>附上是我的配置<br><img title="七牛插件配置" alt="七牛插件配置" src="http://oc3r3rke2.bkt.clouddn.com/static/images/blog/hexo-qiniu-config.png"></p>
-]]></content>
+
       
-        <categories>
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
             
-            <category> tool </category>
+              <a href="/2018/02/18/2018公众号文章计划/" rel="next" title="2018年公众号文章计划">
+                <i class="fa fa-chevron-left"></i> 2018年公众号文章计划
+              </a>
             
-        </categories>
-        
-        
-        <tags>
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
             
-            <tag> hexo </tag>
-            
-            <tag> qiniu </tag>
-            
-        </tags>
-        
-    </entry>
-    
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
   
   
-</search>
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.png"
+                alt="情情" />
+            
+              <p class="site-author-name" itemprop="name">情情</p>
+              <p class="site-description motion-element" itemprop="description">拥抱简单生活，保持平和心态，享受浪漫生活</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#书籍整体结构"><span class="nav-number">1.</span> <span class="nav-text">书籍整体结构</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#第一部分-技术维度"><span class="nav-number">1.1.</span> <span class="nav-text">第一部分 - 技术维度</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#第二部分-实践维度"><span class="nav-number">1.2.</span> <span class="nav-text">第二部分 - 实践维度</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#第三部分-原理维度"><span class="nav-number">1.3.</span> <span class="nav-text">第三部分 - 原理维度</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Spring-Boot入门"><span class="nav-number">2.</span> <span class="nav-text">Spring Boot入门</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#使用Spring-Initializr创建项目"><span class="nav-number">2.1.</span> <span class="nav-text">使用Spring Initializr创建项目</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#一个简单demo"><span class="nav-number">2.2.</span> <span class="nav-text">一个简单demo</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#运行与发布"><span class="nav-number">2.3.</span> <span class="nav-text">运行与发布</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Spring-Boot配置"><span class="nav-number">2.4.</span> <span class="nav-text">Spring Boot配置</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#使用数据库"><span class="nav-number">3.</span> <span class="nav-text">使用数据库</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#使用MySQL"><span class="nav-number">3.1.</span> <span class="nav-text">使用MySQL</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#使用Redis"><span class="nav-number">3.2.</span> <span class="nav-text">使用Redis</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#使用MongoDB"><span class="nav-number">3.3.</span> <span class="nav-text">使用MongoDB</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#使用Neo4j"><span class="nav-number">3.4.</span> <span class="nav-text">使用Neo4j</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#界面设计"><span class="nav-number">4.</span> <span class="nav-text">界面设计</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#提高数据库访问性能"><span class="nav-number">5.</span> <span class="nav-text">提高数据库访问性能</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#使用Druid"><span class="nav-number">5.1.</span> <span class="nav-text">使用Druid</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#扩展JPA功能"><span class="nav-number">5.2.</span> <span class="nav-text">扩展JPA功能</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#使用Redis做缓存"><span class="nav-number">5.3.</span> <span class="nav-text">使用Redis做缓存</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#安全设计"><span class="nav-number">6.</span> <span class="nav-text">安全设计</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">情情</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
