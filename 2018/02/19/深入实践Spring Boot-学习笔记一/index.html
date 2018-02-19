@@ -79,22 +79,21 @@
 
 
 
-<meta name="description" content="「1718总结与计划」中提到，18年要对部分项目拆分，进行服务化，并对代码进行重构。公司技术委员会也推荐使用spring boot，之前在各个技术网站中也了解过，它可以大大简化spring配置和各个组件的使用，与其关系密切的Spring Cloud可以很好支持微服务的开发。 为了后续项目的应用，想利用这2天看下《深入实践Spring Boot》，这本书是17年双十一期间在京东上买的，一直懒着没看。">
+<meta name="description" content="上上篇「1718总结与计划」中提到，18年要对部分项目拆分，进行服务化，并对代码进行重构。公司技术委员会也推荐使用spring boot，之前在各个技术网站中也了解过，它可以大大简化spring配置和各个组件的使用，与其关系密切的Spring Cloud可以很好支持微服务的开发。 为了后续项目的应用，想利用这2天看下《深入实践Spring Boot》，这本书是17年双十一期间在京东上买的，一直懒着">
 <meta name="keywords" content="spring boot">
 <meta property="og:type" content="article">
 <meta property="og:title" content="《深入实践Spring Boot》阅读笔记之一：基础应用开发">
 <meta property="og:url" content="https://qqdong.github.io/2018/02/19/深入实践Spring Boot-学习笔记一/index.html">
 <meta property="og:site_name" content="情情说">
-<meta property="og:description" content="「1718总结与计划」中提到，18年要对部分项目拆分，进行服务化，并对代码进行重构。公司技术委员会也推荐使用spring boot，之前在各个技术网站中也了解过，它可以大大简化spring配置和各个组件的使用，与其关系密切的Spring Cloud可以很好支持微服务的开发。 为了后续项目的应用，想利用这2天看下《深入实践Spring Boot》，这本书是17年双十一期间在京东上买的，一直懒着没看。">
+<meta property="og:description" content="上上篇「1718总结与计划」中提到，18年要对部分项目拆分，进行服务化，并对代码进行重构。公司技术委员会也推荐使用spring boot，之前在各个技术网站中也了解过，它可以大大简化spring配置和各个组件的使用，与其关系密切的Spring Cloud可以很好支持微服务的开发。 为了后续项目的应用，想利用这2天看下《深入实践Spring Boot》，这本书是17年双十一期间在京东上买的，一直懒着">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15190424636299.jpg">
-<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15190428625483.jpg">
 <meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15190456204109.jpg">
 <meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15190491796642.jpg">
-<meta property="og:updated_time" content="2018-02-19T14:53:11.000Z">
+<meta property="og:updated_time" content="2018-02-19T15:12:34.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="《深入实践Spring Boot》阅读笔记之一：基础应用开发">
-<meta name="twitter:description" content="「1718总结与计划」中提到，18年要对部分项目拆分，进行服务化，并对代码进行重构。公司技术委员会也推荐使用spring boot，之前在各个技术网站中也了解过，它可以大大简化spring配置和各个组件的使用，与其关系密切的Spring Cloud可以很好支持微服务的开发。 为了后续项目的应用，想利用这2天看下《深入实践Spring Boot》，这本书是17年双十一期间在京东上买的，一直懒着没看。">
+<meta name="twitter:description" content="上上篇「1718总结与计划」中提到，18年要对部分项目拆分，进行服务化，并对代码进行重构。公司技术委员会也推荐使用spring boot，之前在各个技术网站中也了解过，它可以大大简化spring配置和各个组件的使用，与其关系密切的Spring Cloud可以很好支持微服务的开发。 为了后续项目的应用，想利用这2天看下《深入实践Spring Boot》，这本书是17年双十一期间在京东上买的，一直懒着">
 <meta name="twitter:image" content="http://oc3r3rke2.bkt.clouddn.com/15190424636299.jpg">
 
 
@@ -367,10 +366,10 @@
       
 
       
-        <p>「1718总结与计划」中提到，18年要对部分项目拆分，进行服务化，并对代码进行重构。公司技术委员会也推荐使用spring boot，之前在各个技术网站中也了解过，它可以大大简化spring配置和各个组件的使用，与其关系密切的Spring Cloud可以很好支持微服务的开发。</p>
+        <p>上上篇「1718总结与计划」中提到，18年要对部分项目拆分，进行服务化，并对代码进行重构。公司技术委员会也推荐使用spring boot，之前在各个技术网站中也了解过，它可以大大简化spring配置和各个组件的使用，与其关系密切的Spring Cloud可以很好支持微服务的开发。</p>
 <p>为了后续项目的应用，想利用这2天看下《深入实践Spring Boot》，这本书是17年双十一期间在京东上买的，一直懒着没看。这本书偏应用，适合初学者看，正文内容也就240多页，看的会比较轻松。</p>
-<p>目前，看完了第一部分，约占全书1/2内容，计划初七上班前看完这本书。我会分3篇文章进行介绍，这编文章首先介绍下这本书的整体结构，然后总结下第一部分的内容。</p>
-<p>我不会介绍实现过程，只是把这本书想要讲的内容串起来，重点说明下我认为重要的内容。想深入实践的，可以直接看这本书，也可以通过文中的一些概念搜索相关的文章阅读。</p>
+<p>目前，看完了第一部分，约占全书1/2内容，计划初七上班前看完这本书。我会分3篇文章进行介绍，这篇文章首先介绍下这本书的整体结构，然后总结下第一部分的内容。</p>
+<p>我不会介绍具体的实现过程，只是把这本书想要讲的内容串起来，重点说明下我认为重要的内容。想深入了解的，可以直接看这本书，也可以通过文中的一些概念搜索相关的文章阅读。</p>
 <a id="more"></a>
 <h4 id="书籍整体结构"><a href="#书籍整体结构" class="headerlink" title="书籍整体结构"></a>书籍整体结构</h4><p>Spring Boot 是在Spring框架基础上创建的一个全新框架，其设计目的是简化Spring应用的搭建和开发过程，不但具有Spring的所有优秀特性，而且具有如下显著特点：</p>
 <ul>
@@ -388,9 +387,10 @@
 <p>很喜欢作者的章节安排，以后学习新技术时，可以按照这个思路去学习。 </p>
 </blockquote>
 <h4 id="Spring-Boot入门"><a href="#Spring-Boot入门" class="headerlink" title="Spring Boot入门"></a>Spring Boot入门</h4><p>本章主要介绍开发环境的配置，包括安装JDK，安装IDEA、安装Maven、安装Git客户端，创建了一个简单的项目，演示如何使用Spring Boot。</p>
-<h5 id="使用Spring-Initializr创建项目"><a href="#使用Spring-Initializr创建项目" class="headerlink" title="使用Spring Initializr创建项目"></a>使用Spring Initializr创建项目</h5><p>IDEA提供了可视化的界面创建各种类型的项目，可以直接选择Spring Initializr的方式，按要求创建Spring Boot项目。</p>
+<h5 id="使用Spring-Initializr创建项目"><a href="#使用Spring-Initializr创建项目" class="headerlink" title="使用Spring Initializr创建项目"></a>使用Spring Initializr创建项目</h5><p>IDEA提供了可视化的界面创建各种类型的项目，可以通过Spring Initializr的方式，按要求创建Spring Boot项目。</p>
 <p><img src="http://oc3r3rke2.bkt.clouddn.com/15190424636299.jpg" alt="Spring Initializr"></p>
-<h5 id="一个简单demo"><a href="#一个简单demo" class="headerlink" title="一个简单demo"></a>一个简单demo</h5><p>项目创建完成后，会生成一个入口Applicaton类，进行如下的修改，就可提供reset接口，供使用者访问。<br><img src="http://oc3r3rke2.bkt.clouddn.com/15190428625483.jpg" alt="一个简单demo"></p>
+<h5 id="一个简单demo"><a href="#一个简单demo" class="headerlink" title="一个简单demo"></a>一个简单demo</h5><p>项目创建完成后，会生成一个入口Applicaton类，进行如下的修改，就可提供reset接口，供使用者访问。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BookPart1Application</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@RequestMapping</span>(<span class="string">"/"</span>)</span><br><span class="line">	<span class="function">String <span class="title">home</span><span class="params">()</span></span>&#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="string">"hello"</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">		SpringApplication.run(BookPart1Application.class, args);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h5 id="运行与发布"><a href="#运行与发布" class="headerlink" title="运行与发布"></a>运行与发布</h5><p>运行Spring Boot项目很简单，像普通项目一样直接运行即可。</p>
 <p>如果要发布到线上Tomcat容器中，需要增加一个打包插件:spring-boot-maven-plugin，通过mvn package打包即可。</p>
 <h5 id="Spring-Boot配置"><a href="#Spring-Boot配置" class="headerlink" title="Spring Boot配置"></a>Spring Boot配置</h5><p>可以在工程的resources文件夹中创建一个application.properties或application.yml文件，该文件会被发布在classpath中，被Spring Boot自动读取。 作者推荐使用application.yml文件，因为它提供结构化及其嵌套的格式。</p>
