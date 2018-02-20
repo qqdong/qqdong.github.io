@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="spring boot" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="上篇文章总结了《深入实践Spring Boot》的第一部分，这篇文章介绍第二部分：分布式应用开发，以及怎么构建一个高性能的服务平台。 主要从以下几个方面总结：  Spring Boot SSO 使用分布式文件系统 云应用开发 构建高性能的服务平台">
+<meta name="keywords" content="spring boot">
+<meta property="og:type" content="article">
+<meta property="og:title" content="《深入实践Spring Boot》阅读笔记之二：分布式应用开发">
+<meta property="og:url" content="https://qqdong.github.io/2018/03/01/《深入实践Spring Boot》阅读笔记之二：分布式应用开发/index.html">
+<meta property="og:site_name" content="情情说">
+<meta property="og:description" content="上篇文章总结了《深入实践Spring Boot》的第一部分，这篇文章介绍第二部分：分布式应用开发，以及怎么构建一个高性能的服务平台。 主要从以下几个方面总结：  Spring Boot SSO 使用分布式文件系统 云应用开发 构建高性能的服务平台">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15191199007517.jpg">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15191199213728.jpg">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15191221758228.jpg">
+<meta property="og:updated_time" content="2018-02-20T15:08:44.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="《深入实践Spring Boot》阅读笔记之二：分布式应用开发">
+<meta name="twitter:description" content="上篇文章总结了《深入实践Spring Boot》的第一部分，这篇文章介绍第二部分：分布式应用开发，以及怎么构建一个高性能的服务平台。 主要从以下几个方面总结：  Spring Boot SSO 使用分布式文件系统 云应用开发 构建高性能的服务平台">
+<meta name="twitter:image" content="http://oc3r3rke2.bkt.clouddn.com/15191199007517.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://qqdong.github.io/2018/03/01/《深入实践Spring Boot》阅读笔记之二：分布式应用开发/"/>
+
+
+
+
+
+  <title>《深入实践Spring Boot》阅读笔记之二：分布式应用开发 | 情情说</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?48e81d160a0773a1af5455493c416547";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">情情说</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">记录工作、学习和生活</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/03/01/《深入实践Spring Boot》阅读笔记之二：分布式应用开发/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="calm">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/head.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="情情说">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">《深入实践Spring Boot》阅读笔记之二：分布式应用开发</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-01T21:00:00+08:00">
+                2018-03-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/spring/" itemprop="url" rel="index">
+                    <span itemprop="name">spring</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>上篇文章总结了《深入实践Spring Boot》的第一部分，这篇文章介绍第二部分：分布式应用开发，以及怎么构建一个高性能的服务平台。</p>
+<p>主要从以下几个方面总结：</p>
+<ul>
+<li>Spring Boot SSO</li>
+<li>使用分布式文件系统</li>
+<li>云应用开发</li>
+<li>构建高性能的服务平台</li>
+</ul>
+<a id="more"></a>
+<h4 id="Spring-Boot-SSO"><a href="#Spring-Boot-SSO" class="headerlink" title="Spring Boot SSO"></a>Spring Boot SSO</h4><p>上篇文章提到了安全设计，使用Spring Security进行用户验证和权限验证，但一个企业级的应用系统可能存在很多应用系统，每个应用系统都需要设计安全管理，但不可能为每一个应用系统都设计一套安全管理，这样不但耗时耗力，而且要做重复的工作，也不适宜建立统一的用户中心。</p>
+<p>可以使用单点登录SSO的方式建立一个登录认证系统，并且实现对用户的统一管理。本章在使用Spring Security安全管理的基础上，再结合OAuth2认证授权协议来实现的，它不但适用于大型的分布式管理系统，也适用于为第三方提供统一的用户管理和认证的平台。</p>
+<p>作者给出了一个完整的实例，以模块化的设计方式进行实现，整个demo的代码可以在github上查看。（<a href="https://github.com/chenfromsz/spring-boot-sso" target="_blank" rel="noopener">https://github.com/chenfromsz/spring-boot-sso</a>）</p>
+<h5 id="demo说明"><a href="#demo说明" class="headerlink" title="demo说明"></a>demo说明</h5><p>我在本地运行了demo，通过chrome查看了系统间跳转的过程，先说明下模块的划分，然后看下运行效果。</p>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>工程</th>
+<th>类型</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>数据库管理模块</td>
+<td>mysql</td>
+<td>程序集成</td>
+<td>数据库管理</td>
+</tr>
+<tr>
+<td>安全配置模块</td>
+<td>security</td>
+<td>程序集成</td>
+<td>安全策略配置和权限管理</td>
+</tr>
+<tr>
+<td>登录认证模块</td>
+<td>login</td>
+<td>Web应用</td>
+<td>SSO登录认证（80）</td>
+</tr>
+<tr>
+<td>共享资源模块</td>
+<td>resource</td>
+<td>Web应用</td>
+<td>共享资源（8083）</td>
+</tr>
+<tr>
+<td>客户端应用1</td>
+<td>web1</td>
+<td>Web应用</td>
+<td>客户端1（8081）</td>
+</tr>
+<tr>
+<td>客户端应用2</td>
+<td>web2</td>
+<td>Web应用</td>
+<td>客户端2（8082）</td>
+</tr>
+</tbody>
+</table>
+<p>访问首页时，跳转到登录页面，输入正确的账号、密码、验证码。<br>登录成功后，跳转到首页：<br><img src="http://oc3r3rke2.bkt.clouddn.com/15191199007517.jpg" alt="首页"></p>
+<p>访问web1系统、web2系统时不需要重新登录，会自动登录：<br><img src="http://oc3r3rke2.bkt.clouddn.com/15191199213728.jpg" alt="web1系统首页"></p>
+<p>「登录认证模块」主要包括验证用户账号、集成OAuth2服务端端功能。</p>
+<p>「安全配置模块」是一个公共模块，集成了SSO客户端的安全策略配置和权限管理功能，供客户端引用。</p>
+<p>「数据库管理模块」是一个公共模块，主要提供数据库的访问功能，供其他模块使用。</p>
+<p>「共享资源模块」提供了一个简单的公共服务，2个客户端应用可通过spring-cloud-zuul直接调用。</p>
+<p>后面会重点介绍下登录认证模块，其他模块比较简单，不再过多介绍。</p>
+<blockquote>
+<p>模块化设计可以提高代码的复用性，避免重复开发，实例中的「数据库管理模块」和「安全配置模块」可以被其他模块共用，减少大部分重复工作。<br>作者的这种设计方式值得我们学习，在以后的系统设计中，应多借鉴这种方式。</p>
+</blockquote>
+<h5 id="登录认证模块"><a href="#登录认证模块" class="headerlink" title="登录认证模块"></a>登录认证模块</h5><p>我画了一个流程图，先了解下用户认证、权限验证的基本过程：<br><img src="http://oc3r3rke2.bkt.clouddn.com/15191221758228.jpg" alt="基本处理流程"></p>
+<p>整个处理流程，Spring Security都帮我们自动实现了，我们只需要对账号中心数据源、权限中心数据源进行配置和扩展，另外，可以对登录页面进行扩展，配置权限管理规则、防攻击策略、记住登录状态。</p>
+<p>为了实现多个系统只需登录一次，需要集成OAuth2。添加spring-cloud-starter-oauth2依赖，编写一个配置类，继承AuthorizationServerConfigurerAdapter，并声明下@EnableAuthrizationServer来启用OAuth2的认证服务器功能。</p>
+<p>OAuth2有很多授权机制，本例中使用authorization_code机制，具体配置就不过多说明了，可以参考下面的几篇文章：</p>
+<p>[1] <a href="https://www.jianshu.com/p/e6655328b211" target="_blank" rel="noopener">初步理解Spring Security并实践</a><br>[2] <a href="https://www.cnblogs.com/lexiaofei/p/7028788.html" target="_blank" rel="noopener">security OAuth2.0 提供者实现原理</a><br>[3] <a href="http://www.leftso.com/blog/220.html" target="_blank" rel="noopener">jwt token介绍</a><br>[4] <a href="http://www.leftso.com/blog/139.html" target="_blank" rel="noopener">security OAuth2.0 jwt完美整合例子</a></p>
+<h4 id="使用分布式文件系统"><a href="#使用分布式文件系统" class="headerlink" title="使用分布式文件系统"></a>使用分布式文件系统</h4><p>有这样一个问题，如果上传文件，如上传图片，应该怎样保存，保存在哪里？</p>
+<p>传统的做法一般都保存在Web服务器所在机器中。但随着业务的日益发展，可能上传的文件会累积越来越多，单台机器往往会不堪重负，再加上一些负载均衡的配置和服务，需要分布式文件系统解决。</p>
+<p>在诸多分布式的文件系统中，FastDFS是比较优秀的分布式文件系统。FastDFS是一个完全开源的分布式文件系统，使用比较简单方便，而且性能也很优秀，存储容量和访问性能可按需求进行线性横向扩展。</p>
+<p>FastDFS服务端和客户端的安排、配置、管理都比较简单，书中描述的也比较详细，就不在此赘述了。</p>
+<h4 id="云应用开发"><a href="#云应用开发" class="headerlink" title="云应用开发"></a>云应用开发</h4><p>Spring Cloud 是一套云应用开发工具集，为分布式的微服务开发提供了一整套简单易用的使用工具。Spring Cloud主要包括配置管理、服务发现、动态路由、负载均衡、断路器、安全管理、事件总线、分布式消息等组件的开发工具包。</p>
+<p>Spring Cloud与Spring Boot 关系密切，能够臻于完美的几何使用。</p>
+<p>本章重点介绍了配置服务、发现服务、动态路由和断路器、监控服务。</p>
+<h5 id="配置服务"><a href="#配置服务" class="headerlink" title="配置服务"></a>配置服务</h5><p>一个项目工程总是需要一些配置，比如，要配置服务器的端口、访问数据库的参数等。一个大型的分布式系统可能存在很多这样需要配置的项目工程，配置管理是一个庞大的工程，需要一个单独的系统专门管理各个项目的配置。</p>
+<p>通过Spring Cloud的配置管理，只需创建一个简单的工程，就可以实现分布式配置管理服务，同时还支持在线更新。</p>
+<p>第一步，配置管理服务器<br>引入spring-cloud-config-server依赖，创建一个主程序：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="meta">@EnableConfigServer</span></span><br><span class="line"><span class="meta">@EnableDiscoveryClient</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ConfigApplication</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        SpringApplication.run(ConfigApplication.class, args);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>配置文件的存储目前支持使用本地存储、Git以及Subversion等方式。以Git方式为例，说明本地配置文件：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">spring:</span><br><span class="line">  cloud:</span><br><span class="line">    config:</span><br><span class="line">      server:</span><br><span class="line">        git:</span><br><span class="line">          uri: https:<span class="comment">//github.com/chenfromsz/spring-cloud-config-repo</span></span><br><span class="line">  rabbitmq:</span><br><span class="line">      addresses: $&#123;vcap.services.$&#123;PREFIX:&#125;rabbitmq.credentials.uri:amqp:<span class="comment">//$&#123;RABBITMQ_HOST:192.168.1.215&#125;:$&#123;RABBITMQ_PORT:5672&#125;&#125;</span></span><br><span class="line">      username: alan</span><br><span class="line">      password: alan</span><br></pre></td></tr></table></figure>
+<p>服务端会自动从指定的git地址获取配置信息。raabitmq的配置用于通知客户端应用配置更新。</p>
+<p>第二步，配置管理的客户端<br>需要在工程中引入spring-cloud-starter-config依赖，使用配置管理服务之后，如果本地的配置文件与配置管理服务器的配置文件有相同的配置项，将优先使用配置管理服务器的配置项。</p>
+<p>客户端的配置文件bookstrap.yml如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">spring:</span><br><span class="line">  application:</span><br><span class="line">    name: data</span><br><span class="line">  profiles:</span><br><span class="line">    active: development</span><br><span class="line">  cloud:</span><br><span class="line">    config:</span><br><span class="line">      uri: http:<span class="comment">//localhost:8888</span></span><br><span class="line">  rabbitmq:</span><br><span class="line">        addresses: amqp:<span class="comment">//192.168.1.214:5672</span></span><br><span class="line">        username: alan</span><br><span class="line">        password: alan</span><br></pre></td></tr></table></figure>
+<p>其中，name用来指定应用的名称和配置文件的名称，uri设定配置服务服务端的地址和端口，profiles为使用配置文件名称的后缀部分，用于绑定不同的线上环境。</p>
+<p>第三步，使用配置<br>如果配置文件中有cloud.config.test配置项，可以这样使用<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Value</span>(<span class="string">"$&#123;cloud.config.test:World!&#125;"</span>) String msg;</span><br></pre></td></tr></table></figure></p>
+<p>另外，可以使用spring-cloud-bus-amqp依赖，通过事件总线的方式，实现在线更新所有客户端的配置。</p>
+<h5 id="发现服务"><a href="#发现服务" class="headerlink" title="发现服务"></a>发现服务</h5><p>在分布式系统中，可能存在很多应用和服务，各个服务渎职自主地管理自身的数据。服务与服务之间，需要互相共享一些数据，传统的方式需要自己编写一些接口程序，还需要使用复杂的配置来实现，使用Spring Cloud可以轻易做到这些。</p>
+<p>第一步，创建发现服务器<br>引入spring-cloud-starter-eureka-server依赖，创建一个简单的主程序即可：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="meta">@EnableEurekaServer</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DiscoveryApplication</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        SpringApplication.run(DiscoveryApplication.class, args);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>第二步，创建客户端<br>引入spring-cloud-starter-eurake依赖，主程序中加入@EnableDiscoveryClient启用发现服务的客户端。</p>
+<p>配置文件如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">eureka:</span><br><span class="line">  instance:</span><br><span class="line">    hostname: discovery</span><br><span class="line">  client:</span><br><span class="line">    registerWithEureka: <span class="keyword">false</span></span><br><span class="line">    fetchRegistry: <span class="keyword">false</span></span><br><span class="line">    serviceUrl:</span><br><span class="line">      defaultZone: http:<span class="comment">//192.168.1.221:$&#123;server.port&#125;/eureka/</span></span><br></pre></td></tr></table></figure>
+<h5 id="动态路由和断路器"><a href="#动态路由和断路器" class="headerlink" title="动态路由和断路器"></a>动态路由和断路器</h5><p>如何在服务间相互调用呢，可以使用动态路由、断路器和故障容错等功能。</p>
+<p>引入spring-cloud-starter-zuul、spring-cloud-starter-hystrix依赖，添加@EnableZuulProxy和@EnableHystrix注解即可。</p>
+<p>为了便于测试，可以通过共享Rest资源将repository的类直接暴露出来，很神奇吧，如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RepositoryRestResource</span>(collectionResourceRel=<span class="string">"users"</span>,path=<span class="string">"users"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">UserRepository</span> <span class="keyword">extends</span> <span class="title">GraphRepository</span>&lt;<span class="title">User</span>&gt; </span>&#123;</span><br><span class="line">    <span class="function">User <span class="title">findByName</span><span class="params">(@Param(<span class="string">"name"</span>)</span> String name)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Query</span>(<span class="string">"MATCH (u:User) WHERE u.name =~ ('(?i).*'+&#123;name&#125;+'.*') RETURN u"</span>)</span><br><span class="line">    <span class="function">Collection&lt;User&gt; <span class="title">findByNameContaining</span><span class="params">(@Param(<span class="string">"name"</span>)</span> String name)</span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以通过<a href="http://localhost/users" target="_blank" rel="noopener">http://localhost/users</a> ， <a href="http://localhost/users/123" target="_blank" rel="noopener">http://localhost/users/123</a> 之类的方式访问。</p>
+<p>通过以下3种方式调用其他服务对外暴露的接口：</p>
+<ul>
+<li>JavaScript：前端直接调用</li>
+<li>RestTemplate：后端调用</li>
+<li>FeignClient：特殊方式</li>
+</ul>
+<p>以RestTemplate为例说明一个服务调用data服务的例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Autowired</span> <span class="meta">@LoadBalanced</span></span><br><span class="line">RestTemplate restTemplate;</span><br><span class="line"><span class="meta">@HystrixCommand</span>(fallbackMethod = <span class="string">"getUserFallback"</span>)</span><br><span class="line"> <span class="function"><span class="keyword">public</span> User <span class="title">getUserByName</span><span class="params">(String name)</span> </span>&#123;</span><br><span class="line">	 Map&lt;String, Object&gt; params = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">	 params.put(<span class="string">"name"</span>, name);</span><br><span class="line">	 User user = restTemplate.getForObject(<span class="string">"http://data/user/findByName?name=&#123;name&#125;"</span>, User.class, params);</span><br><span class="line"></span><br><span class="line">	 <span class="keyword">return</span> user;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面例子中使用了@HystrixCommand用于实现断路器，当一个系统服务突然出现故障时，会自动阻断对服务的访问和调用，转而调用备用方法。</p>
+<h5 id="监控服务"><a href="#监控服务" class="headerlink" title="监控服务"></a>监控服务</h5><p>分布式服务系统中运行着很多服务，必须有一个管理机制和方法，能够一目了然地随时了解各个服务的运行情况及其健康指数。</p>
+<p>使用Spring Cloud的监控服务，可以实时监控应用的运行情况。使用很简单，引入spring-cloud-starter-hystrix-dashboard依赖，创建一个主程序即可：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="meta">@Controller</span></span><br><span class="line"><span class="meta">@EnableHystrixDashboard</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HystrixApplication</span></span>&#123;</span><br><span class="line">    <span class="meta">@RequestMapping</span>(<span class="string">"/"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">home</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"forward:/hystrix"</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        SpringApplication.run(HystrixApplication.class, args);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>具体监控指标可参看官网文档。</p>
+<h4 id="构建高性能的服务平台"><a href="#构建高性能的服务平台" class="headerlink" title="构建高性能的服务平台"></a>构建高性能的服务平台</h4><p>使用Spring Cloud开发的微服务，其独立而又相对隔离的特性，与Docker的理念有异曲同工之妙，所以使用Docker发布微服务，能够发挥其最大的优势，并且可以非常轻易地构建一个高性能和高可用的服务平台。</p>
+<p>Docker可以很方便地创建和管理镜像，以及管理已经生成的和正在运行的容器。镜像是一种文件存储方式，可以把许多文件做成一个镜像文件。容器是镜像运行的一个实例，运行一个镜像，就会生成一个容器，容器生成之后，就可以在容器中管理应用系统了。</p>
+<p>Docker的安装和发布服务，网上的资料很多，这里就不赘述了。</p>
+<p>另外，可以使用其他一些服务管理工具来构建高性能和高可用的服务平台。docker-compose工具是Docker容器管理工具集，可以很方便地用来创建和重建容器、执行启动和停止容器等管理操作，以及查看整个服务体系的运行情况和输出日志等。使用docker-compose工具，只要一条指令就能启动整个分布式服务体系。</p>
+<blockquote>
+<p>通过本篇文章的介绍，大家可以感受到Spring Cloud在构建分布式应用时提供的便捷性，减少了大量的工作量。同时为我们考虑了方方面面，增强了系统的稳定性、高性能。<br>作者把所有代码都上传到github，大家可以直接运行demo深入了解。<br>[1] Spring Boot SSO：<a href="https://github.com/chenfromsz/spring-boot-sso" target="_blank" rel="noopener">https://github.com/chenfromsz/spring-boot-sso</a><br>[2] 云应用开发：<a href="https://github.com/chenfromsz/spring-boot-cloud" target="_blank" rel="noopener">https://github.com/chenfromsz/spring-boot-cloud</a></p>
+</blockquote>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/spring-boot/" rel="tag"># spring boot</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/02/19/深入实践Spring Boot-学习笔记一/" rel="next" title="《深入实践Spring Boot》阅读笔记之一：基础应用开发">
+                <i class="fa fa-chevron-left"></i> 《深入实践Spring Boot》阅读笔记之一：基础应用开发
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/head.png"
+                alt="calm" />
+            
+              <p class="site-author-name" itemprop="name">calm</p>
+              <p class="site-description motion-element" itemprop="description">拥抱简单生活，保持平和心态，享受浪漫生活</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#Spring-Boot-SSO"><span class="nav-number">1.</span> <span class="nav-text">Spring Boot SSO</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#demo说明"><span class="nav-number">1.1.</span> <span class="nav-text">demo说明</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#登录认证模块"><span class="nav-number">1.2.</span> <span class="nav-text">登录认证模块</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#使用分布式文件系统"><span class="nav-number">2.</span> <span class="nav-text">使用分布式文件系统</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#云应用开发"><span class="nav-number">3.</span> <span class="nav-text">云应用开发</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#配置服务"><span class="nav-number">3.1.</span> <span class="nav-text">配置服务</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#发现服务"><span class="nav-number">3.2.</span> <span class="nav-text">发现服务</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#动态路由和断路器"><span class="nav-number">3.3.</span> <span class="nav-text">动态路由和断路器</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#监控服务"><span class="nav-number">3.4.</span> <span class="nav-text">监控服务</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#构建高性能的服务平台"><span class="nav-number">4.</span> <span class="nav-text">构建高性能的服务平台</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">calm</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
