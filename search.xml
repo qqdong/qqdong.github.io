@@ -4,6 +4,170 @@
   
     
     <entry>
+      <title><![CDATA[走走初春的北京]]></title>
+      <url>https://qqdong.github.io/2018/02/25/%E8%B5%B0%E8%B5%B0%E5%88%9D%E6%98%A5%E7%9A%84%E5%8C%97%E4%BA%AC/</url>
+      <content type="html"><![CDATA[<blockquote>
+<p>图片比较多，移动网络请注意流量。</p>
+</blockquote>
+<p>老丈人因为家里的一些事情来到了北京，今天周末，正好休息，陪他转一天，前两天好多地方已经去过了，今天就去了清华、北大、颐和园，正好都在一起，比较方便。</p>
+<p>为了赶时间，早上7点就起床了，到清华西门后，人特别少，在门口大大方方的准备进去后，被门卫帅哥拦住了，「今天不开放」，尴尬的转身走去，原来学生这两天快开学了。</p>
+<p>来了进不去觉得可惜，就通过其他渠道花了80元钱（3个人）进去了，慢悠悠的逛了几个有名的地方，清华园、清华学堂、图书馆、水木清华、牡丹园、绿园。</p>
+<a id="more"></a>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15195722982457.jpg" alt=""></p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15195724883414.jpg" alt=""></p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15195725072791.jpg" alt=""></p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15195725606637.jpg" alt=""></p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15195725665258.jpg" alt=""></p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15195725825167.jpg" alt=""></p>
+<p>清华西门出来后，直走去了北大西门，看了几个地方，未名湖、博雅塔、图书馆、第一教学楼、老建筑。</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15195730285798.jpg" alt=""></p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15195730370756.jpg" alt=""></p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15195730488129.jpg" alt=""></p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15195730544427.jpg" alt=""></p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15195730657170.jpg" alt=""></p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15195730728249.jpg" alt=""></p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15195730813528.jpg" alt=""></p>
+<p>从北大东门出来后，打的直接去了颐和园东宫门，走走停停的看了几个地方，乐寿堂、邀月门、长廊、佛香阁、苏州街。</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15195732274112.jpg" alt=""></p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15195732349081.jpg" alt=""></p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15195732428920.jpg" alt=""></p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15195732558929.jpg" alt=""></p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15195732615940.jpg" alt=""></p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15195732697321.jpg" alt=""></p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15195732757885.jpg" alt=""></p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15195732834284.jpg" alt=""></p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15195732899225.jpg" alt=""></p>
+<p>累了，马上休息了，晚安。</p>
+]]></content>
+      
+        <categories>
+            
+            <category> life </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> 北京 </tag>
+            
+            <tag> 初春 </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[「单点登录与权限管理」系列概述]]></title>
+      <url>https://qqdong.github.io/2018/02/24/%E5%8D%95%E7%82%B9%E7%99%BB%E5%BD%95%E4%B8%8E%E6%9D%83%E9%99%90%E7%AE%A1%E7%90%86%E7%B3%BB%E5%88%97/</url>
+      <content type="html"><![CDATA[<p>首先，感谢几位朋友在朋友圈转发我的文章，小声的告诉你们，是我主动让他们帮忙转发的：）在朋友们的分享下，凌晨推送的一篇文章，阅读人数达到了280多，很满足，我会坚持写下去，分享工作、学习、生活中的所思所想。</p>
+<p>已关注的朋友们多给我点赞，给我一些动力：）</p>
+<p>本来准备结合实际项目，写写netty系列，但后面一个月工作会比较忙，就决定写写和后面工作关联度大的技术，一边调研、实践，一边整理、分享给大家。</p>
+<a id="more"></a>
+<p>该系列主要以我们系统「单点登录与权限管理」的实现为主线，深入了解下CAS、Shiro，扩展了解下OAuth、Spring Security、Spring Session，计划内容如下：</p>
+<ul>
+<li>单点登录与权限管理本质</li>
+<li>项目背景介绍</li>
+<li>项目基本实现</li>
+<li>由浅入深了解CAS</li>
+<li>由浅入深了解Shiro</li>
+<li>CAS和Shiro改造过程</li>
+<li>了解和尝试OAuth</li>
+<li>了解和尝试Spring Security</li>
+<li>了解和尝试Spring Session</li>
+</ul>
+<p>其实，列出的这些技术点，我也没有深入了解过，但会尽力分享学习、实践的过程，大家多支持和包容。</p>
+<p>这篇就不分享干货了，明天带家人去北大、清华、颐和园看看，多拍点照片出来，愁一愁开春的北京。</p>
+<p><div align="center"><br><img src="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="情情说"></div></p>
+]]></content>
+      
+        <categories>
+            
+            <category> 单点登录与权限管理 </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> 单点登录 </tag>
+            
+            <tag> 权限管理 </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[「4+1视图」学习与理解]]></title>
+      <url>https://qqdong.github.io/2018/02/23/4+1%E8%A7%86%E5%9B%BE%E5%AD%A6%E4%B9%A0%E4%B8%8E%E7%90%86%E8%A7%A3/</url>
+      <content type="html"><![CDATA[<blockquote>
+<p>声明：部分内容摘录了简书「橘色对白」作者的文章片段。</p>
+</blockquote>
+<p>之前经常看到文章中提到「4+1视图」，对其也有片面的理解，但一直没有实践过，不清楚其真正的作用，这两天在业务需求分析中运用了其中的一部分，想谈谈自己的粗浅理解。 </p>
+<p>最近在调研「多租户」实现方案时，看到简友「橘色对白」的3篇关于多租户架构的文章，其中一篇「<a href="https://www.jianshu.com/p/dfa73524efda" target="_blank" rel="noopener">以CRM系统为例，浅析初级SaaS架构的构建方法</a>」，以「4+1视图」的形式，覆盖了分析、设计、开发、部署等阶段，如何一步一步递进，形成最终的实施方案。</p>
+<p>所谓「4+1视图」，是从5个不同视角来描述软件体系结构，包括场景视图、逻辑视图、开发视图、过程视图、物理视图，每个视图只关系系统的一个侧面，5个视图结合起来，才能反映系统的全部内容。</p>
+<a id="more"></a>
+<p>好吧，语气还是有点官方了，本来想根据自己项目再分析一遍，有人又在催我睡觉了，同时觉得「橘色对白」的这篇文章写的很不错了，决定整理下分享出来。</p>
+<p>在分享之前，说说我的实践，通过场景视图、逻辑视图，分析出了「多租户」改造时，需要的功能列表。场景视图站在使用系统的角度，分析各个角色的用例。 逻辑视图站在业务对象的角度，表达了业务对象和对象间的关系。两个视图相互递进和补充，帮助我更完整的梳理出系统的功能点。</p>
+<p>下面分享下「橘色对白」的这篇文章，如何一步步构建CRM系统</p>
+<h4 id="一、场景视图"><a href="#一、场景视图" class="headerlink" title="一、场景视图"></a>一、场景视图</h4><p>负责从用户角度，识别业务需求，描述业务场景，是架构设计的起点和终点。</p>
+<h5 id="场景描述"><a href="#场景描述" class="headerlink" title="场景描述"></a>场景描述</h5><p>老板角度：了解客户增减数量；了解客户增减变化趋势；商务行程管理。</p>
+<p>员工角度：保存和随时查阅客户资料；通过邮件、IM、IP电话与客户保持及时沟通；商务行程管理。</p>
+<h5 id="场景抽象"><a href="#场景抽象" class="headerlink" title="场景抽象"></a>场景抽象</h5><p>客户管理：增、删、改、查，客户资料；<br>行程管理：商务形成安排（客户拜访、合同谈判）；<br>订单管理：已签订单的管理；</p>
+<h4 id="二、逻辑视图"><a href="#二、逻辑视图" class="headerlink" title="二、逻辑视图"></a>二、逻辑视图</h4><p>从对象角度，构建对象模型，用以确立逻辑分层、模块划分、模块功能、模块间依赖关系等。其中，模块功能，既包括可见的业务功能，也包括不可见的系统功能（日志、权限、事务等）。</p>
+<h5 id="模块划分及功能"><a href="#模块划分及功能" class="headerlink" title="模块划分及功能"></a>模块划分及功能</h5><p>客户模块、行程模块、订单模块、报表模块</p>
+<h5 id="模块依赖关系"><a href="#模块依赖关系" class="headerlink" title="模块依赖关系"></a>模块依赖关系</h5><p><img src="http://oc3r3rke2.bkt.clouddn.com/15193963712371.jpg" alt="模块依赖关系"></p>
+<h5 id="模块包含的业务对象"><a href="#模块包含的业务对象" class="headerlink" title="模块包含的业务对象"></a>模块包含的业务对象</h5><ul>
+<li>客户模块 — 客户分组、客户、联系人；</li>
+<li>行程模块 — 时间、事项等；</li>
+<li>订单模块 — 时间、客户、订单等；</li>
+<li>报表模块 — ……</li>
+</ul>
+<h4 id="三、开发视图"><a href="#三、开发视图" class="headerlink" title="三、开发视图"></a>三、开发视图</h4><p>从开发角度，描述软件在开发环境下的静态组织（程序包、应用的统一框架、引用的类库、SDK和中间件等），并规范和约束开发环境的结构。</p>
+<h5 id="开发环境"><a href="#开发环境" class="headerlink" title="开发环境"></a>开发环境</h5><ul>
+<li>开发语言：Java、JavaScript、Html</li>
+<li>数据库类型：MySQL 5.0</li>
+<li>应用服务器类型：Apache+JBOSS</li>
+<li>其他软件：Ant、JUnit 等</li>
+<li>相关硬件：略</li>
+</ul>
+<h5 id="技术框架"><a href="#技术框架" class="headerlink" title="技术框架"></a>技术框架</h5><p>开源框架：Struts+Spring+Hibernate框架结构<br><img src="http://oc3r3rke2.bkt.clouddn.com/15193965756550.jpg" alt="调用视图"></p>
+<h5 id="分层策略"><a href="#分层策略" class="headerlink" title="分层策略"></a>分层策略</h5><p><img src="http://oc3r3rke2.bkt.clouddn.com/15193966269601.jpg" alt="分层策略"></p>
+<h5 id="目录结构"><a href="#目录结构" class="headerlink" title="目录结构"></a>目录结构</h5><p>根据分层，制定目录结构如下<br><img src="http://oc3r3rke2.bkt.clouddn.com/15193966752088.jpg" alt="目录结构"></p>
+<ul>
+<li>Api: 存放service的接口定义源文件；</li>
+<li>Action: 存放action的源文件和配置文件；</li>
+<li>Biz: 存放各模块的业务逻辑组件和DAO组件；</li>
+<li>Bundle: 存放JSP和HTML文件；</li>
+<li>deploy：存放构建后待部署的jar文件；</li>
+<li>biz目录下根据模块再分为dao和service目录，以及它们的实现类目录impl；</li>
+</ul>
+<h4 id="四、过程视图"><a href="#四、过程视图" class="headerlink" title="四、过程视图"></a>四、过程视图</h4><p>从过程角度，描述系统的并发和同步设计。旨在解决进程、线程、并发、同步、通信等方面的问题；</p>
+<h4 id="五、物理视图"><a href="#五、物理视图" class="headerlink" title="五、物理视图"></a>五、物理视图</h4><p>负责从部署角度，描述软硬件的映射关系，以及系统在分布/部署上的设计。旨在解决系统安装、系统部署、网络分布等问题。</p>
+<p>至此，CRM系统已基本成型。</p>
+<blockquote>
+<p>理论很重要，更重要的是去实践，在实践的过程中，才能够真正理解理论中每个字的精华。<br>我理解的还很浅，先欠个账，后续项目开发过程中，完整应用「4+1视图」后，我在做个实践总结。</p>
+</blockquote>
+<p><div align="center"><br><img src="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="情情说"></div></p>
+]]></content>
+      
+        <categories>
+            
+            <category> 软件工程 </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> 4+1视图 </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[我的常用工具集]]></title>
       <url>https://qqdong.github.io/2018/02/22/%E6%88%91%E7%9A%84%E5%B8%B8%E7%94%A8%E5%B7%A5%E5%85%B7%E9%9B%86/</url>
       <content type="html"><![CDATA[<p>今天年后第一天上班，去年会有公司高管在门口发红包，本来想早点去公司，但还是晚到20分钟，错失了我的大红包 ：）。上午一直不在状态，可能是所谓的节后综合征，下午慢慢好起来，调研和整理了 「多租户的实现方案」。</p>
@@ -56,6 +220,7 @@
 <li>HTTP客户端工具：Postman</li>
 <li>免费翻墙工具：Lantern，每月有免费流量，基本的网页搜索够用了。</li>
 </ul>
+<p><div align="center"><br><img src="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="情情说"></div></p>
 ]]></content>
       
         <categories>
