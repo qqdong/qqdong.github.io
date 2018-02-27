@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="session,cookie" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="本篇开始写「单点登录与权限管理」系列的第一部分：单点登录与权限管理本质，这部分主要介绍相关的知识概念、抽象的处理过程、常见的实现框架。通过这部分的介绍，能够对单点登录与权限管理有整体上的了解，对其相关概念、处理流程、常见实现有个基本的认识。 本篇文章介绍下session和cookie，它是登录实现的基础，主要从下面几个方面介绍：  session和cookie基本概念 session的生命周期 c">
+<meta name="keywords" content="session,cookie">
+<meta property="og:type" content="article">
+<meta property="og:title" content="单点登录本质(一)：session和cookie介绍">
+<meta property="og:url" content="https://qqdong.github.io/2018/02/27/单点登录本质之一：session与cookie介绍/index.html">
+<meta property="og:site_name" content="情情说">
+<meta property="og:description" content="本篇开始写「单点登录与权限管理」系列的第一部分：单点登录与权限管理本质，这部分主要介绍相关的知识概念、抽象的处理过程、常见的实现框架。通过这部分的介绍，能够对单点登录与权限管理有整体上的了解，对其相关概念、处理流程、常见实现有个基本的认识。 本篇文章介绍下session和cookie，它是登录实现的基础，主要从下面几个方面介绍：  session和cookie基本概念 session的生命周期 c">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15197373913600.jpg">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15197384987063.jpg">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15197400794162.jpg">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15197427091558.jpg">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:updated_time" content="2018-02-27T16:04:32.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="单点登录本质(一)：session和cookie介绍">
+<meta name="twitter:description" content="本篇开始写「单点登录与权限管理」系列的第一部分：单点登录与权限管理本质，这部分主要介绍相关的知识概念、抽象的处理过程、常见的实现框架。通过这部分的介绍，能够对单点登录与权限管理有整体上的了解，对其相关概念、处理流程、常见实现有个基本的认识。 本篇文章介绍下session和cookie，它是登录实现的基础，主要从下面几个方面介绍：  session和cookie基本概念 session的生命周期 c">
+<meta name="twitter:image" content="http://oc3r3rke2.bkt.clouddn.com/15197373913600.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://qqdong.github.io/2018/02/27/单点登录本质之一：session与cookie介绍/"/>
+
+
+
+
+
+  <title>单点登录本质(一)：session和cookie介绍 | 情情说</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?48e81d160a0773a1af5455493c416547";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">情情说</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">记录工作、学习和生活</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/02/27/单点登录本质之一：session与cookie介绍/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="calm">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/head.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="情情说">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">单点登录本质(一)：session和cookie介绍</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-02-27T22:00:00+08:00">
+                2018-02-27
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/单点登录与权限管理/" itemprop="url" rel="index">
+                    <span itemprop="name">单点登录与权限管理</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>本篇开始写「单点登录与权限管理」系列的第一部分：单点登录与权限管理本质，这部分主要介绍相关的知识概念、抽象的处理过程、常见的实现框架。通过这部分的介绍，能够对单点登录与权限管理有整体上的了解，对其相关概念、处理流程、常见实现有个基本的认识。</p>
+<p>本篇文章介绍下session和cookie，它是登录实现的基础，主要从下面几个方面介绍：</p>
+<ul>
+<li>session和cookie基本概念</li>
+<li>session的生命周期</li>
+<li>cookie的作用域</li>
+</ul>
+<a id="more"></a>
+<p>cookie的跨域问题会在后续文章单独介绍。</p>
+<h4 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h4><p>大部分系统都需要识别用户的身份，有些功能只有特定的用户能使用，有些功能需要根据用户身份显示不同的内容，一般使用唯一编号标识用户的身份。</p>
+<p>就像我们的身份证，身份证号是每个人唯一的，根据所在的省市区、出生年月、性别等规则生成，我们去政府机构办事时，都需要带着身份证，他们通过身份证验证我们的身份。</p>
+<p>session和cookie主要用来识别登录者身份的，默认通过JSESSIONID唯一编号进行验证。session是在服务端保存的一个数据结构，用来跟踪用户的状态，也可以保存用户相关的一些数据，可以保存在内存、缓存、数据库等存储结构中。cookie是客户端保存用户信息的一种机制。</p>
+<h5 id="servlet-session"><a href="#servlet-session" class="headerlink" title="servlet session"></a>servlet session</h5><p>javax.servlet.http包中是session的主要API接口，主要有以下几种接口：</p>
+<ul>
+<li>HttpSession：实际的session接口定义；</li>
+<li>Listener：session发生一些动作，如创建，设置属性，失效等，会触发一些事件，进行相应的处理；</li>
+<li>Event：当动作触发之后，封装为对应的事件；</li>
+</ul>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15197373913600.jpg" alt="Session相关接口"></p>
+<p>session相关的接口，一般由应用服务器来实现，比如Tomcat、Resin、Jetty。Session的主要特征：</p>
+<ul>
+<li>可以设置和获取一些属性；</li>
+<li>每个session对应一个编号sessionId，是一次会话的唯一表示；</li>
+<li>session有超时时间，用户长时间无操作，维护的定时器会清除session，保证资源及时释放；</li>
+<li>可以通过调用invalidate方法主动清除session；</li>
+</ul>
+<p>在tomcat中，HttpSession的实现是StandardSession，同时StandardSession会实现自定义的Session接口，它是对HttpSesion一个包装。<br><img src="http://oc3r3rke2.bkt.clouddn.com/15197384987063.jpg" alt="Tomcat Sesion接口"></p>
+<p>另外，tomcat会实现session的管理和持久化，可随时获取到对应的session，具体实现不在本篇分析，网上有很多文章介绍。</p>
+<h5 id="cookie"><a href="#cookie" class="headerlink" title="cookie"></a>cookie</h5><p>cookie是客户端的解决方案，是服务器发给客户端的特殊信息，这些信息以文本文件的方式存放在客户端，后续请求，客户端都会带上这些特殊的信息。</p>
+<p>服务端通过HTTPResponse设置cookie到响应头，发送到客户端，后续客户端自动将cookie信息设置到请求头。下面是我登录百度后的cookie信息：<br><img src="http://oc3r3rke2.bkt.clouddn.com/15197400794162.jpg" alt="百度cookie信息"></p>
+<p>cookie也有失效时间，可在服务端通过cookie.setMaxAge(expiry)进行设置，expiry=-1：代表浏览器关闭后，cookie就失效了；expiry&gt;0：代表会将cookie保存到硬盘中，直到设置时间过期才会被浏览器自动删除；expiry=0：删除cookie，cookie都会被浏览器给删除。</p>
+<p>另外还有其他几个特性：</p>
+<ul>
+<li>setDomain：设置cookie范围，后面会详细介绍；</li>
+<li>isHttpOnly：是否只是http协议使用。只能在后端通过getCookies()获取，js不能获取；</li>
+<li>每一个cookie文件大小：4kb ， 如果超过4kb浏览器不识别；</li>
+<li>cookie不安全，可能泄露用户信息，浏览器支持禁用cookie操作；</li>
+<li>临时session：默认生命周期，当浏览器关闭时cookie销毁的；</li>
+</ul>
+<h5 id="交互过程"><a href="#交互过程" class="headerlink" title="交互过程"></a>交互过程</h5><p><img src="http://oc3r3rke2.bkt.clouddn.com/15197427091558.jpg" alt="交互过程图"></p>
+<ol>
+<li>使用浏览器访问服务端页面；</li>
+<li>服务端收到该客户端第一次请求后，会创建一个session，生产一个唯一sessionId；</li>
+<li>同时在响应请求中设置cookie，属性名为jessionid；</li>
+<li>客户端收到后会保存jessionid，再次请求时，会在header中设置，服务端可从请求头中获取；</li>
+<li>服务端验证获取的sessionId是否存在，即可验证是否是同一用户；</li>
+</ol>
+<blockquote>
+<p>当浏览器禁用cookie后，基于cookie的session将不能正常工作，每次都将创建一个新的session，可通过url重写传递jsessionid。</p>
+</blockquote>
+<h4 id="session的生命周期"><a href="#session的生命周期" class="headerlink" title="session的生命周期"></a>session的生命周期</h4><p>session存储在服务器端，session在用户第一次访问时创建，访问jsp、servlet等程序时才会创建Session，只访问html、image等静态资源并不会创建，可调用request.getSession(true)强制生成Session。</p>
+<p>服务器会把长时间没有活动的Session从内存中清除，tomcat中session的默认失效时间为20分钟，可调用调用session的invalidate方法强制清楚。</p>
+<p>另外，我们可以自己实现session生命周期的管理，以满足特定的业务需求，比如后续要讲的单点登录、分布式session等，tomcat可提供了相应扩展，后续文章会介绍。</p>
+<h4 id="cookie的作用域"><a href="#cookie的作用域" class="headerlink" title="cookie的作用域"></a>cookie的作用域</h4><p>创建cookie时，需要设置domain，有多级域名时，可以控制cookie的作用域。如果网站请求量很大，设置的cookie作用域不当，会浪费很多流量。</p>
+<p>下面举例说明，比如有三级域名support.kefu.mi.com，其中，mi.com是一级域名，kefu.mi.com是二级域名。</p>
+<p>在3类域名下进行cookie设置，分别设置不同的domain，看看访问各级域名时cookie的有效性。当domain设置为空时，domain默认为当前域名。</p>
+<h5 id="在一级域名mi-com下设置cookie"><a href="#在一级域名mi-com下设置cookie" class="headerlink" title="在一级域名mi.com下设置cookie"></a>在一级域名mi.com下设置cookie</h5><table>
+<thead>
+<tr>
+<th>domain参数</th>
+<th>访问一级</th>
+<th>访问二级</th>
+<th>访问三级</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>空</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+</tr>
+<tr>
+<td>mi.com</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+</tr>
+<tr>
+<td>kefu.mi.com</td>
+<td>×</td>
+<td>×</td>
+<td>×</td>
+</tr>
+<tr>
+<td>mcc.kefu.mi.com</td>
+<td>×</td>
+<td>×</td>
+<td>×</td>
+</tr>
+</tbody>
+</table>
+<p>当domain为一级域名时，一级域名、包括其下的子域名都可以接收到cookie。但是domain参数设置其子域名时，所有域名就接收不到了，包括那个子域名。</p>
+<h5 id="在二级域名kefu-mi-com下设置cookie"><a href="#在二级域名kefu-mi-com下设置cookie" class="headerlink" title="在二级域名kefu.mi.com下设置cookie"></a>在二级域名kefu.mi.com下设置cookie</h5><table>
+<thead>
+<tr>
+<th>domain参数</th>
+<th>访问一级</th>
+<th>访问二级</th>
+<th>访问三级</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>空</td>
+<td>×</td>
+<td>√</td>
+<td>√</td>
+</tr>
+<tr>
+<td>mi.com</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+</tr>
+<tr>
+<td>kefu.mi.com</td>
+<td>×</td>
+<td>√</td>
+<td>√</td>
+</tr>
+<tr>
+<td>mcc.kefu.mi.com</td>
+<td>×</td>
+<td>×</td>
+<td>×</td>
+</tr>
+</tbody>
+</table>
+<p>当domain为自身域名时，其父域名无法接收到cookie，其本身与其子域名可以接收到cookie。而设置其子域名或其他域名时，所有域名都接收不到cookie。</p>
+<h5 id="在三级域名mcc-kefu-mi-com下设置cookie"><a href="#在三级域名mcc-kefu-mi-com下设置cookie" class="headerlink" title="在三级域名mcc.kefu.mi.com下设置cookie"></a>在三级域名mcc.kefu.mi.com下设置cookie</h5><table>
+<thead>
+<tr>
+<th>domain参数</th>
+<th>访问一级</th>
+<th>访问二级</th>
+<th>访问三级</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>空</td>
+<td>×</td>
+<td>×</td>
+<td>√</td>
+</tr>
+<tr>
+<td>mi.com</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+</tr>
+<tr>
+<td>kefu.mi.com</td>
+<td>×</td>
+<td>√</td>
+<td>√</td>
+</tr>
+<tr>
+<td>mcc.kefu.mi.com</td>
+<td>×</td>
+<td>×</td>
+<td>√</td>
+</tr>
+</tbody>
+</table>
+<p>可以得出结论：domain参数可以设置父域名以及自身，但不能设置其它域名，包括子域名，否则cookie不起作用。</p>
+<p><div align="center"><br><img src="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="情情说"></div></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/session/" rel="tag"># session</a>
+          
+            <a href="/tags/cookie/" rel="tag"># cookie</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/02/25/走走初春的北京/" rel="next" title="走走初春的北京">
+                <i class="fa fa-chevron-left"></i> 走走初春的北京
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/head.png"
+                alt="calm" />
+            
+              <p class="site-author-name" itemprop="name">calm</p>
+              <p class="site-description motion-element" itemprop="description">拥抱简单生活，保持平和心态，享受浪漫生活</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">11</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">13</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#基本概念"><span class="nav-number">1.</span> <span class="nav-text">基本概念</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#servlet-session"><span class="nav-number">1.1.</span> <span class="nav-text">servlet session</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#cookie"><span class="nav-number">1.2.</span> <span class="nav-text">cookie</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#交互过程"><span class="nav-number">1.3.</span> <span class="nav-text">交互过程</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#session的生命周期"><span class="nav-number">2.</span> <span class="nav-text">session的生命周期</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#cookie的作用域"><span class="nav-number">3.</span> <span class="nav-text">cookie的作用域</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#在一级域名mi-com下设置cookie"><span class="nav-number">3.1.</span> <span class="nav-text">在一级域名mi.com下设置cookie</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#在二级域名kefu-mi-com下设置cookie"><span class="nav-number">3.2.</span> <span class="nav-text">在二级域名kefu.mi.com下设置cookie</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#在三级域名mcc-kefu-mi-com下设置cookie"><span class="nav-number">3.3.</span> <span class="nav-text">在三级域名mcc.kefu.mi.com下设置cookie</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">calm</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
