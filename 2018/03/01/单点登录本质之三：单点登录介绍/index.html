@@ -90,7 +90,7 @@
 <meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15199187777296.jpg">
 <meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15199203262677.jpg">
 <meta property="og:image" content="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2018-03-01T16:20:22.000Z">
+<meta property="og:updated_time" content="2018-03-01T16:41:51.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="单点登录与权限管理本质：单点登录介绍">
 <meta name="twitter:description" content="继续介绍「单点登录与权限管理」系列的第一部分：单点登录与权限管理本质，前两篇介绍了session与cookie 和 HTTP重定向 ，有了他们，浏览器就可以在多个系统间自动交互，实现自动登录。 该系列的完整写作计划，可见：系列概述 本篇介绍下单点登录，所谓单点登录，就是说用户只需在一个地方登录，访问其他相关系统时，不需要重复登录，隐式地自动登录，这样体验会比较好。 主要从以下几个方面介绍：  一个">
@@ -380,8 +380,8 @@
 <p>有2个系统，系统A是「客服工作台」，主要给客服使用，可实时与来访用户及时聊天，解答用户的问题。系统B是「工单系统」，对于不能解答的问题，客服会创建一个工单，更高级别或相关度高的人会看到工单进行处理。</p>
 <p>客服希望在登录系统A后，不需要手动登录系统B，需要一个「单点登录服务」，提供一个统一的登录验证，协调系统A、系统B的自动登录，定义该服务为服务S，其CAS协议的场景的流程如下：</p>
 <p><img src="http://oc3r3rke2.bkt.clouddn.com/15199187777296.jpg" alt="CAS协议交互图"></p>
-<p>花了不少时间画上面的图，看着比较复杂，其实还好，如果前两篇文章真正理解了，这块就很简单了。</p>
-<p>我重点总结下该流程</p>
+<p>花了不少时间画上面的图，看着比较复杂，其实还好，希望大家花时间看下，如果前两篇文章真正理解了，这块就相对简单了。</p>
+<p>重点总结下该流程：</p>
 <ul>
 <li>黑圆圈红字，标识cookie的生成和使用，ABCDE表示5个cookie，1表示生成，2表示使用；</li>
 <li>无论是系统A，还是系统B，如果没有jessionid cookie，都会跳转到服务S，如果携带了cookie1（登录成功后生成的cookie），不需要登录，会自动登录，如果没有携带cookie1，会跳转到登录页面，登录成功后会设置cookie1。</li>
@@ -394,7 +394,7 @@
 <p>这些协议有不同的适用场景，比如好多网站都支持使用QQ、微信、微博直接登录，只要你的QQ、微信、微博登录者，就不用重复登录，使用OAuth协议可比较好的实现这种场景。</p>
 <p>后面会单独介绍这些协议。</p>
 <h4 id="关键问题总结"><a href="#关键问题总结" class="headerlink" title="关键问题总结"></a>关键问题总结</h4><p>无论是哪一种协议，都需要一个中间系统，对验证和授权进行统一管理。另外，cookie的管理和安全问题需要重点考虑。</p>
-<p>后面一篇会介绍下可能存在哪些安全问题，针对安全问题如何解决，会在介绍每个具体协议的时候重点说明。</p>
+<p>后面一篇会介绍下可能存在哪些安全问题，而对于安全问题如何解决，cookie和session具体如何管理，会在介绍每个具体协议的时候重点说明。</p>
 <p><div align="center"><br><img src="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="情情说"></div></p>
 
       
