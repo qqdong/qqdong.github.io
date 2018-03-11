@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="权限管理" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="前面几篇文章介绍了单点登录的本质，包括cookie、session、重定向的基本概念，单点登录的基本交互流程，cookie的重要性和安全问题。单点登录能够确保：必须通过身份验证后，才能访问网站，且访问多个系统时，只需要登录一次。 该系列的完整写作计划，可见：系列概述 一般系统都会有多个角色，不同角色可访问的系统功能不同，通过给用户分配不同角色，决定用户可访问的系统功能。 继续介绍「单点登录与权限管">
+<meta name="keywords" content="权限管理">
+<meta property="og:type" content="article">
+<meta property="og:title" content="单点登录与权限管理本质：权限管理介绍">
+<meta property="og:url" content="https://qqdong.github.io/2018/03/11/单点登录本质之五：权限管理介绍/index.html">
+<meta property="og:site_name" content="情情说">
+<meta property="og:description" content="前面几篇文章介绍了单点登录的本质，包括cookie、session、重定向的基本概念，单点登录的基本交互流程，cookie的重要性和安全问题。单点登录能够确保：必须通过身份验证后，才能访问网站，且访问多个系统时，只需要登录一次。 该系列的完整写作计划，可见：系列概述 一般系统都会有多个角色，不同角色可访问的系统功能不同，通过给用户分配不同角色，决定用户可访问的系统功能。 继续介绍「单点登录与权限管">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15207455711934.jpg">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15207465649533.jpg">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15207476922851.jpg">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15207478700902.jpg">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15207632918475.jpg">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15207683549937.jpg">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:updated_time" content="2018-03-11T12:33:30.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="单点登录与权限管理本质：权限管理介绍">
+<meta name="twitter:description" content="前面几篇文章介绍了单点登录的本质，包括cookie、session、重定向的基本概念，单点登录的基本交互流程，cookie的重要性和安全问题。单点登录能够确保：必须通过身份验证后，才能访问网站，且访问多个系统时，只需要登录一次。 该系列的完整写作计划，可见：系列概述 一般系统都会有多个角色，不同角色可访问的系统功能不同，通过给用户分配不同角色，决定用户可访问的系统功能。 继续介绍「单点登录与权限管">
+<meta name="twitter:image" content="http://oc3r3rke2.bkt.clouddn.com/15207455711934.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://qqdong.github.io/2018/03/11/单点登录本质之五：权限管理介绍/"/>
+
+
+
+
+
+  <title>单点登录与权限管理本质：权限管理介绍 | 情情说</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?48e81d160a0773a1af5455493c416547";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">情情说</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">记录工作、学习和生活</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/03/11/单点登录本质之五：权限管理介绍/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="calm">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/head.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="情情说">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">单点登录与权限管理本质：权限管理介绍</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-11T22:00:00+08:00">
+                2018-03-11
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/单点登录与权限管理/" itemprop="url" rel="index">
+                    <span itemprop="name">单点登录与权限管理</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>前面几篇文章介绍了单点登录的本质，包括cookie、session、重定向的基本概念，单点登录的基本交互流程，cookie的重要性和安全问题。单点登录能够确保：必须通过身份验证后，才能访问网站，且访问多个系统时，只需要登录一次。</p>
+<p>该系列的完整写作计划，可见：<a href="http://qqidol.com/2018/02/24/%E5%8D%95%E7%82%B9%E7%99%BB%E5%BD%95%E4%B8%8E%E6%9D%83%E9%99%90%E7%AE%A1%E7%90%86%E7%B3%BB%E5%88%97/" target="_blank" rel="noopener">系列概述</a></p>
+<p>一般系统都会有多个角色，不同角色可访问的系统功能不同，通过给用户分配不同角色，决定用户可访问的系统功能。</p>
+<p>继续介绍「单点登录与权限管理」系列的第一部分：单点登录与权限管理本质，本篇说说权限管理，主要从以下几个方面介绍：</p>
+<ul>
+<li>权限管理的一般模型</li>
+<li>权限验证范围</li>
+<li>Shiro基本架构和扩展点</li>
+<li>系列第一部分总结</li>
+</ul>
+<a id="more"></a>
+<h4 id="权限管理的一般模型"><a href="#权限管理的一般模型" class="headerlink" title="权限管理的一般模型"></a>权限管理的一般模型</h4><p>权限验证的过程比较简单，描述如下：</p>
+<ol>
+<li>用户登录成功后，会将自己的个人信息和权限信息，保存到session中，可以存储在内存、redis中；</li>
+<li>用户访问其他页面时，会根据访问路径，与用户权限数据进行匹配，验证是否有权限访问；</li>
+<li>如果有权限，显示访问页面，如果无权限，提示用户无权访问；</li>
+</ol>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15207455711934.jpg" alt="权限验证基本流程"></p>
+<p>如何管理和分配用户权限呢，一般会抽象出如下实体概念：</p>
+<ol>
+<li>用户：访问系统的主体；</li>
+<li>角色：分配权限的最小单元，通过角色给用户分配权限；</li>
+<li>权限菜单：权限的最小单元，一个角色配置多个权限菜单；</li>
+</ol>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15207465649533.jpg" alt="权限管理实体"></p>
+<p>另外，为了方便权限管理，会单独抽取一个服务「用户中心」，统一管理用户、角色和各个系统的权限菜单。权限菜单由各个子系统同步到「用户中心」或者提供批量导入的功能，权限菜单标识的规则要提前约定好，一致的菜单标识有助于权限拦截的判断。</p>
+<p>简单截取几个我们项目中的页面，加深下理解：</p>
+<ol>
+<li><p>添加用户时，需要选择角色<br><img src="http://oc3r3rke2.bkt.clouddn.com/15207476922851.jpg" alt=""></p>
+</li>
+<li><p>添加角色时，需要选择权限菜单<br><img src="http://oc3r3rke2.bkt.clouddn.com/15207478700902.jpg" alt=""></p>
+</li>
+<li><p>权限菜单由各个子系统同步过来</p>
+</li>
+</ol>
+<h4 id="权限验证范围"><a href="#权限验证范围" class="headerlink" title="权限验证范围"></a>权限验证范围</h4><p>用户拥有了访问和操作某些数据的权限，但不代表可以访问所有的数据，可能只能访问和操作自己的数据，可能只能访问和操作组内的数据，这是更细粒度的权限控制。</p>
+<p>权限验证的位置可能在前端、可能在后端。前端根据当前用户的权限，显示不同的菜单项、操作按钮，后端根据当前用户的权限，验证操作的合法性，返回可访问的数据集合，权限验证位置也要考虑全面。</p>
+<h5 id="控制粒度"><a href="#控制粒度" class="headerlink" title="控制粒度"></a>控制粒度</h5><p>比如有这样一个场景：有一个查询订单接口供外部调用，可根据订单编号返回订单详情。</p>
+<p>如果订单编号有规则可寻，且后端不对订单所属人进行判断，就可以查看其他人订单的信息，所以，需要更细粒度的判断，验证订单的所属人。</p>
+<p>另外可以通过角色、菜单权限2个粒度进行权限验证：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">shiro:hasPermission</span> <span class="attr">name</span>=<span class="string">"permission1"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">h2</span>&gt;</span>拥有permission1权限可以看到这里<span class="tag">&lt;/<span class="name">h2</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">shiro:hasPermission</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">shiro:hasRole</span> <span class="attr">name</span>=<span class="string">"role"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">h2</span>&gt;</span>拥有role角色可以看到这里<span class="tag">&lt;/<span class="name">h2</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">shiro:hasRole</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h5 id="验证位置"><a href="#验证位置" class="headerlink" title="验证位置"></a>验证位置</h5><p>为了让用户体验足够好，用户无法操作的菜单项和操作按钮不需要再显示了，需要在前端进行验证，比如添加用户的操作：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">shiro:hasPermission</span> <span class="attr">name</span>=<span class="string">"user:add"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">'user/add'</span>&gt;</span>添加用户<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">shiro:hasPermission</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>只有前端验证也不行，可以通过模拟HTTP请求绕过前端访问，后端也要进行验证，shiro提供了拦截器进行统一处理。</p>
+<h4 id="Shiro基本架构和扩展"><a href="#Shiro基本架构和扩展" class="headerlink" title="Shiro基本架构和扩展"></a>Shiro基本架构和扩展</h4><p>Shiro是apache下的开源软件，一个的安全框架，对用户的身份和权限进行管理和验证，看看官网对它的概述：</p>
+<blockquote>
+<p>Apache Shiro™ is a powerful and easy-to-use Java security framework that performs authentication, authorization, cryptography, and session management</p>
+</blockquote>
+<p>本篇不会介绍Shiro的细节，只是通过介绍Shiro的基本组件，对应到权限管理的一般模型。</p>
+<p>Shiro的基本架构如下：</p>
+<ol>
+<li>Subject：当前与用户交互的实体，包括用户、第三方服务、corn任务等，使用者只需通过该对象提供的一系列方法，统一与后端的安全管理模块交互， 对应模型中的「用户」；</li>
+<li>Authenticator：负责验证用户身份，用户尝试登陆时，会调用它的方法进行认证，它会根据配置，调用一个或多个Realm进行用户名和密码校验，对应模型中的「用户登陆操作」；</li>
+<li>Authorizer：负责验证用户访问权限，用户访问一个页面时，可以根据它提供的方法验证用户的权限，它也会调用一个或多个Realm获取用户的权限数据，对应模型中的「是否有权限访问」；</li>
+<li>SessionManager：提供一种健壮的方式管理用户会话，这是Shiro的一个独特特性，如果是一个Web/Servlet应用，默认会使用已有的会话管理，如果不是Web应用，Shiro会使用内置的会话管理器。它会调用SessionDAO进行会话持久化，对应模型中的「Session管理」；</li>
+<li>CacheManager：Shiro在Authenticator、Authorizer、SessionManager模块，会访问后端的存储系统，使用缓存管理可以提高数据访问的性能，可以很方便的与第三方缓存框架集成，比如Ehcache，Redis等；</li>
+<li>Realms：是程序和用户数据、权限数据的桥梁，以插件的方式提供扩展，可以配置一个或多个Realm为Authenticator和Authorizer模块提供数据支持；</li>
+<li>Cryptography：提供数据加解密的支持，它封装了相关接口，更易理解和使用；</li>
+</ol>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15207632918475.jpg" alt="Shiro基本架构"></p>
+<blockquote>
+<p>通过上面的介绍可以看出，Shiro的基本组件与总结的「一般模型」是对应的，它帮助我们实现了整个用户验证、权限验证、会话管理的流程，同时提供缓存管理、加解密封装提高了性能和安全性，通过Realm插件的方式支持扩展，自定义实现类获取用户、权限数据。</p>
+</blockquote>
+<p>以用户身份认证为例，说明几个组件的交互过程：<br><img src="http://oc3r3rke2.bkt.clouddn.com/15207683549937.jpg" alt="基本交互过程"></p>
+<h4 id="系列第一部分总结"><a href="#系列第一部分总结" class="headerlink" title="系列第一部分总结"></a>系列第一部分总结</h4><p>到此，系列第一部分「单点登录与权限管理本质」就介绍完了，通过5篇文章，把自己想说的本质说完了，基础概念肯定会有遗漏，后续部分学习、总结过程中，会不断补充。</p>
+<p>还原技术的本质，把复杂的技术、框架抽象来看，形成一个相对简单、容易理解的视图，能够更好的理解、扩展、应用它。</p>
+<p>对于单点登录，通过cookie、http重定向，可自动进行跳转和身份验证，达到登录一次，可访问多个子系统的效果。</p>
+<p>对于权限管理，了解其一般的模型和验证流程，加上成熟的实现框架，可以快速、全面、稳定地实现它，并在此基础上进行扩展。</p>
+<p>另外，cookie、用户的账号权限信息很重要，要不断积累安全方面的知识，提高其安全性。</p>
+<p>接下来的第二部分主要是实践，会仿照我们的系统做一个DEMO，利用CAS、Shiro框架实现单点登录和权限管理。另外，会抽象出一个「用户中心」，管理用户、角色、权限菜单，各个子系统通过同步方式同步自己的权限菜单。</p>
+<p><div align="center"><br><img src="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="情情说"></div></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/权限管理/" rel="tag"># 权限管理</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/10/单点登录本质之四：cookie安全问题/" rel="next" title="单点登录与权限管理本质：cookie安全问题">
+                <i class="fa fa-chevron-left"></i> 单点登录与权限管理本质：cookie安全问题
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/head.png"
+                alt="calm" />
+            
+              <p class="site-author-name" itemprop="name">calm</p>
+              <p class="site-description motion-element" itemprop="description">拥抱简单生活，保持平和心态，享受浪漫生活</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">16</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">15</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#权限管理的一般模型"><span class="nav-number">1.</span> <span class="nav-text">权限管理的一般模型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#权限验证范围"><span class="nav-number">2.</span> <span class="nav-text">权限验证范围</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#控制粒度"><span class="nav-number">2.1.</span> <span class="nav-text">控制粒度</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#验证位置"><span class="nav-number">2.2.</span> <span class="nav-text">验证位置</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Shiro基本架构和扩展"><span class="nav-number">3.</span> <span class="nav-text">Shiro基本架构和扩展</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#系列第一部分总结"><span class="nav-number">4.</span> <span class="nav-text">系列第一部分总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">calm</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
