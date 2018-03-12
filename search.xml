@@ -4,6 +4,132 @@
   
     
     <entry>
+      <title><![CDATA[git分支管理和工作流规范：基本概念说明]]></title>
+      <url>https://qqdong.github.io/2018/03/12/git%E5%88%86%E6%94%AF%E7%AE%A1%E7%90%86%E5%92%8C%E5%B7%A5%E4%BD%9C%E6%B5%81%E8%A7%84%E8%8C%83%EF%BC%9A%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5/</url>
+      <content type="html"><![CDATA[<p>「单点登录与权限管理」系列第二部分，Demo项目的设计和开发，需要一段时间才能完成。这段时间，会把以前学习、实践、梳理过的知识分享给大家，希望大家能够喜欢。</p>
+<p>接下来，会分享「git分支管理和工作流规范」相关内容，当一个项目大了后，会有多人共同协作开发，如果没有相关规范，代码合并的时候会有很多冲突，代码的版本和提交历史也会显得很乱。针对这2个问题，可以通过分支的管理、工作流规范很好的解决。</p>
+<p>针对不同的场景创建不同的分支，始终保持主分支可靠、干净，比如新增功能、修复线上问题、修复测试环境的bug等场景，需要创建不同的分支。另外，要对下一版本要上线的功能提前规划好，把功能细分，分配给每个人去完成，功能相互依赖的在同一个分支，不确定要上线的功能要单独创建分支，这样可以减少合并时的冲突。</p>
+<p>提交代码时，要保持提交历史的清晰，提交的注释也要规范，关于提交历史，总结了3个要点：</p>
+<ul>
+<li>一个git用户非常重要的技能是能够维护一个清晰的语义化的变更历史;</li>
+<li>通过查看版本变更历史就可以反映出团队的开发目的、功能变更；</li>
+<li>版本变更历史记录的是代码的发展，而不是开发者在编码时的活动；</li>
+</ul>
+<p>会分3篇文章分享「git分支管理和工作流规范」：</p>
+<ul>
+<li>git相关概念</li>
+<li>具体规范</li>
+<li>不同场景细化和演示</li>
+</ul>
+<p>本篇主要介绍下git相关概念，太基础的我就不介绍了，网上资料比较多，主要包括：</p>
+<ul>
+<li>文件的状态</li>
+<li>分支的概念</li>
+<li>合并分支</li>
+<li>rebase衍合</li>
+<li>git工作流程</li>
+</ul>
+<a id="more"></a>
+<h4 id="文件的状态"><a href="#文件的状态" class="headerlink" title="文件的状态"></a>文件的状态</h4><h5 id="状态类型"><a href="#状态类型" class="headerlink" title="状态类型"></a>状态类型</h5><ul>
+<li>已修改：修改了某个文件，但还没有提交保存;(没有add)</li>
+<li>已暂存：已修改的文件放在下次提交时要保存的清单中;（已add，没有commit）</li>
+<li>已提交：文件已经被安全地保存在本地数据库中;（已commit）</li>
+</ul>
+<h5 id="工作目录、暂存目录、git目录"><a href="#工作目录、暂存目录、git目录" class="headerlink" title="工作目录、暂存目录、git目录"></a>工作目录、暂存目录、git目录</h5><p>3个目录与文件的状态是对应的，不同的状态放在不同的目录。</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15208675599393.jpg" alt="git的3个目录"></p>
+<h5 id="git对象"><a href="#git对象" class="headerlink" title="git对象"></a>git对象</h5><ul>
+<li>对象包括提交、文件树、文件内容、其他操作对象;</li>
+<li>用40位十六进制数字组成;</li>
+<li>可通过git cat-file 命令查看对象信息;</li>
+</ul>
+<h5 id="基本工作流程"><a href="#基本工作流程" class="headerlink" title="基本工作流程"></a>基本工作流程</h5><ul>
+<li>在工作目录中修改某些文件;</li>
+<li>对修改后的文件进行快照，然后保存到暂存区;</li>
+<li>提交更新，将保存在暂存区域的文件快照永久转储到git目录中;</li>
+</ul>
+<h5 id="状态相关命令"><a href="#状态相关命令" class="headerlink" title="状态相关命令"></a>状态相关命令</h5><ul>
+<li>git status 显示哪些文件已修改、哪些文件已暂存、未提交;</li>
+<li>git diff 比较不同状态的文件<ul>
+<li>默认比较工作目录、暂存区文件快照的差异;（修改后，未暂存的文件）</li>
+<li>–cached 比较已暂存、上次提交时的快照之间的差异;</li>
+</ul>
+</li>
+<li>git reset 进行撤销操作，将当前分支重设到指定的commit<ul>
+<li>–hard 重设工作目录和暂存区；</li>
+<li>–mixed 默认方式，仅重设暂存区，工作目录不变；</li>
+<li>–soft 仅仅把HEAD指向，commit之后的commit会进入暂存区；</li>
+</ul>
+</li>
+</ul>
+<h4 id="分支的概念"><a href="#分支的概念" class="headerlink" title="分支的概念"></a>分支的概念</h4><p>本质上，分支仅仅是指向commit对象的可变指针。</p>
+<p>git如何知道你当前在哪个分支上工作？</p>
+<ul>
+<li>保存着一个名为HEAD的特保指针；</li>
+<li>HEAD是一个指向你正在工作中的本地分支的指针；</li>
+</ul>
+<p>通过git branch -a 查看分支时，会看到所有分支，包括本地分支、远程分支；</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15208686635198.jpg" alt="分支的概念"></p>
+<p>分支的合并主要有2种方式，merge和rebase。merge主要是自动合并，针对不同场景有不同的合并策略，rebase主要是手动合并，可针对每次commit指定不同的合并策略，下面会分别介绍。</p>
+<h4 id="merge合并"><a href="#merge合并" class="headerlink" title="merge合并"></a>merge合并</h4><ul>
+<li>–commit –no-commit 合并后，是否自动产生一个合并结果的commit节点;</li>
+<li>–edit –no-edit 是否接受自动合并的信息;</li>
+<li>–ff –no-ff选项<ul>
+<li>默认情况下，git执行“快进式合并”(fast-farward merge)，不会创造一个新的commit节点;</li>
+<li>–no-ff，会创建一个新的commit;</li>
+</ul>
+</li>
+<li>–log –no-log<ul>
+<li>合并提交时，除了分支名以外，是否还包括commit节点的日志信息</li>
+</ul>
+</li>
+<li>–squash<ul>
+<li>不保留待合并分支上的历史信息，也不提交、不移动HEAD，需要一个额外的commit命令;</li>
+<li>判断是否使用–squash选项的最根本的标准是，待合并分支上的历史是否有意义;</li>
+</ul>
+</li>
+<li>– abort<ul>
+<li>抛弃当前合并冲突的处理过程并尝试重建合并前的状态;</li>
+</ul>
+</li>
+</ul>
+<h4 id="rebase衍合"><a href="#rebase衍合" class="headerlink" title="rebase衍合"></a>rebase衍合</h4><blockquote>
+<p>$ git rebase -i [branch|]</p>
+</blockquote>
+<p>三个操作命令：–continue、–absort 和 –skip，这三个命令的意思分别是“继续”、“退出”和“跳过”</p>
+<p>一定要注意的地方：</p>
+<ul>
+<li>一旦分支中的提交对象发布到公共仓库，就千万不要对该分支进行衍合操作;<ul>
+<li>在进行衍合的时候，实际上抛弃了一些现存的提交对象而创造了一些类似但不同的新的提交对象;</li>
+<li>如果你把原来分支中的提交对象发布出去，并且其他人更新下载后在其基础上开展工作，而稍后你又用git rebase 抛弃这些提交对象，把新的重演后的提交对象发布出去的话，你的合作者就不得不重新合并他们的工作，这样当你再次从他们那里获取内容时，提交历史就会变得一团糟;</li>
+</ul>
+</li>
+<li>把衍合当成一种在推送之前清理提交历史的手段，而且仅仅衍合那些尚未公开的提交对象；</li>
+</ul>
+<p>具体的示例，网上资料很多，就不在此说明了。</p>
+<h4 id="git工作流"><a href="#git工作流" class="headerlink" title="git工作流"></a>git工作流</h4><p>协作必须有一个规范的工作流程，让大家有效地合作，使得项目井井有条地发展下去。</p>
+<p>网上对这一部分的介绍也很多，介绍比较多的就是git flow规范，可以参考下面2篇文章：<br>[1] <a href="http://www.ruanyifeng.com/blog/2015/12/git-workflow.html" target="_blank" rel="noopener">阮一峰：git工作流程</a><br>[2] <a href="http://danielkummer.github.io/git-flow-cheatsheet/index.zh_CN.html#getting_started" target="_blank" rel="noopener">git-flow工具</a></p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15208707147106.jpg?imageView2/2/w/600" alt="git-flow工作流"></p>
+<p>最后附上常用的命令速查表：</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15208708063651.jpg?imageView2/2/w/600" alt="git常用命令速查表"></p>
+<p><div align="center"><br><img src="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="情情说"></div></p>
+]]></content>
+      
+        <categories>
+            
+            <category> 版本控制 </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> git </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[单点登录与权限管理本质：权限管理介绍]]></title>
       <url>https://qqdong.github.io/2018/03/11/%E5%8D%95%E7%82%B9%E7%99%BB%E5%BD%95%E6%9C%AC%E8%B4%A8%E4%B9%8B%E4%BA%94%EF%BC%9A%E6%9D%83%E9%99%90%E7%AE%A1%E7%90%86%E4%BB%8B%E7%BB%8D/</url>
       <content type="html"><![CDATA[<p>前面几篇文章介绍了单点登录的本质，包括cookie、session、重定向的基本概念，单点登录的基本交互流程，cookie的重要性和安全问题。单点登录能够确保：必须通过身份验证后，才能访问网站，且访问多个系统时，只需要登录一次。</p>

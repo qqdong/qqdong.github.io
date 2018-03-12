@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="git" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="「单点登录与权限管理」系列第二部分，Demo项目的设计和开发，需要一段时间才能完成。这段时间，会把以前学习、实践、梳理过的知识分享给大家，希望大家能够喜欢。 接下来，会分享「git分支管理和工作流规范」相关内容，当一个项目大了后，会有多人共同协作开发，如果没有相关规范，代码合并的时候会有很多冲突，代码的版本和提交历史也会显得很乱。针对这2个问题，可以通过分支的管理、工作流规范很好的解决。 针对不同">
+<meta name="keywords" content="git">
+<meta property="og:type" content="article">
+<meta property="og:title" content="git分支管理和工作流规范：基本概念说明">
+<meta property="og:url" content="https://qqdong.github.io/2018/03/12/git分支管理和工作流规范：基本概念/index.html">
+<meta property="og:site_name" content="情情说">
+<meta property="og:description" content="「单点登录与权限管理」系列第二部分，Demo项目的设计和开发，需要一段时间才能完成。这段时间，会把以前学习、实践、梳理过的知识分享给大家，希望大家能够喜欢。 接下来，会分享「git分支管理和工作流规范」相关内容，当一个项目大了后，会有多人共同协作开发，如果没有相关规范，代码合并的时候会有很多冲突，代码的版本和提交历史也会显得很乱。针对这2个问题，可以通过分支的管理、工作流规范很好的解决。 针对不同">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15208675599393.jpg">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15208686635198.jpg">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15208707147106.jpg?imageView2/2/w/600">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15208708063651.jpg?imageView2/2/w/600">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:updated_time" content="2018-03-12T16:14:20.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="git分支管理和工作流规范：基本概念说明">
+<meta name="twitter:description" content="「单点登录与权限管理」系列第二部分，Demo项目的设计和开发，需要一段时间才能完成。这段时间，会把以前学习、实践、梳理过的知识分享给大家，希望大家能够喜欢。 接下来，会分享「git分支管理和工作流规范」相关内容，当一个项目大了后，会有多人共同协作开发，如果没有相关规范，代码合并的时候会有很多冲突，代码的版本和提交历史也会显得很乱。针对这2个问题，可以通过分支的管理、工作流规范很好的解决。 针对不同">
+<meta name="twitter:image" content="http://oc3r3rke2.bkt.clouddn.com/15208675599393.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://qqdong.github.io/2018/03/12/git分支管理和工作流规范：基本概念/"/>
+
+
+
+
+
+  <title>git分支管理和工作流规范：基本概念说明 | 情情说</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?48e81d160a0773a1af5455493c416547";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">情情说</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">记录工作、学习和生活</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/03/12/git分支管理和工作流规范：基本概念/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="calm">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/head.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="情情说">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">git分支管理和工作流规范：基本概念说明</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-12T22:00:00+08:00">
+                2018-03-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/版本控制/" itemprop="url" rel="index">
+                    <span itemprop="name">版本控制</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>「单点登录与权限管理」系列第二部分，Demo项目的设计和开发，需要一段时间才能完成。这段时间，会把以前学习、实践、梳理过的知识分享给大家，希望大家能够喜欢。</p>
+<p>接下来，会分享「git分支管理和工作流规范」相关内容，当一个项目大了后，会有多人共同协作开发，如果没有相关规范，代码合并的时候会有很多冲突，代码的版本和提交历史也会显得很乱。针对这2个问题，可以通过分支的管理、工作流规范很好的解决。</p>
+<p>针对不同的场景创建不同的分支，始终保持主分支可靠、干净，比如新增功能、修复线上问题、修复测试环境的bug等场景，需要创建不同的分支。另外，要对下一版本要上线的功能提前规划好，把功能细分，分配给每个人去完成，功能相互依赖的在同一个分支，不确定要上线的功能要单独创建分支，这样可以减少合并时的冲突。</p>
+<p>提交代码时，要保持提交历史的清晰，提交的注释也要规范，关于提交历史，总结了3个要点：</p>
+<ul>
+<li>一个git用户非常重要的技能是能够维护一个清晰的语义化的变更历史;</li>
+<li>通过查看版本变更历史就可以反映出团队的开发目的、功能变更；</li>
+<li>版本变更历史记录的是代码的发展，而不是开发者在编码时的活动；</li>
+</ul>
+<p>会分3篇文章分享「git分支管理和工作流规范」：</p>
+<ul>
+<li>git相关概念</li>
+<li>具体规范</li>
+<li>不同场景细化和演示</li>
+</ul>
+<p>本篇主要介绍下git相关概念，太基础的我就不介绍了，网上资料比较多，主要包括：</p>
+<ul>
+<li>文件的状态</li>
+<li>分支的概念</li>
+<li>合并分支</li>
+<li>rebase衍合</li>
+<li>git工作流程</li>
+</ul>
+<a id="more"></a>
+<h4 id="文件的状态"><a href="#文件的状态" class="headerlink" title="文件的状态"></a>文件的状态</h4><h5 id="状态类型"><a href="#状态类型" class="headerlink" title="状态类型"></a>状态类型</h5><ul>
+<li>已修改：修改了某个文件，但还没有提交保存;(没有add)</li>
+<li>已暂存：已修改的文件放在下次提交时要保存的清单中;（已add，没有commit）</li>
+<li>已提交：文件已经被安全地保存在本地数据库中;（已commit）</li>
+</ul>
+<h5 id="工作目录、暂存目录、git目录"><a href="#工作目录、暂存目录、git目录" class="headerlink" title="工作目录、暂存目录、git目录"></a>工作目录、暂存目录、git目录</h5><p>3个目录与文件的状态是对应的，不同的状态放在不同的目录。</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15208675599393.jpg" alt="git的3个目录"></p>
+<h5 id="git对象"><a href="#git对象" class="headerlink" title="git对象"></a>git对象</h5><ul>
+<li>对象包括提交、文件树、文件内容、其他操作对象;</li>
+<li>用40位十六进制数字组成;</li>
+<li>可通过git cat-file 命令查看对象信息;</li>
+</ul>
+<h5 id="基本工作流程"><a href="#基本工作流程" class="headerlink" title="基本工作流程"></a>基本工作流程</h5><ul>
+<li>在工作目录中修改某些文件;</li>
+<li>对修改后的文件进行快照，然后保存到暂存区;</li>
+<li>提交更新，将保存在暂存区域的文件快照永久转储到git目录中;</li>
+</ul>
+<h5 id="状态相关命令"><a href="#状态相关命令" class="headerlink" title="状态相关命令"></a>状态相关命令</h5><ul>
+<li>git status 显示哪些文件已修改、哪些文件已暂存、未提交;</li>
+<li>git diff 比较不同状态的文件<ul>
+<li>默认比较工作目录、暂存区文件快照的差异;（修改后，未暂存的文件）</li>
+<li>–cached 比较已暂存、上次提交时的快照之间的差异;</li>
+</ul>
+</li>
+<li>git reset 进行撤销操作，将当前分支重设到指定的commit<ul>
+<li>–hard 重设工作目录和暂存区；</li>
+<li>–mixed 默认方式，仅重设暂存区，工作目录不变；</li>
+<li>–soft 仅仅把HEAD指向，commit之后的commit会进入暂存区；</li>
+</ul>
+</li>
+</ul>
+<h4 id="分支的概念"><a href="#分支的概念" class="headerlink" title="分支的概念"></a>分支的概念</h4><p>本质上，分支仅仅是指向commit对象的可变指针。</p>
+<p>git如何知道你当前在哪个分支上工作？</p>
+<ul>
+<li>保存着一个名为HEAD的特保指针；</li>
+<li>HEAD是一个指向你正在工作中的本地分支的指针；</li>
+</ul>
+<p>通过git branch -a 查看分支时，会看到所有分支，包括本地分支、远程分支；</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15208686635198.jpg" alt="分支的概念"></p>
+<p>分支的合并主要有2种方式，merge和rebase。merge主要是自动合并，针对不同场景有不同的合并策略，rebase主要是手动合并，可针对每次commit指定不同的合并策略，下面会分别介绍。</p>
+<h4 id="merge合并"><a href="#merge合并" class="headerlink" title="merge合并"></a>merge合并</h4><ul>
+<li>–commit –no-commit 合并后，是否自动产生一个合并结果的commit节点;</li>
+<li>–edit –no-edit 是否接受自动合并的信息;</li>
+<li>–ff –no-ff选项<ul>
+<li>默认情况下，git执行“快进式合并”(fast-farward merge)，不会创造一个新的commit节点;</li>
+<li>–no-ff，会创建一个新的commit;</li>
+</ul>
+</li>
+<li>–log –no-log<ul>
+<li>合并提交时，除了分支名以外，是否还包括commit节点的日志信息</li>
+</ul>
+</li>
+<li>–squash<ul>
+<li>不保留待合并分支上的历史信息，也不提交、不移动HEAD，需要一个额外的commit命令;</li>
+<li>判断是否使用–squash选项的最根本的标准是，待合并分支上的历史是否有意义;</li>
+</ul>
+</li>
+<li>– abort<ul>
+<li>抛弃当前合并冲突的处理过程并尝试重建合并前的状态;</li>
+</ul>
+</li>
+</ul>
+<h4 id="rebase衍合"><a href="#rebase衍合" class="headerlink" title="rebase衍合"></a>rebase衍合</h4><blockquote>
+<p>$ git rebase -i [branch|]</p>
+</blockquote>
+<p>三个操作命令：–continue、–absort 和 –skip，这三个命令的意思分别是“继续”、“退出”和“跳过”</p>
+<p>一定要注意的地方：</p>
+<ul>
+<li>一旦分支中的提交对象发布到公共仓库，就千万不要对该分支进行衍合操作;<ul>
+<li>在进行衍合的时候，实际上抛弃了一些现存的提交对象而创造了一些类似但不同的新的提交对象;</li>
+<li>如果你把原来分支中的提交对象发布出去，并且其他人更新下载后在其基础上开展工作，而稍后你又用git rebase 抛弃这些提交对象，把新的重演后的提交对象发布出去的话，你的合作者就不得不重新合并他们的工作，这样当你再次从他们那里获取内容时，提交历史就会变得一团糟;</li>
+</ul>
+</li>
+<li>把衍合当成一种在推送之前清理提交历史的手段，而且仅仅衍合那些尚未公开的提交对象；</li>
+</ul>
+<p>具体的示例，网上资料很多，就不在此说明了。</p>
+<h4 id="git工作流"><a href="#git工作流" class="headerlink" title="git工作流"></a>git工作流</h4><p>协作必须有一个规范的工作流程，让大家有效地合作，使得项目井井有条地发展下去。</p>
+<p>网上对这一部分的介绍也很多，介绍比较多的就是git flow规范，可以参考下面2篇文章：<br>[1] <a href="http://www.ruanyifeng.com/blog/2015/12/git-workflow.html" target="_blank" rel="noopener">阮一峰：git工作流程</a><br>[2] <a href="http://danielkummer.github.io/git-flow-cheatsheet/index.zh_CN.html#getting_started" target="_blank" rel="noopener">git-flow工具</a></p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15208707147106.jpg?imageView2/2/w/600" alt="git-flow工作流"></p>
+<p>最后附上常用的命令速查表：</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15208708063651.jpg?imageView2/2/w/600" alt="git常用命令速查表"></p>
+<p><div align="center"><br><img src="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="情情说"></div></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/git/" rel="tag"># git</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/11/单点登录本质之五：权限管理介绍/" rel="next" title="单点登录与权限管理本质：权限管理介绍">
+                <i class="fa fa-chevron-left"></i> 单点登录与权限管理本质：权限管理介绍
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/head.png"
+                alt="calm" />
+            
+              <p class="site-author-name" itemprop="name">calm</p>
+              <p class="site-description motion-element" itemprop="description">拥抱简单生活，保持平和心态，享受浪漫生活</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">17</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">16</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#文件的状态"><span class="nav-number">1.</span> <span class="nav-text">文件的状态</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#状态类型"><span class="nav-number">1.1.</span> <span class="nav-text">状态类型</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#工作目录、暂存目录、git目录"><span class="nav-number">1.2.</span> <span class="nav-text">工作目录、暂存目录、git目录</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#git对象"><span class="nav-number">1.3.</span> <span class="nav-text">git对象</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#基本工作流程"><span class="nav-number">1.4.</span> <span class="nav-text">基本工作流程</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#状态相关命令"><span class="nav-number">1.5.</span> <span class="nav-text">状态相关命令</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#分支的概念"><span class="nav-number">2.</span> <span class="nav-text">分支的概念</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#merge合并"><span class="nav-number">3.</span> <span class="nav-text">merge合并</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#rebase衍合"><span class="nav-number">4.</span> <span class="nav-text">rebase衍合</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#git工作流"><span class="nav-number">5.</span> <span class="nav-text">git工作流</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">calm</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
