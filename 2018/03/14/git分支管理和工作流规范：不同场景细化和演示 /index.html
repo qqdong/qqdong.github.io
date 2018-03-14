@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="单点登录" />
+  <meta name="keywords" content="git" />
 
 
 
@@ -79,22 +79,24 @@
 
 
 
-<meta name="description" content="继续介绍「单点登录与权限管理」系列的第一部分：单点登录与权限管理本质，前两篇介绍了session与cookie 和 HTTP重定向 ，有了他们，浏览器就可以在多个系统间自动交互，实现自动登录。 该系列的完整写作计划，可见：系列概述 本篇介绍下单点登录，所谓单点登录，就是说用户只需在一个地方登录，访问其他相关系统时，不需要重复登录，隐式地自动登录，这样体验会比较好。 主要从以下几个方面介绍：  一个">
-<meta name="keywords" content="单点登录">
+<meta name="description" content="前两篇介绍了 git基本概念 和 具体的规范，本篇针对不同的使用场景做演示。 分支分支命名 master 分支名称保持不变 develop 分支名称保持不变 feature/&amp;lt;分支名称&amp;gt; 功能分支 release/&amp;lt;分支名称&amp;gt;　待上线分支 hotfix/&amp;lt;分支名称&amp;gt;　线上紧急修复分支  拉取远程分支git checkout -b &amp;lt;分支名称&amp;gt; ori">
+<meta name="keywords" content="git">
 <meta property="og:type" content="article">
-<meta property="og:title" content="单点登录与权限管理本质：单点登录介绍">
-<meta property="og:url" content="https://qqdong.github.io/2018/03/01/单点登录本质之三：单点登录介绍/index.html">
+<meta property="og:title" content="git分支管理和工作流规范：不同场景细化和演示">
+<meta property="og:url" content="https://qqdong.github.io/2018/03/14/git分支管理和工作流规范：不同场景细化和演示 /index.html">
 <meta property="og:site_name" content="情情说">
-<meta property="og:description" content="继续介绍「单点登录与权限管理」系列的第一部分：单点登录与权限管理本质，前两篇介绍了session与cookie 和 HTTP重定向 ，有了他们，浏览器就可以在多个系统间自动交互，实现自动登录。 该系列的完整写作计划，可见：系列概述 本篇介绍下单点登录，所谓单点登录，就是说用户只需在一个地方登录，访问其他相关系统时，不需要重复登录，隐式地自动登录，这样体验会比较好。 主要从以下几个方面介绍：  一个">
+<meta property="og:description" content="前两篇介绍了 git基本概念 和 具体的规范，本篇针对不同的使用场景做演示。 分支分支命名 master 分支名称保持不变 develop 分支名称保持不变 feature/&amp;lt;分支名称&amp;gt; 功能分支 release/&amp;lt;分支名称&amp;gt;　待上线分支 hotfix/&amp;lt;分支名称&amp;gt;　线上紧急修复分支  拉取远程分支git checkout -b &amp;lt;分支名称&amp;gt; ori">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15199187777296.jpg">
-<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15199203262677.jpg">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15210370718875.jpg">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15210380257144.jpg">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15210380926438.jpg">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15210381153047.jpg">
 <meta property="og:image" content="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2018-03-01T16:41:51.000Z">
+<meta property="og:updated_time" content="2018-03-14T14:51:57.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="单点登录与权限管理本质：单点登录介绍">
-<meta name="twitter:description" content="继续介绍「单点登录与权限管理」系列的第一部分：单点登录与权限管理本质，前两篇介绍了session与cookie 和 HTTP重定向 ，有了他们，浏览器就可以在多个系统间自动交互，实现自动登录。 该系列的完整写作计划，可见：系列概述 本篇介绍下单点登录，所谓单点登录，就是说用户只需在一个地方登录，访问其他相关系统时，不需要重复登录，隐式地自动登录，这样体验会比较好。 主要从以下几个方面介绍：  一个">
-<meta name="twitter:image" content="http://oc3r3rke2.bkt.clouddn.com/15199187777296.jpg">
+<meta name="twitter:title" content="git分支管理和工作流规范：不同场景细化和演示">
+<meta name="twitter:description" content="前两篇介绍了 git基本概念 和 具体的规范，本篇针对不同的使用场景做演示。 分支分支命名 master 分支名称保持不变 develop 分支名称保持不变 feature/&amp;lt;分支名称&amp;gt; 功能分支 release/&amp;lt;分支名称&amp;gt;　待上线分支 hotfix/&amp;lt;分支名称&amp;gt;　线上紧急修复分支  拉取远程分支git checkout -b &amp;lt;分支名称&amp;gt; ori">
+<meta name="twitter:image" content="http://oc3r3rke2.bkt.clouddn.com/15210370718875.jpg">
 
 
 
@@ -124,13 +126,13 @@
 
 
 
-  <link rel="canonical" href="https://qqdong.github.io/2018/03/01/单点登录本质之三：单点登录介绍/"/>
+  <link rel="canonical" href="https://qqdong.github.io/2018/03/14/git分支管理和工作流规范：不同场景细化和演示 /"/>
 
 
 
 
 
-  <title>单点登录与权限管理本质：单点登录介绍 | 情情说</title>
+  <title>git分支管理和工作流规范：不同场景细化和演示 | 情情说</title>
   
 
 
@@ -277,7 +279,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/03/01/单点登录本质之三：单点登录介绍/">
+    <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/03/14/git分支管理和工作流规范：不同场景细化和演示 /">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="calm">
@@ -294,7 +296,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">单点登录与权限管理本质：单点登录介绍</h1>
+          <h1 class="post-title" itemprop="name headline">git分支管理和工作流规范：不同场景细化和演示</h1>
         
 
         <div class="post-meta">
@@ -306,8 +308,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-01T22:00:00+08:00">
-                2018-03-01
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-14T22:00:00+08:00">
+                2018-03-14
               </time>
             
 
@@ -329,8 +331,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/单点登录与权限管理/" itemprop="url" rel="index">
-                    <span itemprop="name">单点登录与权限管理</span>
+                  <a href="/categories/版本控制/" itemprop="url" rel="index">
+                    <span itemprop="name">版本控制</span>
                   </a>
                 </span>
 
@@ -366,35 +368,72 @@
       
 
       
-        <p>继续介绍「单点登录与权限管理」系列的第一部分：单点登录与权限管理本质，前两篇介绍了<a href="http://qqidol.com/2018/02/27/%E5%8D%95%E7%82%B9%E7%99%BB%E5%BD%95%E6%9C%AC%E8%B4%A8%E4%B9%8B%E4%B8%80%EF%BC%9Asession%E4%B8%8Ecookie%E4%BB%8B%E7%BB%8D/" target="_blank" rel="noopener">session与cookie</a> 和 <a href="http://qqidol.com/2018/02/28/%E5%8D%95%E7%82%B9%E7%99%BB%E5%BD%95%E6%9C%AC%E8%B4%A8%E4%B9%8B%E4%BA%8C%EF%BC%9A%E9%87%8D%E5%AE%9A%E5%90%91/" target="_blank" rel="noopener">HTTP重定向</a> ，有了他们，浏览器就可以在多个系统间自动交互，实现自动登录。</p>
-<p>该系列的完整写作计划，可见：<a href="http://qqidol.com/2018/02/24/%E5%8D%95%E7%82%B9%E7%99%BB%E5%BD%95%E4%B8%8E%E6%9D%83%E9%99%90%E7%AE%A1%E7%90%86%E7%B3%BB%E5%88%97/" target="_blank" rel="noopener">系列概述</a></p>
-<p>本篇介绍下单点登录，所谓单点登录，就是说用户只需在一个地方登录，访问其他相关系统时，不需要重复登录，隐式地自动登录，这样体验会比较好。</p>
-<p>主要从以下几个方面介绍：</p>
-<ul>
-<li>一个常见的交互流程</li>
-<li>常见单点登录协议</li>
-<li>关键问题总结</li>
+        <p>前两篇介绍了 <a href="http://qqidol.com/2018/03/12/git%E5%88%86%E6%94%AF%E7%AE%A1%E7%90%86%E5%92%8C%E5%B7%A5%E4%BD%9C%E6%B5%81%E8%A7%84%E8%8C%83%EF%BC%9A%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5/" target="_blank" rel="noopener">git基本概念</a> 和 <a href="http://qqidol.com/2018/03/13/git%E5%88%86%E6%94%AF%E7%AE%A1%E7%90%86%E5%92%8C%E5%B7%A5%E4%BD%9C%E6%B5%81%E8%A7%84%E8%8C%83%EF%BC%9A%E5%85%B7%E4%BD%93%E8%A7%84%E8%8C%83/" target="_blank" rel="noopener">具体的规范</a>，本篇针对不同的使用场景做演示。</p>
+<h4 id="分支"><a href="#分支" class="headerlink" title="分支"></a>分支</h4><h5 id="分支命名"><a href="#分支命名" class="headerlink" title="分支命名"></a>分支命名</h5><ul>
+<li>master 分支名称保持不变</li>
+<li>develop 分支名称保持不变</li>
+<li>feature/&lt;分支名称&gt; 功能分支</li>
+<li>release/&lt;分支名称&gt;　待上线分支</li>
+<li>hotfix/&lt;分支名称&gt;　线上紧急修复分支</li>
 </ul>
+<h5 id="拉取远程分支"><a href="#拉取远程分支" class="headerlink" title="拉取远程分支"></a>拉取远程分支</h5><p>git checkout -b &lt;分支名称&gt; origin/&lt;分支名称&gt;　拉取并关联远程分支</p>
+<h5 id="创建新分支"><a href="#创建新分支" class="headerlink" title="创建新分支　"></a>创建新分支　</h5><p>git checkout -b &lt;分支名称＞　　创建新分支并切换到新分支</p>
 <a id="more"></a>
-<h4 id="一个常见的交互流程"><a href="#一个常见的交互流程" class="headerlink" title="一个常见的交互流程"></a>一个常见的交互流程</h4><p>我们项目中，使用CAS协议实现单点登录，下面就以项目中的实现为例，先来看下其交互流程，对其实现有个基本的了解。</p>
-<p>有2个系统，系统A是「客服工作台」，主要给客服使用，可实时与来访用户及时聊天，解答用户的问题。系统B是「工单系统」，对于不能解答的问题，客服会创建一个工单，更高级别或相关度高的人会看到工单进行处理。</p>
-<p>客服希望在登录系统A后，不需要手动登录系统B，需要一个「单点登录服务」，提供一个统一的登录验证，协调系统A、系统B的自动登录，定义该服务为服务S，其CAS协议的场景的流程如下：</p>
-<p><img src="http://oc3r3rke2.bkt.clouddn.com/15199187777296.jpg" alt="CAS协议交互图"></p>
-<p>花了不少时间画上面的图，看着比较复杂，其实还好，希望大家花时间看下，如果前两篇文章真正理解了，这块就相对简单了。</p>
-<p>重点总结下该流程：</p>
+<h4 id="提交备注规范"><a href="#提交备注规范" class="headerlink" title="提交备注规范"></a>提交备注规范</h4><p>首行，简明扼要地描述更新内容;<br>空出一行;<br>之后，详细描述更新内容。</p>
+<p>如果对应jira的问题，填写jira路径：issue：<a href="http://jira.n.xiaomi.com/test1" target="_blank" rel="noopener">http://jira.n.xiaomi.com/test1</a></p>
+<p>举例</p>
+<blockquote>
+<p>修复bug，工单详情页面，工单记录页面，客服头像不显示<br>&lt;空行占位符&gt;<br>导致原因：代码逻辑考虑不全<br>jira: <a href="http://jira.n.xiaomi.com/test1" target="_blank" rel="noopener">http://jira.n.xiaomi.com/test1</a></p>
+</blockquote>
+<h4 id="如何整理自己的commit，保持commit清晰"><a href="#如何整理自己的commit，保持commit清晰" class="headerlink" title="如何整理自己的commit，保持commit清晰"></a>如何整理自己的commit，保持commit清晰</h4><p>git commit –amend 修改最近一次提交;<br>git rebase 　-i　 整理提交</p>
 <ul>
-<li>黑圆圈红字，标识cookie的生成和使用，ABCDE表示5个cookie，1表示生成，2表示使用；</li>
-<li>无论是系统A，还是系统B，如果没有jessionid cookie，都会跳转到服务S，如果携带了cookie1（登录成功后生成的cookie），不需要登录，会自动登录，如果没有携带cookie1，会跳转到登录页面，登录成功后会设置cookie1。</li>
-<li>cookie1是保持浏览器和服务S的，表示用户已经登录过了；</li>
-<li>cookie2、cookie4都是临时cookie，主要是将服务码带到系统A或系统B，拿到服务码后，通过后端请求服务S进行验证，验证过后，临时cookie就失效了，主要是为了安全考虑。</li>
-<li>cookie3、cookie5和我们正常登录产生的jessionid一样，是各个子系统独有的cookie；</li>
+<li>edit，编辑某一次提交的备注；</li>
+<li>squash，把当前commit向前合并，一直合并到pick为止；</li>
+<li>fixup，和squash非常类似，唯一的区别就是，fixup会忽略当前commit的信息；</li>
 </ul>
-<p>如果还有疑问，可在下面留言，我会第一时间回复。</p>
-<h4 id="常见单点登录协议"><a href="#常见单点登录协议" class="headerlink" title="常见单点登录协议"></a>常见单点登录协议</h4><p>上面介绍的是CAS协议的一种，还有其他协议可实现单点登录，比如CAS官网列举的协议：<br><img src="http://oc3r3rke2.bkt.clouddn.com/15199203262677.jpg" alt="常见单点登录协议"></p>
-<p>这些协议有不同的适用场景，比如好多网站都支持使用QQ、微信、微博直接登录，只要你的QQ、微信、微博登录者，就不用重复登录，使用OAuth协议可比较好的实现这种场景。</p>
-<p>后面会单独介绍这些协议。</p>
-<h4 id="关键问题总结"><a href="#关键问题总结" class="headerlink" title="关键问题总结"></a>关键问题总结</h4><p>无论是哪一种协议，都需要一个中间系统，对验证和授权进行统一管理。另外，cookie的管理和安全问题需要重点考虑。</p>
-<p>后面一篇会介绍下可能存在哪些安全问题，而对于安全问题如何解决，cookie和session具体如何管理，会在介绍每个具体协议的时候重点说明。</p>
+<p>再次强调：如果commit已经提交到远程git仓库，一定不要再进行整理合并commit。</p>
+<p>举例说明</p>
+<ol>
+<li><p>基于develop分支创建一个功能分支，名称为feature/feature1;</p>
+<p>git checkout -b feature/feature1</p>
+</li>
+<li><p>新建一个文件test.txt，提交;</p>
+<p>git commit -m ‘add test.txt file’</p>
+</li>
+<li><p>修改文件test.txt，添加一行内容，提交;</p>
+<p>git commit -m ‘update text.txt file， append content: love vae music’</p>
+</li>
+<li><p>发现上一步添加的内容错误，想修改内容，但不添加新的commit<br>修改为正确的内容;</p>
+<p> git commit —amend; 会弹出修改窗口，修改注释，如果不变，直接回车;</p>
+</li>
+<li><p>连续提交3个commit，但想合并为1个commit;<br><img src="http://oc3r3rke2.bkt.clouddn.com/15210370718875.jpg" alt=""></p>
+</li>
+<li><p>使用git log，确定要rebase的commit-id；</p>
+</li>
+<li><p>git rebase -i df87607d5dd24c0a73f23284e6988d6d32c0d3a4 显示编辑窗口<br><img src="http://oc3r3rke2.bkt.clouddn.com/15210380257144.jpg" alt=""></p>
+</li>
+<li><p>进行编辑，修改如下：<br><img src="http://oc3r3rke2.bkt.clouddn.com/15210380926438.jpg" alt=""></p>
+</li>
+<li><p>最终结果只会保留commit1：<br><img src="http://oc3r3rke2.bkt.clouddn.com/15210381153047.jpg" alt=""></p>
+</li>
+</ol>
+<h4 id="新人加入，如何加入开发"><a href="#新人加入，如何加入开发" class="headerlink" title="新人加入，如何加入开发"></a>新人加入，如何加入开发</h4><p>从远程拉取develop分支：<br>git checkout -b &lt;分支名称&gt; origin/&lt;分支名称&gt;　拉取并关联远程分支</p>
+<p>如果要开发新功能，基于develop分支创建feature分支：<br>git checkout -b feature/feature1</p>
+<p>如果要修复线上紧急bug，基于master分支创建hotfix分支：<br>git checkout -b hotfix/hotfix1</p>
+<h4 id="开发一个feature"><a href="#开发一个feature" class="headerlink" title="开发一个feature"></a>开发一个feature</h4><p>基于develop分支创建feature分支;</p>
+<p>开发完成后，整理自己的commit，把无意义的commit进行合并;</p>
+<p>准备在下一次迭代上线，整理完成后，合并到develop分支;</p>
+<p>不准备在下一次迭代上线，整理完成后，push当前分支到远程git仓库，等待准备上线时，再合并到develop分支：<br>git push origin feature/feature1:feature/feature1</p>
+<p>合并到develop分支前，一定要经过本地测试！</p>
+<h4 id="确定版本上线计划及上线"><a href="#确定版本上线计划及上线" class="headerlink" title="确定版本上线计划及上线"></a>确定版本上线计划及上线</h4><p>整体上，要有明确的上线计划，确定每次上线哪些功能;</p>
+<p>只有确认在下一次版本上线的feature才能合并到develop分支；</p>
+<h4 id="提交测试，修复测试反馈的bug"><a href="#提交测试，修复测试反馈的bug" class="headerlink" title="提交测试，修复测试反馈的bug"></a>提交测试，修复测试反馈的bug</h4><p>提交测试前，确保所有人的代码修改都已提交到develop分支;</p>
+<p>基于develop分支，创建release分支：<br>git checkout -b release/release1</p>
+<p>发布release/release1分支到测试环境，测试人员进行测试；</p>
+<p>测试过程中发现的bug，直接在release分支进行修复并提交;</p>
+<p>测试完成，确认上线，合并代码到master分支和develop分支，用release分支名打Tag，删除release分支：<br>git tag release.1.1.1<br>git branch -d release/release1</p>
+<h4 id="修复线上bug"><a href="#修复线上bug" class="headerlink" title="修复线上bug"></a>修复线上bug</h4><p>基于master分支，创建hotfix分支<br>git checkout -b hotfix/hotfix1</p>
+<p>修复完成后，finish hotfix，合并代码到master和develop分支;</p>
 <p><div align="center"><br><img src="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="情情说"></div></p>
 
       
@@ -413,7 +452,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/单点登录/" rel="tag"># 单点登录</a>
+            <a href="/tags/git/" rel="tag"># git</a>
           
         </div>
       
@@ -426,8 +465,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/02/28/单点登录本质之二：重定向/" rel="next" title="单点登录与权限管理本质：HTTP重定向">
-                <i class="fa fa-chevron-left"></i> 单点登录与权限管理本质：HTTP重定向
+              <a href="/2018/03/13/git分支管理和工作流规范：具体规范/" rel="next" title="git分支管理和工作流规范：具体规范">
+                <i class="fa fa-chevron-left"></i> git分支管理和工作流规范：具体规范
               </a>
             
           </div>
@@ -435,10 +474,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2018/03/05/外公，一切安好/" rel="prev" title="外公，一切安好">
-                外公，一切安好 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -574,7 +609,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#一个常见的交互流程"><span class="nav-number">1.</span> <span class="nav-text">一个常见的交互流程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#常见单点登录协议"><span class="nav-number">2.</span> <span class="nav-text">常见单点登录协议</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#关键问题总结"><span class="nav-number">3.</span> <span class="nav-text">关键问题总结</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#分支"><span class="nav-number">1.</span> <span class="nav-text">分支</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#分支命名"><span class="nav-number">1.1.</span> <span class="nav-text">分支命名</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#拉取远程分支"><span class="nav-number">1.2.</span> <span class="nav-text">拉取远程分支</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#创建新分支"><span class="nav-number">1.3.</span> <span class="nav-text">创建新分支　</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#提交备注规范"><span class="nav-number">2.</span> <span class="nav-text">提交备注规范</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#如何整理自己的commit，保持commit清晰"><span class="nav-number">3.</span> <span class="nav-text">如何整理自己的commit，保持commit清晰</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#新人加入，如何加入开发"><span class="nav-number">4.</span> <span class="nav-text">新人加入，如何加入开发</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#开发一个feature"><span class="nav-number">5.</span> <span class="nav-text">开发一个feature</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#确定版本上线计划及上线"><span class="nav-number">6.</span> <span class="nav-text">确定版本上线计划及上线</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#提交测试，修复测试反馈的bug"><span class="nav-number">7.</span> <span class="nav-text">提交测试，修复测试反馈的bug</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#修复线上bug"><span class="nav-number">8.</span> <span class="nav-text">修复线上bug</span></a></li></ol></div>
             
 
           </div>

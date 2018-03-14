@@ -4,6 +4,93 @@
   
     
     <entry>
+      <title><![CDATA[git分支管理和工作流规范：不同场景细化和演示]]></title>
+      <url>https://qqdong.github.io/2018/03/14/git%E5%88%86%E6%94%AF%E7%AE%A1%E7%90%86%E5%92%8C%E5%B7%A5%E4%BD%9C%E6%B5%81%E8%A7%84%E8%8C%83%EF%BC%9A%E4%B8%8D%E5%90%8C%E5%9C%BA%E6%99%AF%E7%BB%86%E5%8C%96%E5%92%8C%E6%BC%94%E7%A4%BA%20/</url>
+      <content type="html"><![CDATA[<p>前两篇介绍了 <a href="http://qqidol.com/2018/03/12/git%E5%88%86%E6%94%AF%E7%AE%A1%E7%90%86%E5%92%8C%E5%B7%A5%E4%BD%9C%E6%B5%81%E8%A7%84%E8%8C%83%EF%BC%9A%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5/" target="_blank" rel="noopener">git基本概念</a> 和 <a href="http://qqidol.com/2018/03/13/git%E5%88%86%E6%94%AF%E7%AE%A1%E7%90%86%E5%92%8C%E5%B7%A5%E4%BD%9C%E6%B5%81%E8%A7%84%E8%8C%83%EF%BC%9A%E5%85%B7%E4%BD%93%E8%A7%84%E8%8C%83/" target="_blank" rel="noopener">具体的规范</a>，本篇针对不同的使用场景做演示。</p>
+<h4 id="分支"><a href="#分支" class="headerlink" title="分支"></a>分支</h4><h5 id="分支命名"><a href="#分支命名" class="headerlink" title="分支命名"></a>分支命名</h5><ul>
+<li>master 分支名称保持不变</li>
+<li>develop 分支名称保持不变</li>
+<li>feature/&lt;分支名称&gt; 功能分支</li>
+<li>release/&lt;分支名称&gt;　待上线分支</li>
+<li>hotfix/&lt;分支名称&gt;　线上紧急修复分支</li>
+</ul>
+<h5 id="拉取远程分支"><a href="#拉取远程分支" class="headerlink" title="拉取远程分支"></a>拉取远程分支</h5><p>git checkout -b &lt;分支名称&gt; origin/&lt;分支名称&gt;　拉取并关联远程分支</p>
+<h5 id="创建新分支"><a href="#创建新分支" class="headerlink" title="创建新分支　"></a>创建新分支　</h5><p>git checkout -b &lt;分支名称＞　　创建新分支并切换到新分支</p>
+<a id="more"></a>
+<h4 id="提交备注规范"><a href="#提交备注规范" class="headerlink" title="提交备注规范"></a>提交备注规范</h4><p>首行，简明扼要地描述更新内容;<br>空出一行;<br>之后，详细描述更新内容。</p>
+<p>如果对应jira的问题，填写jira路径：issue：<a href="http://jira.n.xiaomi.com/test1" target="_blank" rel="noopener">http://jira.n.xiaomi.com/test1</a></p>
+<p>举例</p>
+<blockquote>
+<p>修复bug，工单详情页面，工单记录页面，客服头像不显示<br>&lt;空行占位符&gt;<br>导致原因：代码逻辑考虑不全<br>jira: <a href="http://jira.n.xiaomi.com/test1" target="_blank" rel="noopener">http://jira.n.xiaomi.com/test1</a></p>
+</blockquote>
+<h4 id="如何整理自己的commit，保持commit清晰"><a href="#如何整理自己的commit，保持commit清晰" class="headerlink" title="如何整理自己的commit，保持commit清晰"></a>如何整理自己的commit，保持commit清晰</h4><p>git commit –amend 修改最近一次提交;<br>git rebase 　-i　 整理提交</p>
+<ul>
+<li>edit，编辑某一次提交的备注；</li>
+<li>squash，把当前commit向前合并，一直合并到pick为止；</li>
+<li>fixup，和squash非常类似，唯一的区别就是，fixup会忽略当前commit的信息；</li>
+</ul>
+<p>再次强调：如果commit已经提交到远程git仓库，一定不要再进行整理合并commit。</p>
+<p>举例说明</p>
+<ol>
+<li><p>基于develop分支创建一个功能分支，名称为feature/feature1;</p>
+<p>git checkout -b feature/feature1</p>
+</li>
+<li><p>新建一个文件test.txt，提交;</p>
+<p>git commit -m ‘add test.txt file’</p>
+</li>
+<li><p>修改文件test.txt，添加一行内容，提交;</p>
+<p>git commit -m ‘update text.txt file， append content: love vae music’</p>
+</li>
+<li><p>发现上一步添加的内容错误，想修改内容，但不添加新的commit<br>修改为正确的内容;</p>
+<p> git commit —amend; 会弹出修改窗口，修改注释，如果不变，直接回车;</p>
+</li>
+<li><p>连续提交3个commit，但想合并为1个commit;<br><img src="http://oc3r3rke2.bkt.clouddn.com/15210370718875.jpg" alt=""></p>
+</li>
+<li><p>使用git log，确定要rebase的commit-id；</p>
+</li>
+<li><p>git rebase -i df87607d5dd24c0a73f23284e6988d6d32c0d3a4 显示编辑窗口<br><img src="http://oc3r3rke2.bkt.clouddn.com/15210380257144.jpg" alt=""></p>
+</li>
+<li><p>进行编辑，修改如下：<br><img src="http://oc3r3rke2.bkt.clouddn.com/15210380926438.jpg" alt=""></p>
+</li>
+<li><p>最终结果只会保留commit1：<br><img src="http://oc3r3rke2.bkt.clouddn.com/15210381153047.jpg" alt=""></p>
+</li>
+</ol>
+<h4 id="新人加入，如何加入开发"><a href="#新人加入，如何加入开发" class="headerlink" title="新人加入，如何加入开发"></a>新人加入，如何加入开发</h4><p>从远程拉取develop分支：<br>git checkout -b &lt;分支名称&gt; origin/&lt;分支名称&gt;　拉取并关联远程分支</p>
+<p>如果要开发新功能，基于develop分支创建feature分支：<br>git checkout -b feature/feature1</p>
+<p>如果要修复线上紧急bug，基于master分支创建hotfix分支：<br>git checkout -b hotfix/hotfix1</p>
+<h4 id="开发一个feature"><a href="#开发一个feature" class="headerlink" title="开发一个feature"></a>开发一个feature</h4><p>基于develop分支创建feature分支;</p>
+<p>开发完成后，整理自己的commit，把无意义的commit进行合并;</p>
+<p>准备在下一次迭代上线，整理完成后，合并到develop分支;</p>
+<p>不准备在下一次迭代上线，整理完成后，push当前分支到远程git仓库，等待准备上线时，再合并到develop分支：<br>git push origin feature/feature1:feature/feature1</p>
+<p>合并到develop分支前，一定要经过本地测试！</p>
+<h4 id="确定版本上线计划及上线"><a href="#确定版本上线计划及上线" class="headerlink" title="确定版本上线计划及上线"></a>确定版本上线计划及上线</h4><p>整体上，要有明确的上线计划，确定每次上线哪些功能;</p>
+<p>只有确认在下一次版本上线的feature才能合并到develop分支；</p>
+<h4 id="提交测试，修复测试反馈的bug"><a href="#提交测试，修复测试反馈的bug" class="headerlink" title="提交测试，修复测试反馈的bug"></a>提交测试，修复测试反馈的bug</h4><p>提交测试前，确保所有人的代码修改都已提交到develop分支;</p>
+<p>基于develop分支，创建release分支：<br>git checkout -b release/release1</p>
+<p>发布release/release1分支到测试环境，测试人员进行测试；</p>
+<p>测试过程中发现的bug，直接在release分支进行修复并提交;</p>
+<p>测试完成，确认上线，合并代码到master分支和develop分支，用release分支名打Tag，删除release分支：<br>git tag release.1.1.1<br>git branch -d release/release1</p>
+<h4 id="修复线上bug"><a href="#修复线上bug" class="headerlink" title="修复线上bug"></a>修复线上bug</h4><p>基于master分支，创建hotfix分支<br>git checkout -b hotfix/hotfix1</p>
+<p>修复完成后，finish hotfix，合并代码到master和develop分支;</p>
+<p><div align="center"><br><img src="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="情情说"></div></p>
+]]></content>
+      
+        <categories>
+            
+            <category> 版本控制 </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> git </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[git分支管理和工作流规范：具体规范]]></title>
       <url>https://qqdong.github.io/2018/03/13/git%E5%88%86%E6%94%AF%E7%AE%A1%E7%90%86%E5%92%8C%E5%B7%A5%E4%BD%9C%E6%B5%81%E8%A7%84%E8%8C%83%EF%BC%9A%E5%85%B7%E4%BD%93%E8%A7%84%E8%8C%83/</url>
       <content type="html"><![CDATA[<p>前一篇介绍了 <a href="http://qqidol.com/2018/03/12/git%E5%88%86%E6%94%AF%E7%AE%A1%E7%90%86%E5%92%8C%E5%B7%A5%E4%BD%9C%E6%B5%81%E8%A7%84%E8%8C%83%EF%BC%9A%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5/" target="_blank" rel="noopener">git相关的概念</a>，我们可以查看文件的状态，在各个状态之间进行切换，可以创建和合并分支，通过rebase还可以整理自己的提交历史。通过这些命令和操作，就可完成工作流规范规定的操作流程了。</p>
