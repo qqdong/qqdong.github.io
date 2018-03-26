@@ -88,7 +88,7 @@
 <meta property="og:description" content="最近在休陪产假，时间比较零碎，准备看2本书充实下，一本是「深入浅出MyBatis：技术原理与实践」，一本是「RabbitMQ实战：高效部署分布式消息队列」，为了加深记忆和理解，会进行整理、扩展和记录。 看书的目标不是把所有的细节都记住，而是从整体上了解一个技术能做什么，包含的特性、基本模块，实现原理和常见使用场景。 本篇分享MyBatis书籍的第一篇，首先回忆下JDBC的相关概念，了解Java提供">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2018-03-25T15:20:41.000Z">
+<meta property="og:updated_time" content="2018-03-25T15:25:54.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="深入浅出MyBatis：JDBC和MyBatis介绍">
 <meta name="twitter:description" content="最近在休陪产假，时间比较零碎，准备看2本书充实下，一本是「深入浅出MyBatis：技术原理与实践」，一本是「RabbitMQ实战：高效部署分布式消息队列」，为了加深记忆和理解，会进行整理、扩展和记录。 看书的目标不是把所有的细节都记住，而是从整体上了解一个技术能做什么，包含的特性、基本模块，实现原理和常见使用场景。 本篇分享MyBatis书籍的第一篇，首先回忆下JDBC的相关概念，了解Java提供">
@@ -382,7 +382,7 @@
 <p>DriverManager提供了一个getConnection方法，用于建立数据库Connection：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Connection con=DriverManager.getConnection(<span class="string">"127.0.0.1"</span>,<span class="number">3306</span>,<span class="string">"mi_user"</span>,userName,pwd);</span><br></pre></td></tr></table></figure>
 <p>如果有多个数据库驱动，DriverManager如何区分呢，需要在数据库连接url中指定，比如mysql需要添加jdbc:mysql前缀：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">String url= <span class="string">"jdbc:mysql://127.0.0.1:3306/mi_user"</span>;</span><br><span class="line">Connection con=DriverManager.getConnection(url,userName,pwd)</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">String url= <span class="string">"jdbc:mysql://127.0.0.1:3306/mi_user"</span>;</span><br><span class="line">Connection con=DriverManager.getConnection(url,userName,pwd);</span><br></pre></td></tr></table></figure>
 <h5 id="数据源"><a href="#数据源" class="headerlink" title="数据源"></a>数据源</h5><p>数据源DataSource包含连接池和连接池管理2个部分，习惯上称为连接池。在系统初始化的时候，将数据库连接作为对象存储在内存中，当需要访问数据库时，从连接池中取出一个已建立的空闲连接对象。</p>
 <p>使用数据源，获取其DataSource对象，通过该对象动态的获取数据库连接。另外，DataSource对象可以注册到名字服务(JNDI)中，可以通过名字服务获得DataSource对象，无需硬性编码驱动。</p>
 <p>DriverManager是JDBC1提供的，DataSource是JDBC2新增的功能，提供了更好的连接数据源的方法。</p>
@@ -492,6 +492,10 @@
 
           <div class="post-nav-prev post-nav-item">
             
+              <a href="/2018/03/26/深入浅出MyBatis：MyBatis的配置/" rel="prev" title="深入浅出MyBatis：MyBatis的所有配置">
+                深入浅出MyBatis：MyBatis的所有配置 <i class="fa fa-chevron-right"></i>
+              </a>
+            
           </div>
         </div>
       
@@ -571,7 +575,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">21</span>
+                  <span class="site-state-item-count">22</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
