@@ -88,7 +88,7 @@
 <meta property="og:description" content="上一篇介绍了JDBC的相关概念、MyBatis的特性与Hibernate的区别、MyBatis的基本组件与生命周期，基本可以使用MyBatis了。 这一篇详细介绍MyBatis的配置，首先看下配置XML文件的层次结构，然后详细介绍每个配置项，说明每项的作用，值的取值与含义。 下面列出MyBatis配置XML文件的层次结构，这些层次是不能够颠倒顺序的。 12345678910111213141516">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2018-03-26T13:39:24.000Z">
+<meta property="og:updated_time" content="2018-03-26T13:43:16.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="深入浅出MyBatis：MyBatis的所有配置">
 <meta name="twitter:description" content="上一篇介绍了JDBC的相关概念、MyBatis的特性与Hibernate的区别、MyBatis的基本组件与生命周期，基本可以使用MyBatis了。 这一篇详细介绍MyBatis的配置，首先看下配置XML文件的层次结构，然后详细介绍每个配置项，说明每项的作用，值的取值与含义。 下面列出MyBatis配置XML文件的层次结构，这些层次是不能够颠倒顺序的。 12345678910111213141516">
@@ -381,7 +381,7 @@
 <p>设置properties配置文件</p>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">properties</span> <span class="attr">resource</span>=<span class="string">'jdbc.properties'</span> /&gt;</span></span><br></pre></td></tr></table></figure>
 <h5 id="程序参数传递"><a href="#程序参数传递" class="headerlink" title="程序参数传递"></a>程序参数传递</h5><p>实际工作中，会遇到这种场景：系统由运维人员配置，生成数据库的密码对开发者是保密的，对用户名和密码进行了加密。可以通过程序参数传递的方式，先解密，再设置property。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"> <span class="comment">//读入配置文件流</span></span><br><span class="line">InputStream cfgStream = Resources.getResourceAsStream(<span class="string">"mybatis-config.xml"</span>);</span><br><span class="line">Reader cfgReader = <span class="keyword">new</span> InputStreamReader(cfgStream);</span><br><span class="line"></span><br><span class="line"><span class="comment">//读入属性文件流</span></span><br><span class="line">InputStream proStream = Resources.getResourceAsStream(<span class="string">"jdbc.properties"</span>);</span><br><span class="line">Reader proReader = <span class="keyword">new</span> InputStreamReader(proStream);</span><br><span class="line"></span><br><span class="line">Properties properties = <span class="keyword">new</span> Properties();</span><br><span class="line">properties.load(proReader);</span><br><span class="line"><span class="comment">//转换为明文</span></span><br><span class="line">properties.setProperty(<span class="string">"username"</span>,decode(properties.getProperty(<span class="string">"username"</span>)));</span><br><span class="line">properties.setProperty(<span class="string">"pwd"</span>,decode(properties.getProperty(<span class="string">"pwd"</span>)));</span><br><span class="line"></span><br><span class="line"><span class="comment">//创建sqlSessionFactory</span></span><br><span class="line">SqlSessionFactory sqlSessionFactory=<span class="keyword">new</span> SqlSessionFactoryBuilder().build(cfgReader,properties);</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//读入配置文件流</span></span><br><span class="line">InputStream cfgStream = Resources.getResourceAsStream(<span class="string">"mybatis-config.xml"</span>);</span><br><span class="line">Reader cfgReader = <span class="keyword">new</span> InputStreamReader(cfgStream);</span><br><span class="line"></span><br><span class="line"><span class="comment">//读入属性文件流</span></span><br><span class="line">InputStream proStream = Resources.getResourceAsStream(<span class="string">"jdbc.properties"</span>);</span><br><span class="line">Reader proReader = <span class="keyword">new</span> InputStreamReader(proStream);</span><br><span class="line"></span><br><span class="line">Properties properties = <span class="keyword">new</span> Properties();</span><br><span class="line">properties.load(proReader);</span><br><span class="line"><span class="comment">//转换为明文</span></span><br><span class="line">properties.setProperty(<span class="string">"username"</span>,decode(properties.getProperty(<span class="string">"username"</span>)));</span><br><span class="line">properties.setProperty(<span class="string">"pwd"</span>,decode(properties.getProperty(<span class="string">"pwd"</span>)));</span><br><span class="line"></span><br><span class="line"><span class="comment">//创建sqlSessionFactory</span></span><br><span class="line">SqlSessionFactory sqlSessionFactory=<span class="keyword">new</span> SqlSessionFactoryBuilder().build(cfgReader,properties);</span><br></pre></td></tr></table></figure>
 <blockquote>
 <p>如果3种配置同时出现，优先级为第3种 &gt; 第2种 &gt; 第1种，推荐使用第2种，有特殊需求时使用第3种。</p>
 </blockquote>
@@ -474,6 +474,10 @@
 
           <div class="post-nav-prev post-nav-item">
             
+              <a href="/2018/03/27/深入浅出MyBatis：「映射器」全了解/" rel="prev" title="深入浅出MyBatis：「映射器」全了解">
+                深入浅出MyBatis：「映射器」全了解 <i class="fa fa-chevron-right"></i>
+              </a>
+            
           </div>
         </div>
       
@@ -553,7 +557,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">22</span>
+                  <span class="site-state-item-count">23</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>

@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Mybatis" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="本篇文章是「深入浅出MyBatis：技术原理与实践」书籍的总结笔记。  上一篇总结了MyBatis的配置，详细说明了各个配置项，其中提到了映射器，它是MyBatis最强大的工具，也是使用最多的工具。 通过映射器，可以很容易的进行数据的增删改查操作，我们抽象下进行这些操作的关键点：传递查询参数、组装各种场景下的查询条件、关联查询、将查询结果映射为Java Bean对象或集合等。另外，可以通过延迟加">
+<meta name="keywords" content="Mybatis">
+<meta property="og:type" content="article">
+<meta property="og:title" content="深入浅出MyBatis：「映射器」全了解">
+<meta property="og:url" content="https://qqdong.github.io/2018/03/27/深入浅出MyBatis：「映射器」全了解/index.html">
+<meta property="og:site_name" content="情情说">
+<meta property="og:description" content="本篇文章是「深入浅出MyBatis：技术原理与实践」书籍的总结笔记。  上一篇总结了MyBatis的配置，详细说明了各个配置项，其中提到了映射器，它是MyBatis最强大的工具，也是使用最多的工具。 通过映射器，可以很容易的进行数据的增删改查操作，我们抽象下进行这些操作的关键点：传递查询参数、组装各种场景下的查询条件、关联查询、将查询结果映射为Java Bean对象或集合等。另外，可以通过延迟加">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15221535775297.jpg">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:updated_time" content="2018-03-27T13:39:50.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="深入浅出MyBatis：「映射器」全了解">
+<meta name="twitter:description" content="本篇文章是「深入浅出MyBatis：技术原理与实践」书籍的总结笔记。  上一篇总结了MyBatis的配置，详细说明了各个配置项，其中提到了映射器，它是MyBatis最强大的工具，也是使用最多的工具。 通过映射器，可以很容易的进行数据的增删改查操作，我们抽象下进行这些操作的关键点：传递查询参数、组装各种场景下的查询条件、关联查询、将查询结果映射为Java Bean对象或集合等。另外，可以通过延迟加">
+<meta name="twitter:image" content="http://oc3r3rke2.bkt.clouddn.com/15221535775297.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://qqdong.github.io/2018/03/27/深入浅出MyBatis：「映射器」全了解/"/>
+
+
+
+
+
+  <title>深入浅出MyBatis：「映射器」全了解 | 情情说</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?48e81d160a0773a1af5455493c416547";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">情情说</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">记录工作、学习和生活</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/03/27/深入浅出MyBatis：「映射器」全了解/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="calm">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/head.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="情情说">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">深入浅出MyBatis：「映射器」全了解</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-27T22:00:00+08:00">
+                2018-03-27
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/MyBatis/" itemprop="url" rel="index">
+                    <span itemprop="name">MyBatis</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>本篇文章是「深入浅出MyBatis：技术原理与实践」书籍的总结笔记。</p>
+</blockquote>
+<p>上一篇总结了MyBatis的配置，详细说明了各个配置项，其中提到了映射器，它是MyBatis最强大的工具，也是使用最多的工具。</p>
+<p>通过映射器，可以很容易的进行数据的增删改查操作，我们抽象下进行这些操作的关键点：传递查询参数、组装各种场景下的查询条件、关联查询、将查询结果映射为Java Bean对象或集合等。另外，可以通过延迟加载、缓存提高数据查询的性能。</p>
+<p>本篇就按照这个思路进行总结，首先列举下映射器的主要元素，每个元素提供的配置项和作用，然后重点介绍参数、结果映射、延迟加载、缓存、动态SQL等功能。</p>
+<h4 id="映射器的主要元素"><a href="#映射器的主要元素" class="headerlink" title="映射器的主要元素"></a>映射器的主要元素</h4><p>映射器是由Java接口和XML文件（或注解）共同组成的，Java接口主要定义调用者接口，XML文件是配置映射器的核心文件，包括以下元素：</p>
+<ul>
+<li>select 查询语句，可以自定义参数，返回结果集；</li>
+<li>insert 插入语句，返回一个整数，表示插入的条数；</li>
+<li>update 更新语句，返回一个整数，表示更新的条数；</li>
+<li>delete 删除语句，返回一个整数，表示删除的条数；</li>
+<li>sql 允许定义一部分SQL，然后再各个地方引用；</li>
+<li>resultMap 用来描述从数据库结果集中来加载对象，还可以配置关联关系；</li>
+<li>cache 给定命名空间的缓存配置；</li>
+</ul>
+<a id="more"></a>
+<h4 id="增、删、改、查操作"><a href="#增、删、改、查操作" class="headerlink" title="增、删、改、查操作"></a>增、删、改、查操作</h4><h5 id="查找"><a href="#查找" class="headerlink" title="查找"></a>查找</h5><p>执行select语句前，需要定义参数，执行后，也提供了强大的映射规则或自动映射，将返回的结果集绑定到java bean中。</p>
+<p>select元素有很多配置项，下面简单说明下：</p>
+<ul>
+<li>paramterType：传入的参数类型，可以是基本类型、map、自定义的java bean；</li>
+<li>resultType：返回的结果类型，可以是基本类型、自定义的java bean；</li>
+<li>resultMap：它是最复杂的元素，可以配置映射规则、级联、typeHandler等，与ResultType不能同时存在；</li>
+<li>flushCache：在调用SQL后，是否要求清空之前查询的本地缓存和二级缓存，主要用于更新缓存，默认为false；</li>
+<li>useCache：启动二级缓存的开关，默认只会启动一级缓存；</li>
+<li>timeout：设置超时参数，等超时的时候将抛出异常，单位为秒；</li>
+<li>fetchSize：获取记录的总条数设定；</li>
+</ul>
+<p>比如根据米聊号获取用户信息：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;select id=<span class="string">"findByMiliao"</span> parameterType=<span class="string">"string"</span> resultType=<span class="string">"User"</span>&gt;</span><br><span class="line">		select</span><br><span class="line">		u.*</span><br><span class="line">		from mxt_user u</span><br><span class="line">		where u.miliao=#&#123;miliao&#125;</span><br><span class="line">&lt;/select&gt;</span><br></pre></td></tr></table></figure>
+<p>上一篇介绍配置时，有个设置项autoMappingBehavior，默认为自动映射没有定义嵌套结果集映射的结果集；还有设置项mapUnderscoreToCamelCase，设置为true时，会自动将以「下划线」命名的数据库字段名，自动映射为以「驼峰式」命名的POJO。</p>
+<p>传递多个参数时，有3种方式：</p>
+<ul>
+<li>使用Map参数；</li>
+<li>使用注解方式传递；</li>
+<li>使用java bean；</li>
+</ul>
+<p>使用注解方式如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> List&lt;Role&gt; <span class="title">findRoleByNameAndNote</span><span class="params">(@Param(<span class="string">"roleName"</span>)</span> String rolename,</span></span><br><span class="line"><span class="function">@<span class="title">Param</span><span class="params">(<span class="string">"note"</span>)</span> String note)</span>;</span><br></pre></td></tr></table></figure>
+<p>使用Map传递参数，会导致业务可读性丧失，导致以后扩展和维护不方便，不建议；如果参数个数&lt;=5，建议使用注解的方式，因为过多参数将给调用者带来困难；如果参数个数&gt;5，建议使用JavaBean方式；</p>
+<p>使用resultMap映射结果集，后面会单独介绍。</p>
+<h5 id="insert"><a href="#insert" class="headerlink" title="insert"></a>insert</h5><p>属性和select大部分都相同， 说下3个不同的属性：</p>
+<ul>
+<li>keyProperty：指定哪个列是主键，如果是联合主键可以用逗号隔开；</li>
+<li>keyColumn：指定第几列是主键，不能和keyProperty共用；</li>
+<li>useGeneratedKeys：是否使用自动增长，默认为false；</li>
+</ul>
+<p>当useGeneratedKeys设为true时，在插入的时候，会回填Java Bean的id值，通过返回的对象可获取主键值。</p>
+<p>如果想根据一些特殊关系设置主键的值，可以在insert标签内使用selectKey标签，比如：如果t_role没有记录，则需要设置为1，否则取最大id加2：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">insert</span> <span class="attr">id</span>=<span class="string">"insertRole"</span> <span class="attr">useGeneratedKeys</span>=<span class="string">"true"</span> <span class="attr">keyProperty</span>=<span class="string">"id"</span> &gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">selectKey</span> <span class="attr">keyProperty</span>=<span class="string">"id"</span> <span class="attr">resultType</span>=<span class="string">"int"</span> <span class="attr">order</span>=<span class="string">"before"</span>&gt;</span></span><br><span class="line">        select if(max(id) is null,1,max(id)+2) as newId from t_role</span><br><span class="line">    <span class="tag">&lt;/<span class="name">selectKey</span>&gt;</span> </span><br><span class="line"><span class="tag">&lt;/<span class="name">insert</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h5 id="update和delete"><a href="#update和delete" class="headerlink" title="update和delete"></a>update和delete</h5><p>比较简单，就不过多介绍了。</p>
+<h4 id="参数"><a href="#参数" class="headerlink" title="参数"></a>参数</h4><p>上面已经介绍了参数传递，另外可以指定参数的类型去让对应的typeHandler处理它们。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">#&#123;age , javaType=int , jdbcType=NUMERIC &#125;</span><br></pre></td></tr></table></figure>
+<p>还可以对一些数值型的参数设置其保存的精度</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">#&#123;price, javaType=double , jdbcType=NUMERIC , numericScale=2 &#125;</span><br></pre></td></tr></table></figure>
+<p>一般都是传递字符串，设置的参数#{name}大部分情况下，会创建预编译语句，但有时候传递的是SQL语句本身，不是需要的参数，可以通过$符号表示，比如传递参数columns为”col1,col2,col3”，可以写成下面语句：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select $&#123;columns&#125; from t_tablename</span><br></pre></td></tr></table></figure>
+<p>但要注意sql的安全性，防止sql注入。</p>
+<h4 id="sql元素"><a href="#sql元素" class="headerlink" title="sql元素"></a>sql元素</h4><p>定义：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">sql</span> <span class="attr">id</span>=<span class="string">"role_columns"</span>&gt;</span></span><br><span class="line">    id,role_name,note</span><br><span class="line"><span class="tag">&lt;/<span class="name">sql</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>使用：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">include</span> <span class="attr">refid</span>=<span class="string">"role_columns"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"prefix"</span> <span class="attr">value</span>=<span class="string">"r"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">include</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h4 id="结果映射"><a href="#结果映射" class="headerlink" title="结果映射"></a>结果映射</h4><h5 id="元素介绍"><a href="#元素介绍" class="headerlink" title="元素介绍"></a>元素介绍</h5><p>resultMap是MyBatis里面最复杂的元素，它的作用是定义映射规则、级联的更新、定制类型转换器等。</p>
+<p>由以下元素构成：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">resultMap</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">constructor</span>&gt;</span> <span class="comment">&lt;!-- 配置构造方法 --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">idArg</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">arg</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">constructor</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">id</span>/&gt;</span> <span class="comment">&lt;!--指明哪一列是主键--&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">result</span>/&gt;</span> <span class="comment">&lt;!--配置映射规则--&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">association</span>/&gt;</span> <span class="comment">&lt;!--一对一--&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">collection</span>/&gt;</span> <span class="comment">&lt;!--一对多--&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">discriminator</span>&gt;</span> <span class="comment">&lt;!--鉴别器级联--&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">case</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">discriminator</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">resultMap</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>有的实体不存在没有参数的构造方法，需要使用constructor配置有参数的构造方法：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">resultMap</span> <span class="attr">id</span>=<span class="string">"role"</span> <span class="attr">type</span>=<span class="string">"com.xiaomi.kfs.mcc.core.domain.Role"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">constructor</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">idArg</span> <span class="attr">column</span>=<span class="string">"id"</span> <span class="attr">javaType</span>=<span class="string">"int"</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">arg</span> <span class="attr">column</span>=<span class="string">"role_name"</span> <span class="attr">javaType</span>=<span class="string">"string"</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">constructor</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">resultMap</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>id指明主键列，result配置数据库字段和POJO属性的映射规则：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">resultMap</span> <span class="attr">id</span>=<span class="string">"role"</span> <span class="attr">type</span>=<span class="string">"com.xiaomi.kfs.mcc.core.domain.Role"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">id</span> <span class="attr">property</span>=<span class="string">"id"</span> <span class="attr">column</span>=<span class="string">"id"</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">result</span> <span class="attr">property</span>=<span class="string">"roleName"</span> <span class="attr">column</span>=<span class="string">"role_name"</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">result</span> <span class="attr">property</span>=<span class="string">"note"</span> <span class="attr">column</span>=<span class="string">"note"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">resultMap</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>association、collection用于配置级联关系的，分别为一对一和一对多，实际中，多对多关系的应用不多，因为比较复杂，会用一对多的关系把它分解为双向关系。</p>
+<p>discriminator用于这样一种场景：比如我们去体检，男和女的体检项目不同，如果让男生去检查妇科项目，是不合理的， 通过discriminator可以根据性别，返回不同的对象。</p>
+<p>级联关系的配置比较多，就不在此演示了，可查看文档进行了解。</p>
+<h5 id="延迟加载"><a href="#延迟加载" class="headerlink" title="延迟加载"></a>延迟加载</h5><p>级联的优势是能够方便地获取数据，但有时不需要获取所有数据，这样会多执行几条SQL，性能下降，为了解决这个问题，需要使用延迟加载，只要使用相关级联数据时，才会发送SQL去取回数据。</p>
+<p>在MyBatis的配置中有2个全局的参数 lazyLoadingEnabled 和 aggressiveLazyLoading ，第一个的含义是是否开启延迟加载功能，第二个的含义是对任意延迟加载属性的调用，会使延迟加载的对象完整加载，否则只会按需加载。</p>
+<p>再理解下aggressiveLazyLoading属性，比如学生对象的关联对象如下：</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15221535775297.jpg" alt=""></p>
+<p>当访问学生信息的时候，会根据鉴别器把健康的情况也会查找出来；当访问课程成绩的时候，同时也会把学生证信息查找出来，因为在默认情况下，MyBatis是按层级延迟加载的。 但这不是我们需要的，并不希望在访问成绩的时候，去加载学生证的信息，可以设置aggressiveLazyLoading为false，按需进行延迟加载数据。</p>
+<p>上面的2个属性都是全局设置，也可以在association和collection元素上加上属性值fetchType，它有两个取值eager和lazy。</p>
+<h4 id="缓存"><a href="#缓存" class="headerlink" title="缓存"></a>缓存</h4><p>在没有显示配置缓存时，只开启一级缓存，一级缓存是相对于同一个SqlSession而言的，在参数和SQL完全一样的情况下，使用同一个SqlSession对象调用同一个Mapper的方法，只会执行一次SQL。</p>
+<p>如果是不同的SqlSession对象，因为不同SqlSession是相互隔离的，即使用相同的Mapper、参数和方法，还是会再次发送SQL到数据库去执行。</p>
+<p>二级缓存是SqlSessionFactory层面上的，需要进行显示配置，实现二级缓存的时候，要求POJO必须是可序列化的，只需要简单配置即可：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">cache</span> /&gt;</span></span><br></pre></td></tr></table></figure>
+<p>这样很多设置是默认的，有如下属性可以配置：</p>
+<ul>
+<li>eviction：代表缓存回收策略，可选值有LRU最少使用、FIFO先进先出、SOFT软引用，WEAK弱引用；</li>
+<li>flushInterval：刷新间隔时间，单位为毫秒，如果不配置，当SQL被执行时才会刷新缓存；</li>
+<li>size：引用数目，代表缓存最多可以存储多少对象，不宜设置过大，设置过大会导致内存溢出；</li>
+<li>readOnly：只读，意味着缓存数据只能读取不能修改；</li>
+</ul>
+<p>在大型服务器上，可能会使用专用的缓存服务器，比如Redis缓存，可以通过实现org.apache.ibatis.cache.Cache接口很方便的实现：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Cache</span> </span>&#123;</span><br><span class="line">    <span class="function">String <span class="title">getId</span><span class="params">()</span></span>; <span class="comment">//缓存编号</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">putObject</span><span class="params">(Object var1, Object var2)</span></span>; <span class="comment">//保存对象</span></span><br><span class="line">    <span class="function">Object <span class="title">getObject</span><span class="params">(Object var1)</span></span>; <span class="comment">//获取对象</span></span><br><span class="line">    <span class="function">Object <span class="title">removeObject</span><span class="params">(Object var1)</span></span>; <span class="comment">//移除对象</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">clear</span><span class="params">()</span></span>; <span class="comment">//清空缓存</span></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">getSize</span><span class="params">()</span></span>; <span class="comment">//获取缓存对象大小</span></span><br><span class="line">    <span class="function">ReadWriteLock <span class="title">getReadWriteLock</span><span class="params">()</span></span>; <span class="comment">//获取缓存的读写锁</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="动态SQL"><a href="#动态SQL" class="headerlink" title="动态SQL"></a>动态SQL</h4><p>很多时候，需要根据不同的场景组装查询条件，MyBatis提供对SQL语句动态的组装能力。</p>
+<p>主要提供以下几种元素：</p>
+<ul>
+<li>if：判断语句，但条件分支判断；</li>
+<li>choose (when、otherwise)：多条件分支判断；</li>
+<li>trim (where、set)：处理一些SQL拼装问题；</li>
+<li>foreach：循环语句，在in语句等列举条件常用；</li>
+<li>bind：通过OGNL表达式去自定义一个上下文变量，可以方便使用；</li>
+</ul>
+<p>trim可以处理 and 和 逗号 拼接的问题，举例如下：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">"findRoles"</span> <span class="attr">parameterType</span>=<span class="string">"string"</span> &gt;</span></span><br><span class="line">  select id,role_name,note from t_role</span><br><span class="line">  <span class="tag">&lt;<span class="name">trim</span> <span class="attr">prefix</span>=<span class="string">"where"</span> <span class="attr">prefixOverrides</span>=<span class="string">"and"</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">if</span> <span class="attr">test</span>=<span class="string">"roleName!=null and roleName!=''"</span>&gt;</span></span><br><span class="line">        and role_name like concat('%',#&#123;roleName&#125;,'%')</span><br><span class="line">      <span class="tag">&lt;/<span class="name">if</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">trim</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>另外，可以使用set元素设置更新的字段列表：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">update</span> <span class="attr">id</span>=<span class="string">"updateRole"</span> <span class="attr">parameterType</span>=<span class="string">"role"</span>&gt;</span></span><br><span class="line">    update t_role</span><br><span class="line">    <span class="tag">&lt;<span class="name">set</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">if</span> <span class="attr">test</span>=<span class="string">"roleName!=null and roleName!=''"</span>&gt;</span></span><br><span class="line">            role_name=#&#123;roleName&#125;,</span><br><span class="line">        <span class="tag">&lt;/<span class="name">if</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">if</span> <span class="attr">test</span>=<span class="string">"note!=null and note!=''"</span>&gt;</span></span><br><span class="line">            note=#&#123;note&#125;</span><br><span class="line">        <span class="tag">&lt;/<span class="name">if</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">set</span>&gt;</span></span><br><span class="line">    where id=#&#123;id&#125;</span><br><span class="line"><span class="tag">&lt;/<span class="name">update</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>下一篇会介绍MyBatis的解析和运行原理。</p>
+<p><strong>欢迎扫描下方二维码，关注我的个人微信公众号 ~</strong></p>
+<p><div align="center"><br><img src="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="情情说"></div></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/MyBatis/" rel="tag"># MyBatis</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/26/深入浅出MyBatis：MyBatis的配置/" rel="next" title="深入浅出MyBatis：MyBatis的所有配置">
+                <i class="fa fa-chevron-left"></i> 深入浅出MyBatis：MyBatis的所有配置
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/head.png"
+                alt="calm" />
+            
+              <p class="site-author-name" itemprop="name">calm</p>
+              <p class="site-description motion-element" itemprop="description">拥抱简单生活，保持平和心态，享受浪漫生活</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">23</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">17</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#映射器的主要元素"><span class="nav-number">1.</span> <span class="nav-text">映射器的主要元素</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#增、删、改、查操作"><span class="nav-number">2.</span> <span class="nav-text">增、删、改、查操作</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#查找"><span class="nav-number">2.1.</span> <span class="nav-text">查找</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#insert"><span class="nav-number">2.2.</span> <span class="nav-text">insert</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#update和delete"><span class="nav-number">2.3.</span> <span class="nav-text">update和delete</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#参数"><span class="nav-number">3.</span> <span class="nav-text">参数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#sql元素"><span class="nav-number">4.</span> <span class="nav-text">sql元素</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#结果映射"><span class="nav-number">5.</span> <span class="nav-text">结果映射</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#元素介绍"><span class="nav-number">5.1.</span> <span class="nav-text">元素介绍</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#延迟加载"><span class="nav-number">5.2.</span> <span class="nav-text">延迟加载</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#缓存"><span class="nav-number">6.</span> <span class="nav-text">缓存</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#动态SQL"><span class="nav-number">7.</span> <span class="nav-text">动态SQL</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">calm</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
