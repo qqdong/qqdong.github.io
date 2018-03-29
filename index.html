@@ -272,6 +272,314 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/03/29/深入浅出MyBatis：MyBatis解析和运行原理/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="calm">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/head.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="情情说">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/03/29/深入浅出MyBatis：MyBatis解析和运行原理/" itemprop="url">深入浅出MyBatis：MyBatis解析和运行原理</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-29T22:00:00+08:00">
+                2018-03-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/MyBatis/" itemprop="url" rel="index">
+                    <span itemprop="name">MyBatis</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>上一篇介绍了反射和动态代理基础，主要是为本篇文章做个铺垫，反射使配置和灵活性大大提高，可以给很多配置设置参数，动态代理可以在运行时创建代理对象，做一些特殊的处理。</p>
+<p>本篇会介绍MyBatis解析和运行原理，下一篇介绍插件及应用，目的是更好地编写插件，通过本篇的介绍，你会了解到：</p>
+<ul>
+<li>构建SqlSessionFactory过程</li>
+<li>映射器的动态代理</li>
+<li>SqlSession的4大对象</li>
+<li>sql执行的过程</li>
+</ul>
+<p>SqlSessionFactory和SqlSession是MyBatis的核心组件，在文章 <a href="http://qqidol.com/2018/03/25/%E6%B7%B1%E5%85%A5%E6%B5%85%E5%87%BAMyBatis%EF%BC%9A%E4%BB%8B%E7%BB%8D%E5%92%8C%E9%85%8D%E7%BD%AE/" target="_blank" rel="noopener">JDBC和MyBatis介绍</a> 中有详细说明。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018/03/29/深入浅出MyBatis：MyBatis解析和运行原理/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/03/28/深入浅出MyBatis：反射和动态代理基础/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="calm">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/head.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="情情说">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/03/28/深入浅出MyBatis：反射和动态代理基础/" itemprop="url">深入浅出MyBatis：反射和动态代理</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-28T22:00:00+08:00">
+                2018-03-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java基础/" itemprop="url" rel="index">
+                    <span itemprop="name">java基础</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>前三篇详细总结了Mybatis的基本特性、常用配置、映射器，相对于Hibernate，映射器的配置相对复杂，但有很好的灵活性和扩展性，可以应对各种业务场景。熟练掌握这些内容，可以流畅的使用MyBatis进行开发了。</p>
+<p>后面准备介绍MyBatis的解析和运行原理以及自定义插件，今天看了书籍的这部分，都会涉及到反射和动态代理这些基础，本篇文章总结下这些，便于理解原理。</p>
+<p>通过本篇的介绍，你会了解到：</p>
+<ul>
+<li>反射和动态代理是解决什么问题的</li>
+<li>Class对象</li>
+<li>反射能做什么</li>
+<li>动态代理的实现方式：JDK动态代理、CGLIB</li>
+</ul>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018/03/28/深入浅出MyBatis：反射和动态代理基础/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/03/27/深入浅出MyBatis：「映射器」全了解/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -582,7 +890,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/03/25/深入浅出MyBatis：介绍和配置/">
+    <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/03/25/深入浅出MyBatis：JDBC和MyBatis介绍/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="calm">
@@ -601,7 +909,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2018/03/25/深入浅出MyBatis：介绍和配置/" itemprop="url">深入浅出MyBatis：JDBC和MyBatis介绍</a></h1>
+                <a class="post-title-link" href="/2018/03/25/深入浅出MyBatis：JDBC和MyBatis介绍/" itemprop="url">深入浅出MyBatis：JDBC和MyBatis介绍</a></h1>
         
 
         <div class="post-meta">
@@ -679,7 +987,7 @@
 <p>本篇分享MyBatis书籍的第一篇，首先回忆下JDBC的相关概念，了解Java提供的访问数据库最基本的方式，然后介绍下MyBatis的基本特性和核心组件，最后说下书的整体结构，了解后续文章的大致内容。</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2018/03/25/深入浅出MyBatis：介绍和配置/#more" rel="contents">
+            <a class="btn" href="/2018/03/25/深入浅出MyBatis：JDBC和MyBatis介绍/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1495,306 +1803,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/03/10/单点登录本质之四：cookie安全问题/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="calm">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/head.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="情情说">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/03/10/单点登录本质之四：cookie安全问题/" itemprop="url">单点登录与权限管理本质：cookie安全问题</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-10T22:00:00+08:00">
-                2018-03-10
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/单点登录与权限管理/" itemprop="url" rel="index">
-                    <span itemprop="name">单点登录与权限管理</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>该系列好多天没更新了，前几天请假回老家了，外公去世了。工作上也开始忙了，开始了所谓的「996」，为节奏和效率堪忧。</p>
-<p>继续介绍「单点登录与权限管理」系列的第一部分：单点登录与权限管理本质，前一篇文章介绍了单点登录概念，以CAS协议的基本流程为例讲解了系统间的交互过程，过程中，cookie的设置和传输涉及的比较多，如何保证cookie的安全性，是这篇文章要介绍的。</p>
-<p>该系列的完整写作计划，可见：<a href="http://qqidol.com/2018/02/24/%E5%8D%95%E7%82%B9%E7%99%BB%E5%BD%95%E4%B8%8E%E6%9D%83%E9%99%90%E7%AE%A1%E7%90%86%E7%B3%BB%E5%88%97/" target="_blank" rel="noopener">系列概述</a></p>
-<p>安全相关的知识，了解的也有限，我阅读了相关的文章，按照自己的思路、理解，进行了梳理和总结。</p>
-<p>如果把安全问题按照发生区域来划分的话，所有发生在后端服务器的安全问题称为「后端安全问题」，比如SQL注入；所有发生在浏览器、web页面中的安全问题称为「前端安全问题」，比如XSS跨站脚本攻击，cookie相关的问题主要在前端。</p>
-<p>首先会介绍下2个攻击，XSS可获取用户的cookie，CSRF可利用用户的cookie伪造请求，然后介绍下HTTPS及它的重要性，最后说下跨域访问cookie的限制，HTTP设置cookie时对cookie操作的控制。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2018/03/10/单点登录本质之四：cookie安全问题/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/03/05/外公，一切安好/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="calm">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/head.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="情情说">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/03/05/外公，一切安好/" itemprop="url">外公，一切安好</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-05T23:55:00+08:00">
-                2018-03-05
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/life/" itemprop="url" rel="index">
-                    <span itemprop="name">life</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>2018年3月1号，妈妈的一通电话打破了内心的安定，外公突发高血压导致脑干出血，进了重病监护室，情况十分严重，心突然一下沉沉的。</p>
-<p>小的时候，外公一直带我，宠着我、疼着我、有时也会教育我。一起在平房上、院子里睡觉数星星的夜晚，偷偷塞给我的零花钱，拉着驾车子推着我去看脚，做错事轻轻打我后又立刻哄我，这些将成为我永远美好的回忆。</p>
-<p>2018年3月3号，上午做了简单的工作交接，下午就赶回家了。到家时，外公已经在家了，冷冰冰的氧气管一直插到喉咙里，还有凉凉的输液，勉强在维持着呼吸，外公被医院“判了死刑”。</p>
-<p>周围围了不少同村的人，都是来看看外公的，有人在喊，外公的眼睛竟微微的睁开了下，我和小妹还是一直坚信奇迹的发生，从接到电话的那一刻。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2018/03/05/外公，一切安好/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1849,7 +1857,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">23</span>
+                  <span class="site-state-item-count">25</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -1860,7 +1868,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-count">9</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -1871,7 +1879,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">17</span>
+                  <span class="site-state-item-count">18</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>

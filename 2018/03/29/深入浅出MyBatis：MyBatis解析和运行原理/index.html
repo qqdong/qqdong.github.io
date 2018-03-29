@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="MyBatis" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="上一篇介绍了反射和动态代理基础，主要是为本篇文章做个铺垫，反射使配置和灵活性大大提高，可以给很多配置设置参数，动态代理可以在运行时创建代理对象，做一些特殊的处理。 本篇会介绍MyBatis解析和运行原理，下一篇介绍插件及应用，目的是更好地编写插件，通过本篇的介绍，你会了解到：  构建SqlSessionFactory过程 映射器的动态代理 SqlSession的4大对象 sql执行的过程  Sql">
+<meta name="keywords" content="MyBatis">
+<meta property="og:type" content="article">
+<meta property="og:title" content="深入浅出MyBatis：MyBatis解析和运行原理">
+<meta property="og:url" content="https://qqdong.github.io/2018/03/29/深入浅出MyBatis：MyBatis解析和运行原理/index.html">
+<meta property="og:site_name" content="情情说">
+<meta property="og:description" content="上一篇介绍了反射和动态代理基础，主要是为本篇文章做个铺垫，反射使配置和灵活性大大提高，可以给很多配置设置参数，动态代理可以在运行时创建代理对象，做一些特殊的处理。 本篇会介绍MyBatis解析和运行原理，下一篇介绍插件及应用，目的是更好地编写插件，通过本篇的介绍，你会了解到：  构建SqlSessionFactory过程 映射器的动态代理 SqlSession的4大对象 sql执行的过程  Sql">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:updated_time" content="2018-03-29T11:15:34.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="深入浅出MyBatis：MyBatis解析和运行原理">
+<meta name="twitter:description" content="上一篇介绍了反射和动态代理基础，主要是为本篇文章做个铺垫，反射使配置和灵活性大大提高，可以给很多配置设置参数，动态代理可以在运行时创建代理对象，做一些特殊的处理。 本篇会介绍MyBatis解析和运行原理，下一篇介绍插件及应用，目的是更好地编写插件，通过本篇的介绍，你会了解到：  构建SqlSessionFactory过程 映射器的动态代理 SqlSession的4大对象 sql执行的过程  Sql">
+<meta name="twitter:image" content="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://qqdong.github.io/2018/03/29/深入浅出MyBatis：MyBatis解析和运行原理/"/>
+
+
+
+
+
+  <title>深入浅出MyBatis：MyBatis解析和运行原理 | 情情说</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?48e81d160a0773a1af5455493c416547";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">情情说</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">记录工作、学习和生活</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/03/29/深入浅出MyBatis：MyBatis解析和运行原理/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="calm">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/head.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="情情说">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">深入浅出MyBatis：MyBatis解析和运行原理</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-29T22:00:00+08:00">
+                2018-03-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/MyBatis/" itemprop="url" rel="index">
+                    <span itemprop="name">MyBatis</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>上一篇介绍了反射和动态代理基础，主要是为本篇文章做个铺垫，反射使配置和灵活性大大提高，可以给很多配置设置参数，动态代理可以在运行时创建代理对象，做一些特殊的处理。</p>
+<p>本篇会介绍MyBatis解析和运行原理，下一篇介绍插件及应用，目的是更好地编写插件，通过本篇的介绍，你会了解到：</p>
+<ul>
+<li>构建SqlSessionFactory过程</li>
+<li>映射器的动态代理</li>
+<li>SqlSession的4大对象</li>
+<li>sql执行的过程</li>
+</ul>
+<p>SqlSessionFactory和SqlSession是MyBatis的核心组件，在文章 <a href="http://qqidol.com/2018/03/25/%E6%B7%B1%E5%85%A5%E6%B5%85%E5%87%BAMyBatis%EF%BC%9A%E4%BB%8B%E7%BB%8D%E5%92%8C%E9%85%8D%E7%BD%AE/" target="_blank" rel="noopener">JDBC和MyBatis介绍</a> 中有详细说明。</p>
+<a id="more"></a>
+<h4 id="构建SqlSessionFactory过程"><a href="#构建SqlSessionFactory过程" class="headerlink" title="构建SqlSessionFactory过程"></a>构建SqlSessionFactory过程</h4><p>构建主要分为2步：</p>
+<ul>
+<li>通过XMLConfigBuilder解析配置的XML文件，读出配置参数，包括基础配置XML文件和映射器XML文件；</li>
+<li>使用Configuration对象创建SqlSessionFactory，SqlSessionFactory是一个接口，提供了一个默认的实现类DefaultSqlSessionFactory。</li>
+</ul>
+<p>说白了，就是将我们的所有配置解析为Configuration对象，在整个生命周期内，可以通过该对象获取需要的配置。</p>
+<p>由于插件需要频繁访问映射器的内部组成，会重点这部分，了解这块配置抽象出来的对象：</p>
+<h5 id="MappedStatement"><a href="#MappedStatement" class="headerlink" title="MappedStatement"></a>MappedStatement</h5><p>它保存映射器的一个节点（select|insert|delete|update），包括配置的SQL，SQL的id、缓存信息、resultMap、parameterType、resultType等重要配置内容。</p>
+<p>它涉及的对象比较多，一般不去修改它。</p>
+<h5 id="SqlSource"><a href="#SqlSource" class="headerlink" title="SqlSource"></a>SqlSource</h5><p>它是MappedStatement的一个属性，主要作用是根据参数和其他规则组装SQL，也是很复杂的，一般也不用修改它。</p>
+<h5 id="BoundSql"><a href="#BoundSql" class="headerlink" title="BoundSql"></a>BoundSql</h5><p>对于参数和SQL，主要反映在BoundSql类对象上，在插件中，通过它获取到当前运行的SQL和参数以及参数规则，作出适当的修改，满足特殊的要求。</p>
+<p>BoundSql提供3个主要的属性：parameterObject、parameterMappings和sql，下面分别来介绍。</p>
+<p>parameterObject为参数本身，可以传递简单对象、POJO、Map或@Param注解的参数：</p>
+<ul>
+<li>传递简单对象(int、float、String等)，会把参数转换为对应的类，比如int会转换为Integer；</li>
+<li>如果传递的是POJO或Map，paramterObject就是传入的POJO或Map不变；</li>
+<li>如果传递多个参数，没有@Param注解，parameterObject就是一个Map<string,object>对象，类似这样的形式{“1”:p1 , “2”:p2 , “3”:p3 … “param1”:p1 , “param2”:p2 , “param3”,p3 …}，所以在编写的时候可以使用#{param1}或#{1}去引用第一个参数；</string,object></li>
+<li>如果传递多个参数，有@Param注解，与没有注解的类似，只是将序号的key替换为@Param指定的name；</li>
+</ul>
+<p>parameterMappings，它是一个List，元素是ParameterMapping对象，这个对象会描绘sql中的参数引用，包括名称、表达式、javaType、jdbcType、typeHandler等信息。</p>
+<p>sql，是写在映射器里面的一条sql。</p>
+<p>有了Configuration对象，构建SqlSessionFactory就简单了：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sqlSessionFactory = <span class="keyword">new</span> SqlSessionFactoryBuilder().bulid(inputStream);</span><br></pre></td></tr></table></figure>
+<h4 id="SqlSession运行过程"><a href="#SqlSession运行过程" class="headerlink" title="SqlSession运行过程"></a>SqlSession运行过程</h4><h5 id="映射器的动态代理"><a href="#映射器的动态代理" class="headerlink" title="映射器的动态代理"></a>映射器的动态代理</h5><p>Mapper映射是通过动态代理来实现的，使用JDK动态代理返回一个代理对象，供调用者访问。</p>
+<p>首先看看实现InvocationHandler接口的类，它是执行本代理方法的关键，可以看到，Mapper是一个接口，会生成MapperMethod对象，调用execute方法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MapperProxy</span>&lt;<span class="title">T</span>&gt; <span class="keyword">implements</span> <span class="title">InvocationHandler</span>, <span class="title">Serializable</span> </span>&#123;</span><br><span class="line">  </span><br><span class="line">  .....</span><br><span class="line">  </span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> Object <span class="title">invoke</span><span class="params">(Object proxy, Method method, Object[] args)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      <span class="keyword">if</span> (Object.class.equals(method.getDeclaringClass())) &#123;</span><br><span class="line">        <span class="keyword">return</span> method.invoke(<span class="keyword">this</span>, args);</span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (isDefaultMethod(method)) &#123;</span><br><span class="line">        <span class="keyword">return</span> invokeDefaultMethod(proxy, method, args);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Throwable t) &#123;</span><br><span class="line">      <span class="keyword">throw</span> ExceptionUtil.unwrapThrowable(t);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">final</span> MapperMethod mapperMethod = cachedMapperMethod(method);</span><br><span class="line">    <span class="keyword">return</span> mapperMethod.execute(sqlSession, args);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>看下面的代码，MapperMethod采用命令模式，根据不同的sql操作，做不同的处理。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MapperMethod</span> </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">public</span> Object <span class="title">execute</span><span class="params">(SqlSession sqlSession, Object[] args)</span> </span>&#123;</span><br><span class="line">    Object result;</span><br><span class="line">    <span class="keyword">switch</span> (command.getType()) &#123;</span><br><span class="line">      <span class="keyword">case</span> INSERT: &#123;</span><br><span class="line">      Object param = method.convertArgsToSqlCommandParam(args);</span><br><span class="line">        result = rowCountResult(sqlSession.insert(command.getName(), param));</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">case</span> UPDATE: &#123;</span><br><span class="line">        Object param = method.convertArgsToSqlCommandParam(args);</span><br><span class="line">        result = rowCountResult(sqlSession.update(command.getName(), param));</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">        </span><br><span class="line">        ......</span><br><span class="line">        </span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>最后看下，生成代理类的方法，就是使用JDK动态代理Proxy来创建的。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MapperProxyFactory</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> T <span class="title">newInstance</span><span class="params">(SqlSession sqlSession)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> MapperProxy&lt;T&gt; mapperProxy = <span class="keyword">new</span> MapperProxy&lt;T&gt;(sqlSession, mapperInterface, methodCache);</span><br><span class="line">    <span class="keyword">return</span> newInstance(mapperProxy);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@SuppressWarnings</span>(<span class="string">"unchecked"</span>)</span><br><span class="line">  <span class="function"><span class="keyword">protected</span> T <span class="title">newInstance</span><span class="params">(MapperProxy&lt;T&gt; mapperProxy)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> (T) Proxy.newProxyInstance(mapperInterface.getClassLoader(), <span class="keyword">new</span> Class[] &#123; mapperInterface &#125;, mapperProxy);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>总结下映射器的调用过程，返回的Mapper对象是代理对象，当调用它的某个方法时，其实是调用MapperProxy#invoke方法，而映射器的XML文件的命名空间对应的就是这个接口的全路径，会根据全路径和方法名，便能够绑定起来，定位到sql，最后会使用SqlSession接口的方法使它能够执行查询。</p>
+<h5 id="SqlSession下的四大对象"><a href="#SqlSession下的四大对象" class="headerlink" title="SqlSession下的四大对象"></a>SqlSession下的四大对象</h5><p>通过上面的分析，映射器就是一个动态代理对象，进入到了MapperMethod的execute方法，它经过简单的判断就进入了SqlSession的删除、更新、插入、选择等方法，这些方法如何执行是下面要介绍的内容。</p>
+<p>Mapper执行的过程是通过Executor、StatementHandler、ParameterHandler和ResultHandler来完成数据库操作和结果返回的，理解他们是编写插件的关键：</p>
+<ul>
+<li>Executor：执行器，由它统一调度其他三个对象来执行对应的SQL；</li>
+<li>StatementHandler：使用数据库的Statement执行操作；</li>
+<li>ParameterHandler：用于SQL对参数的处理；</li>
+<li>ResultHandler：进行最后数据集的封装返回处理；</li>
+</ul>
+<p>在MyBatis中存在三种执行器：</p>
+<ul>
+<li>SIMPLE：简易执行器，默认的执行器；</li>
+<li>REUSE：执行重用预处理语句；</li>
+<li>BATCH:执行重用语句和批量更新，针对批量专用的执行器；</li>
+</ul>
+<p>以SimpleExecutor为例，说明执行过程</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SimpleExecutor</span> <span class="keyword">extends</span> <span class="title">BaseExecutor</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">  * 执行查询操作</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line">  <span class="keyword">public</span> &lt;E&gt; <span class="function">List&lt;E&gt; <span class="title">doQuery</span><span class="params">(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql)</span> <span class="keyword">throws</span> SQLException </span>&#123;</span><br><span class="line">    Statement stmt = <span class="keyword">null</span>;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      Configuration configuration = ms.getConfiguration();</span><br><span class="line">      StatementHandler handler = configuration.newStatementHandler(<span class="keyword">this</span>, ms, parameter, rowBounds, resultHandler, boundSql);</span><br><span class="line">      stmt = prepareStatement(handler, ms.getStatementLog());</span><br><span class="line">      <span class="keyword">return</span> handler.&lt;E&gt;query(stmt, resultHandler);</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">      closeStatement(stmt);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">  * 初始化StatementHandler</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line">  <span class="function"><span class="keyword">private</span> Statement <span class="title">prepareStatement</span><span class="params">(StatementHandler handler, Log statementLog)</span> <span class="keyword">throws</span> SQLException </span>&#123;</span><br><span class="line">    Statement stmt;</span><br><span class="line">    Connection connection = getConnection(statementLog);</span><br><span class="line">    stmt = handler.prepare(connection);</span><br><span class="line">    handler.parameterize(stmt);</span><br><span class="line">    <span class="keyword">return</span> stmt;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">  * 执行查询</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="keyword">public</span> &lt;E&gt; <span class="function">List&lt;E&gt; <span class="title">query</span><span class="params">(Statement statement, ResultHandler resultHandler)</span> <span class="keyword">throws</span> SQLException </span>&#123;</span><br><span class="line">    String sql = boundSql.getSql();</span><br><span class="line">    statement.execute(sql);</span><br><span class="line">    <span class="keyword">return</span> resultSetHandler.&lt;E&gt;handleResultSets(statement);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到最后会委托给StatementHandler会话器进行处理，它是一个接口，实际创建的是RoutingStatementHandler对象，但它不是真实的服务对象，它是通过适配器模式找到对应的StatementHandler执行的。在MyBatis中，StatementHandler和Executor一样分为三种：SimpleStatementHandler、PreparedStatementHandler、CallableStatementHandler。</p>
+<p>Executor会先调用StatementHandler的prepare方法预编译SQL语句，同时设置一些基本运行的参数。然后调用parameterize()方法启用ParameterHandler设置参数，完成预编译，跟着执行查询，用ResultHandler封装结果返回给调用者。</p>
+<p>参数处理器和结果处理器比较简单，就不在此介绍了。</p>
+<p>下一篇会介绍插件及其应用，主要是在sql执行的过程中，在四大对象的基础上进行扩展。</p>
+<p><strong>欢迎扫描下方二维码，关注我的个人微信公众号 ~</strong></p>
+<p><div align="center"><br><img src="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="情情说"></div></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/MyBatis/" rel="tag"># MyBatis</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/28/深入浅出MyBatis：反射和动态代理基础/" rel="next" title="深入浅出MyBatis：反射和动态代理">
+                <i class="fa fa-chevron-left"></i> 深入浅出MyBatis：反射和动态代理
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/head.png"
+                alt="calm" />
+            
+              <p class="site-author-name" itemprop="name">calm</p>
+              <p class="site-description motion-element" itemprop="description">拥抱简单生活，保持平和心态，享受浪漫生活</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">25</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">18</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#构建SqlSessionFactory过程"><span class="nav-number">1.</span> <span class="nav-text">构建SqlSessionFactory过程</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#MappedStatement"><span class="nav-number">1.1.</span> <span class="nav-text">MappedStatement</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#SqlSource"><span class="nav-number">1.2.</span> <span class="nav-text">SqlSource</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#BoundSql"><span class="nav-number">1.3.</span> <span class="nav-text">BoundSql</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SqlSession运行过程"><span class="nav-number">2.</span> <span class="nav-text">SqlSession运行过程</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#映射器的动态代理"><span class="nav-number">2.1.</span> <span class="nav-text">映射器的动态代理</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#SqlSession下的四大对象"><span class="nav-number">2.2.</span> <span class="nav-text">SqlSession下的四大对象</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">calm</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
