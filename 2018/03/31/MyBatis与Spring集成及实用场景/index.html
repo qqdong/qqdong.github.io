@@ -88,7 +88,7 @@
 <meta property="og:description" content="本系列是「深入浅出MyBatis：技术原理与实践」书籍的总结笔记。  本篇是「深入浅出MyBatis」系列的最后一篇，主要介绍与Spring的集成，以及工作中的一些实用场景。 介绍之前，先整体总结下该系列的内容和写作思路。 MyBatis是一个框架，封装了数据库相关的操作，给我们开发人员带来了极大地便利，相对于Hibernate，有很大的灵活性和扩展性，在高并发高性能应用中，这点很重要。 首先介">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2018-03-31T08:54:14.000Z">
+<meta property="og:updated_time" content="2018-03-31T08:57:45.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="深入浅出MyBatis：MyBatis与Spring集成及实用场景">
 <meta name="twitter:description" content="本系列是「深入浅出MyBatis：技术原理与实践」书籍的总结笔记。  本篇是「深入浅出MyBatis」系列的最后一篇，主要介绍与Spring的集成，以及工作中的一些实用场景。 介绍之前，先整体总结下该系列的内容和写作思路。 MyBatis是一个框架，封装了数据库相关的操作，给我们开发人员带来了极大地便利，相对于Hibernate，有很大的灵活性和扩展性，在高并发高性能应用中，这点很重要。 首先介">
@@ -380,6 +380,7 @@
 <li>MyBatis-Spring应用：配置和集成</li>
 <li>实用场景介绍</li>
 </ul>
+<a id="more"></a>
 <h4 id="Spring-IOC和AOP"><a href="#Spring-IOC和AOP" class="headerlink" title="Spring IOC和AOP"></a>Spring IOC和AOP</h4><p>了解Spring的基础，有助于理解集成配置，Spring技术主要由IOC和AOP两个基础功能构成。</p>
 <h5 id="IOC"><a href="#IOC" class="headerlink" title="IOC"></a>IOC</h5><p>IOC称为控制反转，可以这样理解：以前我们获取一个类的对象，都是去new一个，必须确定实现类是哪个，有了IOC，所有配置为Spring管理的对象都由Spring管理，包括对象的创建和生命周期，这样，去获取类的对象时，不需要显示指定，由Spring去决定返回哪个对象。</p>
 <p>这样，对象的创建，控制权由业务代码转向给了Spring，称为控制反转。</p>

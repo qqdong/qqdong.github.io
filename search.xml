@@ -22,6 +22,7 @@
 <li>MyBatis-Spring应用：配置和集成</li>
 <li>实用场景介绍</li>
 </ul>
+<a id="more"></a>
 <h4 id="Spring-IOC和AOP"><a href="#Spring-IOC和AOP" class="headerlink" title="Spring IOC和AOP"></a>Spring IOC和AOP</h4><p>了解Spring的基础，有助于理解集成配置，Spring技术主要由IOC和AOP两个基础功能构成。</p>
 <h5 id="IOC"><a href="#IOC" class="headerlink" title="IOC"></a>IOC</h5><p>IOC称为控制反转，可以这样理解：以前我们获取一个类的对象，都是去new一个，必须确定实现类是哪个，有了IOC，所有配置为Spring管理的对象都由Spring管理，包括对象的创建和生命周期，这样，去获取类的对象时，不需要显示指定，由Spring去决定返回哪个对象。</p>
 <p>这样，对象的创建，控制权由业务代码转向给了Spring，称为控制反转。</p>

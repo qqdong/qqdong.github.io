@@ -364,8 +364,7 @@
 
       
         
-          
-            <blockquote>
+          <blockquote>
 <p>本系列是「深入浅出MyBatis：技术原理与实践」书籍的总结笔记。</p>
 </blockquote>
 <p>本篇是「深入浅出MyBatis」系列的最后一篇，主要介绍与Spring的集成，以及工作中的一些实用场景。</p>
@@ -381,58 +380,13 @@
 <li>MyBatis-Spring应用：配置和集成</li>
 <li>实用场景介绍</li>
 </ul>
-<h4 id="Spring-IOC和AOP"><a href="#Spring-IOC和AOP" class="headerlink" title="Spring IOC和AOP"></a>Spring IOC和AOP</h4><p>了解Spring的基础，有助于理解集成配置，Spring技术主要由IOC和AOP两个基础功能构成。</p>
-<h5 id="IOC"><a href="#IOC" class="headerlink" title="IOC"></a>IOC</h5><p>IOC称为控制反转，可以这样理解：以前我们获取一个类的对象，都是去new一个，必须确定实现类是哪个，有了IOC，所有配置为Spring管理的对象都由Spring管理，包括对象的创建和生命周期，这样，去获取类的对象时，不需要显示指定，由Spring去决定返回哪个对象。</p>
-<p>这样，对象的创建，控制权由业务代码转向给了Spring，称为控制反转。</p>
-<h5 id="AOP"><a href="#AOP" class="headerlink" title="AOP"></a>AOP</h5><p>AOP称为面向切面编程，所谓切面，是说在正常逻辑中插入一些逻辑处理代码，比如插入日志记录、事务管理等代码，其中，日志记录和事务管理就是切面。Spring AOP可以在不修改原有方法逻辑的情况下，通过简单配置，对受影响的类方法统一插入切面处理代码。</p>
-<p>Spring AOP是通过动态代理实现的，当Spring的服务包含接口描述时，采用JDK动态代理，否则采用CGLIB代理。</p>
-<p>最后，简单说明下AOP相关的概念，便于理解它的配置：</p>
-<ul>
-<li>切入点：Spring生成代理对象后，当调用服务方法时，会调用InvitationHandler的invoke方法，需要拦截哪些方法，进行特殊处理呢，这就是切入点，Spring可以通过正则进行配置；</li>
-<li>切面：上面已经介绍了，日志记录、事务管理等需要处理的逻辑对象，就是切面；</li>
-<li>连接点：它是在程序运行中根据不同的通知来实现的程序段，通知包括，前置通知、后置通知、异常后通知、正常返回后通知、环绕通知；</li>
-</ul>
-<h4 id="Spring-事务管理"><a href="#Spring-事务管理" class="headerlink" title="Spring 事务管理"></a>Spring 事务管理</h4><p>在编写业务代码时，一个业务方法可能涉及多张表或多条sql语句，同一条表数据可能会被同时访问，数据库的事务控制很重要，通过Spring AOP和Spring 事务管理，可以大量减少我们的代码，对各种场景的事务管理也很方便。</p>
-<h5 id="事务隔离级别"><a href="#事务隔离级别" class="headerlink" title="事务隔离级别"></a>事务隔离级别</h5><ul>
-<li>读未提交：可能出现脏读问题，一个事务读取另一个事务未提交的数据；</li>
-<li>读已提交：可能出现不可重复读问题，针对同一条记录，同一个事务前后可能读取不同的数据；</li>
-<li>可重复读：可能出现幻读问题，针对删除和插入记录，同一个查询条件，同一个事务返回的记录数可能不同；</li>
-<li>序列化：所有操作会按顺序执行；</li>
-</ul>
-<p>MySql默认隔离级别为可重复读。</p>
-<h5 id="传播行为"><a href="#传播行为" class="headerlink" title="传播行为"></a>传播行为</h5><p>传播行为，是指方法之间的调用，事务如何传递，在Spring中定义了7种传播行为，可根据不同场景进行配置，不一一介绍了，举几个说明下：</p>
-<ul>
-<li>PROPAGATION_REQUIRED：如果存在一个事务，则使用当前事务，否则开启一个事务；</li>
-<li>PROPAGATION_SUPPORTS：如果存在一个事务，则支持当前事务，否则以非事务执行；</li>
-<li>PROPAGATION_REQUIRES_NEW：总是开启一个新的事务，即使有一个事务存在；</li>
-<li>PROPAGATION_NOT_SUPPORTED：总是以非事务执行，挂起已存在的事物；</li>
-</ul>
-<p>Spring默认的传播行为为PROPAGATION_REQUIRED。</p>
-<h4 id="MyBatis-Spring集成配置"><a href="#MyBatis-Spring集成配置" class="headerlink" title="MyBatis-Spring集成配置"></a>MyBatis-Spring集成配置</h4><p>了解了Spring的IOC，进行集成配置就比较简单了，另外，除了业务SQL的编写，事务是很重要的一部分，Spring AOP和事务管理帮我们解决了。</p>
-<p>MyBatis提供了和Spring无缝对接的功能，主要通过mybatis-spring-x.x.x.jar实现，下面说下集成配置的过程：</p>
-<h5 id="配置数据源"><a href="#配置数据源" class="headerlink" title="配置数据源"></a>配置数据源</h5><p>使用c3p0的实现，只要实现javax.sql.DataSource接口都可以。</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&lt;bean id=<span class="string">"dataSource"</span> <span class="class"><span class="keyword">class</span></span>=<span class="string">"com.mchange.v2.c3p0.ComboPooledDataSource"</span>&gt;</span><br><span class="line">		&lt;property name="driverClass" value="$&#123;c3p0.driverClass&#125;"&gt;&lt;/property&gt;</span><br><span class="line">		&lt;property name="jdbcUrl" value="$&#123;c3p0.jdbcUrl&#125;"&gt;&lt;/property&gt;</span><br><span class="line">		&lt;property name="user" value="$&#123;c3p0.user&#125;"&gt;&lt;/property&gt;</span><br><span class="line">		&lt;property name="password" value="$&#123;c3p0.password&#125;"&gt;&lt;/property&gt;</span><br><span class="line">		&lt;property name="acquireIncrement" value="$&#123;c3p0.acquireIncrement&#125;"&gt;&lt;/property&gt;</span><br><span class="line">		&lt;property name="initialPoolSize" value="$&#123;c3p0.initialPoolSize&#125;"&gt;&lt;/property&gt;</span><br><span class="line">		&lt;property name="maxIdleTime" value="$&#123;c3p0.maxIdleTime&#125;"&gt;&lt;/property&gt;</span><br><span class="line">		&lt;property name="maxPoolSize" value="$&#123;c3p0.maxPoolSize&#125;"&gt;&lt;/property&gt;</span><br><span class="line">		&lt;property name="minPoolSize" value="$&#123;c3p0.minPoolSize&#125;"&gt;&lt;/property&gt;</span><br><span class="line">&lt;/bean&gt;</span><br></pre></td></tr></table></figure>
-<h5 id="配置SqlSessionFactory"><a href="#配置SqlSessionFactory" class="headerlink" title="配置SqlSessionFactory"></a>配置SqlSessionFactory</h5><p>它是生成SqlSession的，组件提供了org.mybatis.spring.SqlSessionFactoryBean类给我们去配置。</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&lt;bean id=<span class="string">"sqlSessionFactory"</span> <span class="class"><span class="keyword">class</span></span>=<span class="string">"org.mybatis.spring.SqlSessionFactoryBean"</span>&gt;</span><br><span class="line">		&lt;property name=<span class="string">"dataSource"</span> ref=<span class="string">"dataSource"</span> /&gt;</span><br><span class="line">		&lt;!-- 自动扫描entity目录以匹配别名 --&gt;</span><br><span class="line">		&lt;property name=<span class="string">"typeAliasesPackage"</span> value=<span class="string">"com.xiaomi.kfs.mcc.persistence, com.xiaomi.kfs.authority.core"</span> /&gt;</span><br><span class="line">		&lt;!-- 显式指定Mapper文件位置 --&gt;</span><br><span class="line">		&lt;property name=<span class="string">"mapperLocations"</span> value=<span class="string">"classpath*:context/mybatis/*Mapper.xml"</span> /&gt;</span><br><span class="line">		&lt;!-- 指定mybatis配置文件 --&gt;</span><br><span class="line">		&lt;property name="configLocation" value="classpath:mybatis-config.xml"&gt;&lt;/property&gt;</span><br><span class="line">&lt;/bean&gt;</span><br></pre></td></tr></table></figure>
-<p>配置文件mybatis-config.xml前面文章介绍了，就不再次写了。</p>
-<h5 id="配置自动扫描mapper-bean："><a href="#配置自动扫描mapper-bean：" class="headerlink" title="配置自动扫描mapper bean："></a>配置自动扫描mapper bean：</h5><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;bean <span class="class"><span class="keyword">class</span></span>=<span class="string">"org.mybatis.spring.mapper.MapperScannerConfigurer"</span>&gt;</span><br><span class="line">		&lt;property name=<span class="string">"basePackage"</span> value=<span class="string">"com.xiaomi.kfs.mcc.persistence,com.xiaomi.kfs.mcc.workorder, com.xiaomi.kfs.authority.core"</span> /&gt;</span><br><span class="line">		&lt;property name=<span class="string">"annotationClass"</span> value=<span class="string">"com.xiaomi.common.annotation.MyBatisRepository"</span> /&gt;</span><br><span class="line">&lt;/bean&gt;</span><br></pre></td></tr></table></figure>
-<h5 id="配置事务"><a href="#配置事务" class="headerlink" title="配置事务"></a>配置事务</h5><p>使用Spring AOP管理事务。</p>
-<!--配置事务管理器-->
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;bean id=<span class="string">"transactionManager"</span> <span class="class"><span class="keyword">class</span></span>=<span class="string">"org.springframework.jdbc.datasource.DataSourceTransactionManager"</span>&gt;</span><br><span class="line">    &lt;property name=<span class="string">"dataSource"</span> ref=<span class="string">"dataSource"</span> /&gt;</span><br><span class="line">&lt;/bean&gt;</span><br><span class="line"></span><br><span class="line">&lt;!-- 使用annotation定义事务 <span class="meta">@Transactional</span> --&gt;</span><br><span class="line">&lt;tx:annotation-driven transaction-manager=<span class="string">"transactionManager"</span> /&gt;</span><br></pre></td></tr></table></figure>
-<h4 id="使用场景介绍"><a href="#使用场景介绍" class="headerlink" title="使用场景介绍"></a>使用场景介绍</h4><p>实际工作中，可能有很多使用场景，下面会简单介绍些这些场景，说明实现思路。</p>
-<h5 id="数据库BLOB字段读写"><a href="#数据库BLOB字段读写" class="headerlink" title="数据库BLOB字段读写"></a>数据库BLOB字段读写</h5><p>对于文件，在数据库中，一般通过BLOB字段存储，MyBatis提供了BlobTypeHandler进行类型映射，可以把byte[]类型和BLOB类型自动转换。</p>
-<p>但更多的时候，我们会把文件专门存放在一个文件服务器中，数据库存储文件路径即可。</p>
-<h5 id="批量更新"><a href="#批量更新" class="headerlink" title="批量更新"></a>批量更新</h5><p>批量更新有助于提高数据库性能，可以修改defaultExecutorType，设置为BATCH，这样一个事务如果有多条sql，只有在commit后才会发送SQL到数据库。</p>
-<p>但要注意，如果程序上下文中，依赖插入的数据主键，可以通过调用sqlSession的flushStatements方法主动将当前缓存的sql发送给数据库执行。</p>
-<h5 id="调用存储过程"><a href="#调用存储过程" class="headerlink" title="调用存储过程"></a>调用存储过程</h5><p>MyBatis支持存储过程，对其进行了封装，具体配置过程在此不做详细介绍了。</p>
-<h5 id="分表"><a href="#分表" class="headerlink" title="分表"></a>分表</h5><p>如果系统数据库比较大，可通过分表减少单表的压力，MyBatis允许把表名作为参数传递到SQL中，很容易实现。</p>
-<h5 id="分页"><a href="#分页" class="headerlink" title="分页"></a>分页</h5><p>MyBatis具有分页功能，通过RowBounds实现，但它有个问题，会在一条SQL中查询所有的结果，再根据从第几条到第几条取数据返回。可以通过编写一个插件，重写SQL进行分页，进行统一处理。</p>
-<h5 id="使用枚举类型"><a href="#使用枚举类型" class="headerlink" title="使用枚举类型"></a>使用枚举类型</h5><p>之前文章介绍过，通过自定义typeHandler可以很容易的实现。</p>
-<p>后续开始阅读「RabbitMQ实战：高效部署分布式消息队列」，并进行总结和分享。</p>
-<p><strong>欢迎扫描下方二维码，关注我的个人微信公众号 ~</strong></p>
-<p><div align="center"><br><img src="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="情情说"></div></p>
-
-          
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018/03/31/MyBatis与Spring集成及实用场景/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
