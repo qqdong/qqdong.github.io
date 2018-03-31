@@ -88,7 +88,7 @@
 <meta property="og:description" content="本篇文章是「深入浅出MyBatis：技术原理与实践」书籍的总结笔记。  上一篇介绍了 MyBatis解析和运行原理 ，包括SqlSessionFactory的构建和SqlSession的执行过程，其中，SqlSession包含四大对象，可以在四大对象调度的时候插入自定义的代码，以满足特殊的需求，这便是MyBatis提供的插件技术。 有些特殊场景，需要使用插件统一处理，比如：在进行多租户开发时，数">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2018-03-30T11:25:17.000Z">
+<meta property="og:updated_time" content="2018-03-31T08:45:29.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="深入浅出MyBatis：MyBatis插件及开发过程">
 <meta name="twitter:description" content="本篇文章是「深入浅出MyBatis：技术原理与实践」书籍的总结笔记。  上一篇介绍了 MyBatis解析和运行原理 ，包括SqlSessionFactory的构建和SqlSession的执行过程，其中，SqlSession包含四大对象，可以在四大对象调度的时候插入自定义的代码，以满足特殊的需求，这便是MyBatis提供的插件技术。 有些特殊场景，需要使用插件统一处理，比如：在进行多租户开发时，数">
@@ -420,7 +420,7 @@
 <blockquote>
 <p>自定义插件还是比较复杂的，如果不了解原理，很容易出错，能不用插件尽量不要使用，因为它是修改MyBatis的底层设计。 插件生成的是层层代理对象的责任链模式，通过反射方法运行，性能不高，要考虑全面，特别是多个插件层层代理的逻辑。</p>
 </blockquote>
-<p>下一步会介绍MyBatis与Spring的集成。</p>
+<p>下一篇会介绍MyBatis与Spring的集成。</p>
 <p><strong>欢迎扫描下方二维码，关注我的个人微信公众号 ~</strong></p>
 <p><div align="center"><br><img src="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="情情说"></div></p>
 
@@ -462,6 +462,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/03/31/MyBatis与Spring集成及实用场景/" rel="prev" title="深入浅出MyBatis：MyBatis与Spring集成及实用场景">
+                深入浅出MyBatis：MyBatis与Spring集成及实用场景 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -542,7 +546,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">26</span>
+                  <span class="site-state-item-count">27</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
