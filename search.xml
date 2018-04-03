@@ -4,6 +4,128 @@
   
     
     <entry>
+      <title><![CDATA[Netty事件监听和处理（上）]]></title>
+      <url>https://qqdong.github.io/2018/04/03/Netty%E4%BA%8B%E4%BB%B6%E7%9B%91%E5%90%AC%E5%92%8C%E5%A4%84%E7%90%86%EF%BC%88%E4%B8%8A%EF%BC%89/</url>
+      <content type="html"><![CDATA[<p>陪产假结束了，今天又开始正常上班了，正好赶上米粉节活动，又要忙上一阵了，米粉节活动时间为4.03 - 4.10，有不少优惠，感兴趣的可以关注mi.com或小米商城app。</p>
+<p>今天给大家送了福利：小爱音箱F码，据说卖的比较好，不太好抢到，借着这次公司福利，分享给大家，以表大家的支持和鼓励。</p>
+<p>掘金的运营真的很贴心，主动找到我说：我的福利文章不是技术型文章，不能推送到信息流，只能在个人主页看到，为了让更多的人参与这次抽取，建议写一篇技术文章，末尾加上送福利的内容。再次感谢掘金运营小哥「刺客」的贴心和建议。</p>
+<p>RabbitMQ实战的后续章节还没来得及看，这篇就总结下之前在项目组分享过的技术点：Netty事件监听和处理。</p>
+<p>通过介绍，你会了解到：</p>
+<ul>
+<li>事件监听、NIO、线程模型等相关概念；</li>
+<li>Netty总体结构；</li>
+<li>事件监听和处理；</li>
+<li>项目实践总结；</li>
+</ul>
+<p>本篇先介绍下前两节，下一篇介绍后两节。</p>
+<p>本篇最后会说明下福利的抽取规则，大家积极参与 &gt;_&lt;</p>
+<a id="more"></a>
+<h4 id="相关概念"><a href="#相关概念" class="headerlink" title="相关概念"></a>相关概念</h4><p>Netty是一个NIO框架，它将IO通道的建立、可读、可写等状态变化，抽象成事件，以责任链的方式进行传递，可以在处理链上插入自定义的Handler，对感兴趣的事件进行监听和处理。</p>
+<p>所以，先介绍下事件监听、责任链模型、socket接口和IO模型、线程模型等基本概念，对后面理解Netty的事件监听和处理有很大帮助。</p>
+<h5 id="事件监听"><a href="#事件监听" class="headerlink" title="事件监听"></a>事件监听</h5><p>JDK监听器模式主要包含以下元素：</p>
+<ul>
+<li>EventObject 事件对象</li>
+<li>EventListener 事件监听接口</li>
+<li>自定义事件源</li>
+<li>事件触发</li>
+</ul>
+<p>模式很简单，用户可以自定义事件源，保存触发对象的相关数据，事件被触发后，传递给注册事件的处理者。事件监听接口是为了统一处理者方法。</p>
+<p>举个比较好理解的按钮单击事件，其中ActionListener是事件监听器，ActionEvent是事件对象，包含了事件源：<br><img src="http://oc3r3rke2.bkt.clouddn.com/15227711152530.jpg" alt=""></p>
+<p>实现一套事件监听的具体过程：</p>
+<ul>
+<li>确定事件源；</li>
+<li>明确可能产生的事件，定义成不同的事件对象或事件方法；</li>
+<li>提供一个存储结构，用于保存监听事件的对象，当事件发生时，会通知监听者；</li>
+<li>执行回调方法，进行业务处理；</li>
+</ul>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15227717160721.jpg" alt="事件监听"></p>
+<h5 id="责任链模式"><a href="#责任链模式" class="headerlink" title="责任链模式"></a>责任链模式</h5><p>主要是说事件处理者的组织方式，通过责任链模式，可以在任何处理节点，添加自定义处理器，很方便。</p>
+<p>关于责任链概念，这里再简单说下：使多个对象都有机会处理请求，从而避免请求的发送者和接受者之间的耦合关系，将这个对象连成一条链，并沿着这条链传递该请求，直到有一个对象处理他为止。</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15227720369026.jpg" alt="责任链模式"></p>
+<h5 id="socket"><a href="#socket" class="headerlink" title="socket"></a>socket</h5><p>一般说NIO，主要是针对网络IO，从网卡中读取数据，向网卡中写入数据，这就是监听器模式的数据源。</p>
+<p>网络编程主要通过操作系统提供的socket接口进行，通过了解socket接口可以总结出有哪些事件。</p>
+<blockquote>
+<p>socket是用户进程和内核网络协议之间的统一接口。<br>socket也是一种特殊的文件，网络通信可以看作是对文件的读取，使得对网络的控制和对文件的控制一样方便。</p>
+</blockquote>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15227728223237.jpg" alt="sokcet接口"></p>
+<h5 id="NIO和IO模型"><a href="#NIO和IO模型" class="headerlink" title="NIO和IO模型"></a>NIO和IO模型</h5><p>NIO是指非阻塞IO，我们一般说的IO都是阻塞IO，想全面了解这些概念，又会说的很多，这里就简单概括下。</p>
+<p>一个进程所占的内存包括用户态和内核态，为了安全，用户代码是不能直接操作内核态内存的，通过系统调用进行交互，比如读取网络数据，交互过程如下：</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15227734277894.jpg" alt="同步阻塞"></p>
+<p>用户线程发起read请求后，需要等待数据到达才能返回，在这期间，用户线程不能做任何事情，如果是网络编程，可能有很多Socket对象进行监听，会创建大量线程被阻塞，造成资源浪费，性能下降。</p>
+<p>针对这种情况，出现了IO模型的概念，有几种方式：</p>
+<ul>
+<li>同步非阻塞IO；</li>
+<li>IO多路复用；</li>
+<li>异步IO；</li>
+</ul>
+<p>具体介绍，网上有很多资料，就不详细说了，这里只提下IO多路复用，说说我的理解，我们项目中就是使用这种方式。</p>
+<p>所谓多路复用，主要是操作系统提供给我们这种开发模式：可以把感兴趣的IO事件（建立、可读、可写等）提前注册，而且多个socket对象可以注册到一个selector选择器上，这样就可以多个socket对象使用一个用户线程进行监听，当事件发生时，会查找对应的socket进行读、写等操作。</p>
+<p>之前做过NIO开发的朋友，可以看下面的示例回顾下整个过程：</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15227745977153.jpg" alt="java NIO示例"></p>
+<h5 id="线程模型"><a href="#线程模型" class="headerlink" title="线程模型"></a>线程模型</h5><p>上面说了我对多路复用的理解，提到了一个线程监听多个socket，但如果socket很多，一个线程是处理不过来的。另外，事件的接收和判断 与 数据的读取、处理、写入，可以在不同线程进行。</p>
+<p>这就引出了线程模型的概念，比如Reactor和Proactor模型，具体细节就不介绍了，网上有很多资料，最终目的都是为了提高IO事件处理的性能。</p>
+<h4 id="Netty总体结构"><a href="#Netty总体结构" class="headerlink" title="Netty总体结构"></a>Netty总体结构</h4><p>这部分主要是了解下Netty，对其实现原理先不做深究。</p>
+<h5 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h5><blockquote>
+<p>Netty 是一个异步的事件驱动的网络应用程序框架，支持快速地开发可维护的高性能的面向协议的服务器和客户端;<br>它驾驭了 Java 高级 API 的能力，并将其隐藏在一个易于使用的 API 之后;</p>
+</blockquote>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15227751850367.jpg" alt="Netty总体结构"></p>
+<ul>
+<li>Core（核心部分），是底层的网络通讯的一些通用抽象，这部分内容是关键。</li>
+<li>Transport Services（传输服务），具体的网络传输能力的定义以及一些实现。</li>
+<li>Protocol Support（协议支持），netty 对于一些通用协议的编码解码实现。</li>
+</ul>
+<h5 id="零拷贝"><a href="#零拷贝" class="headerlink" title="零拷贝"></a>零拷贝</h5><p>广义的零拷贝是指计算机操作的过程中，CPU不需要为数据在内存之间的拷贝消耗资源。Linux中的sendfile()以及 Java NIO 中的FileChannel.transferTo()方法都实现了零拷贝的功能，而在 Netty 中也通过在FileRegion中包装了 NIO 的FileChannel.transferTo()方法实现了零拷贝。</p>
+<p>Netty中所指零拷贝，完全在用户态，更偏向于优化数据操作。Netty允许我们将多段数据合并为一整段虚拟数据供用户使用，而不需要对数据进行拷贝操作。</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15227756611645.jpg" alt="Netty零拷贝"></p>
+<h5 id="统一的通讯模型"><a href="#统一的通讯模型" class="headerlink" title="统一的通讯模型"></a>统一的通讯模型</h5><p>传统的JAVA IO API 在应对不同的传输协议时，需要使用不同的类型和方法，例如：java.net.Socket和java.net.DatagramSocket，它们并不具有相同的超类型；Java新的IO API与原有的阻塞式IO API也不兼容；</p>
+<p>Netty提供了统一的API编程接口，抽象了所有点对点通信操作，仅调整几行代码，便可切换不同的传输实现：</p>
+<ul>
+<li>基于NIO的TCP/IP传输</li>
+<li>基于OIO的TCP/IP传输</li>
+<li>基于OIO的UDP/IP传输</li>
+<li>本地传输</li>
+</ul>
+<h5 id="事件模型"><a href="#事件模型" class="headerlink" title="事件模型"></a>事件模型</h5><p>也就是要说的事件监听和处理，提供了很好的方式去处理各种事件。</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15227759430516.jpg" alt="Netty事件模型"></p>
+<p>大致处理过程如上图，具体将在下一篇介绍。</p>
+<hr>
+<h4 id="福利说明"><a href="#福利说明" class="headerlink" title="福利说明"></a>福利说明</h4><p>最后，说下福利：小爱音箱F码。</p>
+<p>准备了2份，主要为了感谢「微信公众号」和「掘金社区」的朋友，每一份包括1个小爱音箱F码和1个小爱音箱 mini F码。</p>
+<blockquote>
+<p>小米手机F码源自于英文单词”Friend”，是小米公司提供给小米核心用户及为小米做出贡献的网友的优先购买权，如果您有小米F码的话无需等待即可直接利用小米F码购买相关产品！</p>
+</blockquote>
+<p>简单来说，F码就是不用抢了，可以直接购买 ~ </p>
+<h5 id="抽奖截止时间"><a href="#抽奖截止时间" class="headerlink" title="抽奖截止时间"></a>抽奖截止时间</h5><p>4月9号中午12点</p>
+<h5 id="抽奖规则"><a href="#抽奖规则" class="headerlink" title="抽奖规则"></a>抽奖规则</h5><h5 id="掘金社区"><a href="#掘金社区" class="headerlink" title="掘金社区"></a>掘金社区</h5><ul>
+<li><p>需要关注我的掘金账号才有效，<a href="https://juejin.im/user/565b3a5f00b0bf379f155b39/posts" target="_blank" rel="noopener">个人主页</a>；</p>
+</li>
+<li><p>使用微信抽奖助手随机抽取for掘金社区；<br><img src="https://user-gold-cdn.xitu.io/2018/4/4/1628c9353e7fa787?w=300&amp;h=469&amp;f=jpeg&amp;s=17236" alt="掘金抽奖"></p>
+</li>
+</ul>
+<h5 id="微信公众号"><a href="#微信公众号" class="headerlink" title="微信公众号"></a>微信公众号</h5><ul>
+<li><p>需要关注我的微信公众号才有效；<br><img src="https://user-gold-cdn.xitu.io/2018/4/2/16282238835861ea?w=258&amp;h=258&amp;f=jpeg&amp;s=16282" alt="情情说"></p>
+</li>
+<li><p>使用微信抽奖助手随机抽取for微信公众号；<br><img src="https://user-gold-cdn.xitu.io/2018/4/4/1628c9354977d20a?w=300&amp;h=470&amp;f=jpeg&amp;s=13425" alt="微信公众号抽奖"></p>
+</li>
+</ul>
+]]></content>
+      
+        <categories>
+            
+            <category> Netty </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> Netty </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[送福利：小爱音箱F码]]></title>
       <url>https://qqdong.github.io/2018/04/03/%E9%80%81%E7%A6%8F%E5%88%A9%EF%BC%9A%E5%B0%8F%E7%88%B1%E9%9F%B3%E7%AE%B1F%E7%A0%81/</url>
       <content type="html"><![CDATA[<p>一年一度的米粉节活动开始了，活动时间为 4.3 - 4.10，公司给我们发了福利，其中包含4个小爱音箱F码，包括2个小米AI音箱F码，2个小米小爱音箱mini F码，想把这个福利分享给大家，以感谢大家的支持和鼓励。</p>
