@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="RabbitMQ" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="本系列是「RabbitMQ实战：高效部署分布式消息队列」书籍的总结笔记。  上一篇 介绍了AMQP消息通信，包括队列、交换器和绑定，通过虚拟主机还可以隔离数据和权限，消息持久化和发送方确认模式确保了消息不丢失。 本篇主要介绍如何运行和管理RabbitMQ，在介绍之前，会有个DEMO演示消息发送和接收，一方面对AMQP的元素有更直观的认识，一方面为后面介绍监控做数据来源。 通过介绍，你会了解到：">
+<meta name="keywords" content="RabbitMQ">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RabbitMQ实战：运行和管理RabbitMQ">
+<meta property="og:url" content="https://qqdong.github.io/2018/04/04/RabbitMQ实战：运行和管理Rabbit/index.html">
+<meta property="og:site_name" content="情情说">
+<meta property="og:description" content="本系列是「RabbitMQ实战：高效部署分布式消息队列」书籍的总结笔记。  上一篇 介绍了AMQP消息通信，包括队列、交换器和绑定，通过虚拟主机还可以隔离数据和权限，消息持久化和发送方确认模式确保了消息不丢失。 本篇主要介绍如何运行和管理RabbitMQ，在介绍之前，会有个DEMO演示消息发送和接收，一方面对AMQP的元素有更直观的认识，一方面为后面介绍监控做数据来源。 通过介绍，你会了解到：">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15230237956357.jpg?imageView2/2/w/400">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15230234561541.jpg?imageView2/2/w/400">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15230258944759.jpg?imageView2/2/w/400">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15230259391498.jpg?imageView2/2/w/400">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15230262154620.jpg">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15230264497340.jpg">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:updated_time" content="2018-04-06T15:08:09.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="RabbitMQ实战：运行和管理RabbitMQ">
+<meta name="twitter:description" content="本系列是「RabbitMQ实战：高效部署分布式消息队列」书籍的总结笔记。  上一篇 介绍了AMQP消息通信，包括队列、交换器和绑定，通过虚拟主机还可以隔离数据和权限，消息持久化和发送方确认模式确保了消息不丢失。 本篇主要介绍如何运行和管理RabbitMQ，在介绍之前，会有个DEMO演示消息发送和接收，一方面对AMQP的元素有更直观的认识，一方面为后面介绍监控做数据来源。 通过介绍，你会了解到：">
+<meta name="twitter:image" content="http://oc3r3rke2.bkt.clouddn.com/15230237956357.jpg?imageView2/2/w/400">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://qqdong.github.io/2018/04/04/RabbitMQ实战：运行和管理Rabbit/"/>
+
+
+
+
+
+  <title>RabbitMQ实战：运行和管理RabbitMQ | 情情说</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?48e81d160a0773a1af5455493c416547";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">情情说</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">记录工作、学习和生活</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/04/04/RabbitMQ实战：运行和管理Rabbit/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="calm">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/head.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="情情说">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">RabbitMQ实战：运行和管理RabbitMQ</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-04T22:00:00+08:00">
+                2018-04-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/消息队列/" itemprop="url" rel="index">
+                    <span itemprop="name">消息队列</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>本系列是「RabbitMQ实战：高效部署分布式消息队列」书籍的总结笔记。</p>
+</blockquote>
+<p><a href="http://qqidol.com/2018/04/01/RabbitMQ%E5%AE%9E%E6%88%98%EF%BC%9A%E7%90%86%E8%A7%A3%E6%B6%88%E6%81%AF%E9%80%9A%E4%BF%A1/" target="_blank" rel="noopener">上一篇</a> 介绍了AMQP消息通信，包括队列、交换器和绑定，通过虚拟主机还可以隔离数据和权限，消息持久化和发送方确认模式确保了消息不丢失。</p>
+<p>本篇主要介绍如何运行和管理RabbitMQ，在介绍之前，会有个DEMO演示消息发送和接收，一方面对AMQP的元素有更直观的认识，一方面为后面介绍监控做数据来源。</p>
+<p>通过介绍，你会了解到：</p>
+<ul>
+<li>消息发送和接收简单实现</li>
+<li>服务器管理-启动和停止节点</li>
+<li>权限配置</li>
+<li>使用统计</li>
+</ul>
+<a id="more"></a>
+<h3 id="消息发送和接收简单实现"><a href="#消息发送和接收简单实现" class="headerlink" title="消息发送和接收简单实现"></a>消息发送和接收简单实现</h3><p>该Demo主要用于收集日志，消息发送者是各个应用子系统，消息接收者是日志收集服务，使用RabbitMQ可以很容易实现。</p>
+<p>基于Spring Boot框架实现，主要类的作用如下：</p>
+<ul>
+<li>LogRabbitConfig：创建队列、交换器、绑定等初始化操作；</li>
+<li>Sender：消息发送者；</li>
+<li>AllReceiver：所有级别日志接收者，接收所有级别的日志；</li>
+<li>ErrorReceiver：错误级别日志接受者，只接收错误级别的日志；</li>
+<li>LogSenderTest：测试用例类；</li>
+</ul>
+<p>消息模型如下：<br><img src="http://oc3r3rke2.bkt.clouddn.com/15230237956357.jpg?imageView2/2/w/400" alt="Demo的消息模型"></p>
+<h5 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h5><p>首先，配置spring boot和rabbitmq依赖：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">parent</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-parent<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">version</span>&gt;</span>2.0.1.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">relativePath</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">parent</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-test<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">scope</span>&gt;</span>test<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">	<span class="comment">&lt;!--rabbitmq依赖--&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-amqp<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>然后在application.properties文件中配置rabbitmq地址：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">spring.rabbitmq.host=127.0.0.1</span><br><span class="line">spring.rabbitmq.port=5672</span><br><span class="line">spring.rabbitmq.username=guest</span><br><span class="line">spring.rabbitmq.password=guest</span><br><span class="line">spring.rabbitmq.publisher-confirms=true</span><br><span class="line">spring.rabbitmq.virtual-host=/</span><br></pre></td></tr></table></figure>
+<h5 id="LogRabbitConfig实现"><a href="#LogRabbitConfig实现" class="headerlink" title="LogRabbitConfig实现"></a>LogRabbitConfig实现</h5><blockquote>
+<p>使用Spring的@Configuration定义配置类，可替换xml配置文件,被注解的类内部包含有一个或多个被@Bean注解的方法,用于构建bean定义，初始化Spring容器。</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LogRabbitConfig</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">static</span> String QUEUE_LOG_ERROR = <span class="string">"log.error"</span>;</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">static</span> String QUEUE_LOG_ALL = <span class="string">"log.all"</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//创建log.error队列</span></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Queue <span class="title">logError</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> Queue(QUEUE_LOG_ERROR);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//创建log.all队列</span></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Queue <span class="title">logAll</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> Queue(QUEUE_LOG_ALL);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//创建exchange，命名为log</span></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function">TopicExchange <span class="title">exchange</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> TopicExchange(<span class="string">"log"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//绑定log.error队列到exchange，routingkey为log.error</span></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function">Binding <span class="title">bindingExchangeError</span><span class="params">(Queue logError, TopicExchange exchange)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> BindingBuilder.bind(logError).to(exchange).with(<span class="string">"log.error"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//绑定log.all队列到exchange，routingkey为log.#</span></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function">Binding <span class="title">bindingExchangeAll</span><span class="params">(Queue logAll, TopicExchange exchange)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> BindingBuilder.bind(logAll).to(exchange).with(<span class="string">"log.#"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="Sender实现"><a href="#Sender实现" class="headerlink" title="Sender实现"></a>Sender实现</h5><p>各个子系统向rabbitmq服务器发送消息：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Sender</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> AmqpTemplate rabbitTemplate;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">send</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">//向mq服务端发送消息，exchange为log，routingkey为log.error</span></span><br><span class="line">        String context = <span class="string">"error log"</span>;</span><br><span class="line">        <span class="keyword">this</span>.rabbitTemplate.convertAndSend(<span class="string">"log"</span>, <span class="string">"log.error"</span>, context);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//向mq服务端发送消息，exchange为log，routingkey为log.info</span></span><br><span class="line">        context = <span class="string">"info log"</span>;</span><br><span class="line">        System.out.println(<span class="string">"send msg : "</span> + context);</span><br><span class="line">        <span class="keyword">this</span>.rabbitTemplate.convertAndSend(<span class="string">"log"</span>, <span class="string">"log.info"</span>, context);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//向mq服务端发送消息，exchange为log，routingkey为log.warn</span></span><br><span class="line">        context = <span class="string">"warn log"</span>;</span><br><span class="line">        System.out.println(<span class="string">"send msg : "</span> + context);</span><br><span class="line">        <span class="keyword">this</span>.rabbitTemplate.convertAndSend(<span class="string">"log"</span>, <span class="string">"log.warn"</span>, context);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="AllReceiver和ErrorReceiver实现"><a href="#AllReceiver和ErrorReceiver实现" class="headerlink" title="AllReceiver和ErrorReceiver实现"></a>AllReceiver和ErrorReceiver实现</h5><p>从rabbitmq服务器接收消息。</p>
+<p>AllReceiver从服务器的log.all队列获取消息，因为它绑定的routingkey为”log.#”，所以，会收到所有级别的日志：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="meta">@RabbitListener</span>(queues = <span class="string">"log.all"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AllReceiver</span> </span>&#123;</span><br><span class="line">    <span class="meta">@RabbitHandler</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">process</span><span class="params">(String context)</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"receive log : "</span> + context);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>ErrorReceiver从服务器的log.error队列获取消息，因为它绑定的routingkey为”log.error”，所以，只会收到error级别的日志：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="meta">@RabbitListener</span>(queues = <span class="string">"log.error"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ErrorReceiver</span> </span>&#123;</span><br><span class="line">    <span class="meta">@RabbitHandler</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">process</span><span class="params">(String context)</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"receive error : "</span> + context);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="LogSenderTest测试用例"><a href="#LogSenderTest测试用例" class="headerlink" title="LogSenderTest测试用例"></a>LogSenderTest测试用例</h5><p>测试用例很简单，就是调用Sender发送消息，观察消息的接收情况。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RunWith</span>(SpringRunner.class)</span><br><span class="line"><span class="meta">@SpringBootTest</span></span><br><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LogSenderTest</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    Sender sender;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">sendLog</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        sender.send();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>运行日志如下：<br><img src="http://oc3r3rke2.bkt.clouddn.com/15230234561541.jpg?imageView2/2/w/400" alt="运行日志"></p>
+<p>可以看到，error收到了2次，说明exchange同时分发给了log.all和log.error队列，其他级别的日志分发给了log.all队列。</p>
+<h3 id="服务器管理-启动和停止节点"><a href="#服务器管理-启动和停止节点" class="headerlink" title="服务器管理-启动和停止节点"></a>服务器管理-启动和停止节点</h3><p>RabbitMQ是用Erlang编写的，Erlang天生就能让应用程序无需知道对方是否在同一台机器上即可相互通信，这让集群和可靠的消息路由变得简单。</p>
+<h5 id="理解节点和Erlang应用程序"><a href="#理解节点和Erlang应用程序" class="headerlink" title="理解节点和Erlang应用程序"></a>理解节点和Erlang应用程序</h5><p>和Java有JVM虚拟机类似，Erlang也有虚拟机，虚拟机的每个实例称之为「节点」，不同的是，多个Erlang应用程序可以运行在同一个节点之上，如果应用程序崩溃了，Erlang节点会自动尝试自动重启应用程序。</p>
+<p>节点的操作：</p>
+<ul>
+<li>后台启动节点：./rabbitmq-server -detached</li>
+<li>停止节点：./rabbitmqctl stop </li>
+<li>仅停止rabbit应用程序：./rabbitmqctl stop_app</li>
+</ul>
+<h5 id="配置文件"><a href="#配置文件" class="headerlink" title="配置文件"></a>配置文件</h5><p>配置文件的格式本质上是原始的Erlang数据结构，是一个包含了嵌套哈希表的数组，如下：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[</span><br><span class="line">    [mnesia , [&#123;dump_log_write_threshold , 1000&#125;]],</span><br><span class="line">    [rabbit , [&#123;vm_memory_high_wateremark , 0.4&#125;]]</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+<p>上面配置了2个应用，每个应用会有自己的哈希表来配置选项：</p>
+<ul>
+<li>mnesia：是rabbitmq用来存储交换器和队列元数据的；</li>
+<li>rabbit：是rabbitmq特定的配置选项；</li>
+</ul>
+<p>每个应用如果有多个选项，用逗号隔开。</p>
+<h3 id="权限配置"><a href="#权限配置" class="headerlink" title="权限配置"></a>权限配置</h3><p>RabbitMQ权限系统中，单个用户可以跨越多个vhost进行授权，而且可以对读、写、配置分别授权。</p>
+<p>首先创建一个用户dongqingqing，密码为123456：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./rabbitmqctl add_user dongqingqing 123456</span><br></pre></td></tr></table></figure>
+<p>授予dongqingqing用户权限，可以读取所有队列和交换器，只可写log.*格式的队列和交换器，无法创建或删除队列和交换器</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./rabbitmqctl set_permissions  dongqingqing ".*" "log.*" ""</span><br></pre></td></tr></table></figure>
+<p>set_permissions 后面的参数分别为用户名、读权限、写权限、配置权限。</p>
+<p>其他详细用法可查看文档。</p>
+<h3 id="使用统计"><a href="#使用统计" class="headerlink" title="使用统计"></a>使用统计</h3><h5 id="查看数据统计"><a href="#查看数据统计" class="headerlink" title="查看数据统计"></a>查看数据统计</h5><p>可通过rabbitmqctl命令查看数据统计信息，比如队列和消息数目、交换器和绑定等。</p>
+<p>查看所有队列，包含上面demo定义的log.all和log.error：<br><img src="http://oc3r3rke2.bkt.clouddn.com/15230258944759.jpg?imageView2/2/w/400" alt="查看所有队列"></p>
+<p>查看所有交换器，包含上面demo定义的log<br><img src="http://oc3r3rke2.bkt.clouddn.com/15230259391498.jpg?imageView2/2/w/400" alt="查看所有交换器"></p>
+<p>另外，rabbitmq提供了管理界面插件，更方便的查看各种统计，可以通过下面的命令开启：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo ./rabbitmq-plugins enable rabbitmq_management</span><br></pre></td></tr></table></figure>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15230262154620.jpg" alt="rabbitmq_management插件"></p>
+<h5 id="查看日志"><a href="#查看日志" class="headerlink" title="查看日志"></a>查看日志</h5><p>可以在文件系统中查看日志，启动rabbitmq后，会显示日志的路径：<br><img src="http://oc3r3rke2.bkt.clouddn.com/15230264497340.jpg" alt="rabbitmq日志路径"></p>
+<p>另外，可以通过AMQP获取实时日志信息，有一个amq.rabbitmq.log的topic交换器，监听对应的队列即可。</p>
+<p>下一篇将介绍消息通信模式和最佳实践，感谢大家持续关注。</p>
+<p><strong>欢迎扫描下方二维码，关注我的个人微信公众号 ~</strong></p>
+<p><div align="center"><br><img src="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="情情说"></div></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/RabbitMQ/" rel="tag"># RabbitMQ</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/04/04/Netty事件监听和处理（下）/" rel="next" title="Netty事件监听和处理（下）">
+                <i class="fa fa-chevron-left"></i> Netty事件监听和处理（下）
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/head.png"
+                alt="calm" />
+            
+              <p class="site-author-name" itemprop="name">calm</p>
+              <p class="site-description motion-element" itemprop="description">拥抱简单生活，保持平和心态，享受浪漫生活</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">32</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#消息发送和接收简单实现"><span class="nav-number">1.</span> <span class="nav-text">消息发送和接收简单实现</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#配置"><span class="nav-number">1.0.1.</span> <span class="nav-text">配置</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#LogRabbitConfig实现"><span class="nav-number">1.0.2.</span> <span class="nav-text">LogRabbitConfig实现</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Sender实现"><span class="nav-number">1.0.3.</span> <span class="nav-text">Sender实现</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#AllReceiver和ErrorReceiver实现"><span class="nav-number">1.0.4.</span> <span class="nav-text">AllReceiver和ErrorReceiver实现</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#LogSenderTest测试用例"><span class="nav-number">1.0.5.</span> <span class="nav-text">LogSenderTest测试用例</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#服务器管理-启动和停止节点"><span class="nav-number">2.</span> <span class="nav-text">服务器管理-启动和停止节点</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#理解节点和Erlang应用程序"><span class="nav-number">2.0.1.</span> <span class="nav-text">理解节点和Erlang应用程序</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#配置文件"><span class="nav-number">2.0.2.</span> <span class="nav-text">配置文件</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#权限配置"><span class="nav-number">3.</span> <span class="nav-text">权限配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用统计"><span class="nav-number">4.</span> <span class="nav-text">使用统计</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#查看数据统计"><span class="nav-number">4.0.1.</span> <span class="nav-text">查看数据统计</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#查看日志"><span class="nav-number">4.0.2.</span> <span class="nav-text">查看日志</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">calm</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
