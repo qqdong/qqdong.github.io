@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Netty" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="上一篇 介绍了事件监听、责任链模型、socket接口和IO模型、线程模型等基本概念，以及Netty的整体结构，这篇就来说下Netty三大核心模块之一：事件监听和处理。 前面提到，Netty是一个NIO框架，它将IO通道的建立、可读、可写等状态变化，抽象成事件，以责任链的方式进行传递，可以在处理链上插入自定义的Handler，对感兴趣的事件进行监听和处理。 通过介绍，你会了解到：  事件监听和处理模">
+<meta name="keywords" content="Netty">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Netty事件监听和处理（下）">
+<meta property="og:url" content="https://qqdong.github.io/2018/04/04/Netty事件监听和处理（下）/index.html">
+<meta property="og:site_name" content="情情说">
+<meta property="og:description" content="上一篇 介绍了事件监听、责任链模型、socket接口和IO模型、线程模型等基本概念，以及Netty的整体结构，这篇就来说下Netty三大核心模块之一：事件监听和处理。 前面提到，Netty是一个NIO框架，它将IO通道的建立、可读、可写等状态变化，抽象成事件，以责任链的方式进行传递，可以在处理链上插入自定义的Handler，对感兴趣的事件进行监听和处理。 通过介绍，你会了解到：  事件监听和处理模">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15228498633200.jpg">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15228517408747.jpg">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15228569420417.jpg">
+<meta property="og:image" content="https://user-gold-cdn.xitu.io/2018/4/4/1628c9353e7fa787?w=300&h=469&f=jpeg&s=17236">
+<meta property="og:image" content="https://user-gold-cdn.xitu.io/2018/4/2/16282238835861ea?w=258&h=258&f=jpeg&s=16282">
+<meta property="og:image" content="https://user-gold-cdn.xitu.io/2018/4/4/1628c9354977d20a?w=300&h=470&f=jpeg&s=13425">
+<meta property="og:updated_time" content="2018-04-04T16:27:16.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Netty事件监听和处理（下）">
+<meta name="twitter:description" content="上一篇 介绍了事件监听、责任链模型、socket接口和IO模型、线程模型等基本概念，以及Netty的整体结构，这篇就来说下Netty三大核心模块之一：事件监听和处理。 前面提到，Netty是一个NIO框架，它将IO通道的建立、可读、可写等状态变化，抽象成事件，以责任链的方式进行传递，可以在处理链上插入自定义的Handler，对感兴趣的事件进行监听和处理。 通过介绍，你会了解到：  事件监听和处理模">
+<meta name="twitter:image" content="http://oc3r3rke2.bkt.clouddn.com/15228498633200.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://qqdong.github.io/2018/04/04/Netty事件监听和处理（下）/"/>
+
+
+
+
+
+  <title>Netty事件监听和处理（下） | 情情说</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?48e81d160a0773a1af5455493c416547";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">情情说</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">记录工作、学习和生活</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/04/04/Netty事件监听和处理（下）/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="calm">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/head.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="情情说">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Netty事件监听和处理（下）</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-04T22:00:00+08:00">
+                2018-04-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Netty/" itemprop="url" rel="index">
+                    <span itemprop="name">Netty</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><a href="http://qqidol.com/2018/04/03/Netty%E4%BA%8B%E4%BB%B6%E7%9B%91%E5%90%AC%E5%92%8C%E5%A4%84%E7%90%86%EF%BC%88%E4%B8%8A%EF%BC%89/" target="_blank" rel="noopener">上一篇</a> 介绍了事件监听、责任链模型、socket接口和IO模型、线程模型等基本概念，以及Netty的整体结构，这篇就来说下Netty三大核心模块之一：事件监听和处理。</p>
+<p>前面提到，Netty是一个NIO框架，它将IO通道的建立、可读、可写等状态变化，抽象成事件，以责任链的方式进行传递，可以在处理链上插入自定义的Handler，对感兴趣的事件进行监听和处理。</p>
+<p>通过介绍，你会了解到：</p>
+<ul>
+<li>事件监听和处理模型</li>
+<li>事件监听：EventLoop</li>
+<li>事件处理：ChannelPipeline和ChannelHandler</li>
+<li>使用Netty实现Websocket协议</li>
+</ul>
+<p>文章末尾有福利 ~</p>
+<a id="more"></a>
+<h3 id="事件监听和处理模型"><a href="#事件监听和处理模型" class="headerlink" title="事件监听和处理模型"></a>事件监听和处理模型</h3><p>进行网络编程时，一般的编写过程是这样的：</p>
+<ul>
+<li>创建服务端Socket，监听某个端口；</li>
+<li>当有客户端连接时，会创建一个新的客户端Socket，监听数据的可读、可写状态，每一个连接请求都会创建一个客户端Socket；</li>
+<li>读取和写入数据都会调用Socket提供的接口，接口列表在上一篇提到过；</li>
+</ul>
+<p>传统的模型，每个客户端Socket会创建一个单独的线程监听socket事件，一方面系统可创建的线程数有限，限制了并发数，一方面线程过多，线程切换频繁，导致性能严重下降。</p>
+<p>随着操作系统IO模型的发展，可以采用多路复用IO，一个线程监听多个Socket，另外，服务端处理客户端连接，与客户端Socket的监听，可以在不同的线程进行处理。</p>
+<p>Netty就是采用多路复用IO进行事件监听，另外，使用不同的线程分别处理客户端的连接、数据读写。</p>
+<p>整个处理结构如下图，简单说明下：</p>
+<ul>
+<li>Boss EventLoopGroup主要处理客户端的connect事件，包含多个EventLoop，每个EventLoop一个线程；</li>
+<li>Worker EventLoopGroup主要处理客户端Socket的数据read、write事件，包含多个EventLoop，每个EventLoop一个线程；</li>
+<li>无论是Boos还是Worker，事件的处理都是通过Channel Pipleline组织的，它是责任链模式的实现，包含一个或多个Handler；</li>
+<li>侦听一个端口，只会绑定到Boss EventLoopGroup中的一个Eventloop；</li>
+<li>Worker EventLoopGroup中的一个Eventloop，可以监听多个客户端Socket；</li>
+</ul>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15228498633200.jpg" alt="事件监听和处理模型"></p>
+<h3 id="EventLoop"><a href="#EventLoop" class="headerlink" title="EventLoop"></a>EventLoop</h3><p>一个EventLoop其实和一个特定的线程绑定, 并且在其生命周期内, 绑定的线程都不会再改。</p>
+<p>EventLoop肩负着两种任务：</p>
+<ul>
+<li>第一个是作为 IO 线程, 执行与 Channel 相关的 IO 操作, 包括 调用select等待就绪的IO事件、读写数据与数据的处理等；</li>
+<li>第二个任务是作为任务队列, 执行 taskQueue 中的任务, 例如用户调用eventLoop.schedule提交的定时任务也是这个线程执行的；</li>
+</ul>
+<p>第一个任务比较好理解，主要解释下第二个：从socket数据到数据处理，再到写入响应数据，Netty都在一个线程中处理，主要是为了线程安全考虑，减少竞争和线程切换，通过任务队列的方式，可以在用户线程提交处理逻辑，在Eventloop中执行。</p>
+<p>整个EventLoop干的事情就是select -&gt; processIO -&gt; runAllTask，processIO处理IO事件相关的逻辑，runAllTask处理任务队列中的任务，如果执行的任务过多，会影响IO事件的处理，所以会限制任务处理的时间，整个处理过程如下图：</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15228517408747.jpg" alt="EventLoop处理过程"></p>
+<p>EventLoop的run代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">     <span class="keyword">for</span> (; ; ) &#123;</span><br><span class="line">         oldWakenUp = wakenUp.getAndSet(<span class="keyword">false</span>);</span><br><span class="line">         <span class="keyword">try</span> &#123;</span><br><span class="line">             <span class="keyword">if</span> (hasTasks()) &#123; <span class="comment">//如果有任务，快速返回</span></span><br><span class="line">                 selectNow();</span><br><span class="line">             &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                 select(); <span class="comment">//如果没任务，等待事件返回</span></span><br><span class="line">                 <span class="keyword">if</span> (wakenUp.get()) &#123;</span><br><span class="line">                     selector.wakeup();</span><br><span class="line">                 &#125;</span><br><span class="line">             &#125;</span><br><span class="line">             cancelledKeys = <span class="number">0</span>;</span><br><span class="line">             <span class="keyword">final</span> <span class="keyword">long</span> ioStartTime = System.nanoTime();</span><br><span class="line">             needsToSelectAgain = <span class="keyword">false</span>;</span><br><span class="line"></span><br><span class="line">             <span class="comment">//处理IO事件</span></span><br><span class="line">             <span class="keyword">if</span> (selectedKeys != <span class="keyword">null</span>) &#123;</span><br><span class="line">                 processSelectedKeysOptimized(selectedKeys.flip());</span><br><span class="line">             &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                 processSelectedKeysPlain(selector.selectedKeys());</span><br><span class="line">             &#125;</span><br><span class="line"></span><br><span class="line">             <span class="comment">//计算IO处理时间</span></span><br><span class="line">             <span class="keyword">final</span> <span class="keyword">long</span> ioTime = System.nanoTime() - ioStartTime;</span><br><span class="line">             <span class="keyword">final</span> <span class="keyword">int</span> ioRatio = <span class="keyword">this</span>.ioRatio; <span class="comment">//默认为50</span></span><br><span class="line"></span><br><span class="line">             <span class="comment">//处理提交的任务</span></span><br><span class="line">             runAllTasks(ioTime * (<span class="number">100</span> - ioRatio) / ioRatio);</span><br><span class="line"></span><br><span class="line">             <span class="keyword">if</span> (isShuttingDown()) &#123;</span><br><span class="line">                 closeAll();</span><br><span class="line">                 <span class="keyword">if</span> (confirmShutdown()) &#123;</span><br><span class="line">                     <span class="keyword">break</span>;</span><br><span class="line">                 &#125;</span><br><span class="line">             &#125;</span><br><span class="line">         &#125; <span class="keyword">catch</span> (Throwable t) &#123;</span><br><span class="line">             <span class="keyword">try</span> &#123;</span><br><span class="line">                 Thread.sleep(<span class="number">1000</span>);</span><br><span class="line">             &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">             &#125;</span><br><span class="line">         &#125;</span><br><span class="line">     &#125;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<h3 id="ChannelPipeline和ChannelHandler"><a href="#ChannelPipeline和ChannelHandler" class="headerlink" title="ChannelPipeline和ChannelHandler"></a>ChannelPipeline和ChannelHandler</h3><p>ChannelPipeline是一个接口，其有一个默认的实现类DefaultChannelPipeline，内部有两个属性：head和tail，<br>这两者都实现了ChannelHandler接口，对应处理链的头和尾。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"> <span class="function"><span class="keyword">protected</span> <span class="title">DefaultChannelPipeline</span><span class="params">(Channel channel)</span> </span>&#123;</span><br><span class="line">     <span class="keyword">this</span>.channel = ObjectUtil.checkNotNull(channel, <span class="string">"channel"</span>);</span><br><span class="line">     succeededFuture = <span class="keyword">new</span> SucceededChannelFuture(channel, <span class="keyword">null</span>);</span><br><span class="line">     voidPromise =  <span class="keyword">new</span> VoidChannelPromise(channel, <span class="keyword">true</span>);</span><br><span class="line"></span><br><span class="line">     tail = <span class="keyword">new</span> TailContext(<span class="keyword">this</span>);</span><br><span class="line">     head = <span class="keyword">new</span> HeadContext(<span class="keyword">this</span>);</span><br><span class="line"></span><br><span class="line">     head.next = tail;</span><br><span class="line">     tail.prev = head;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>每个Channel创建时，会创建一个ChannelPipeline对象，来处理channel的各种事件，可以在运行时动态进行动态修改其中的 ChannelHandler。</p>
+<p>ChannelHandler承载业务处理逻辑的地方，我们接触最多的类，可以自定义Handler，加入处理链中，实现自定义逻辑。</p>
+<p>ChannelHandler 可分为两大类：ChannelInboundHandler 和 ChannelOutboundHandle，这两接口分别对应入站和出站消息的处理，对应数据读取和数据写入。它提供了接口方法供我们实现，处理各种事件。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">ChannelInboundHandler</span> <span class="keyword">extends</span> <span class="title">ChannelHandler</span> </span>&#123;</span><br><span class="line">	<span class="function"><span class="keyword">void</span> <span class="title">channelRegistered</span><span class="params">(ChannelHandlerContext ctx)</span> <span class="keyword">throws</span> Exception</span>;</span><br><span class="line">	<span class="function"><span class="keyword">void</span> <span class="title">channelUnregistered</span><span class="params">(ChannelHandlerContext ctx)</span> <span class="keyword">throws</span> Exception</span>;</span><br><span class="line">	<span class="function"><span class="keyword">void</span> <span class="title">channelActive</span><span class="params">(ChannelHandlerContext ctx)</span> <span class="keyword">throws</span> Exception</span>;</span><br><span class="line">	<span class="function"><span class="keyword">void</span> <span class="title">channelInactive</span><span class="params">(ChannelHandlerContext ctx)</span> <span class="keyword">throws</span> Exception</span>;</span><br><span class="line">	<span class="function"><span class="keyword">void</span> <span class="title">channelRead</span><span class="params">(ChannelHandlerContext ctx, Object msg)</span> <span class="keyword">throws</span> Exception</span>;</span><br><span class="line">	<span class="function"><span class="keyword">void</span> <span class="title">channelReadComplete</span><span class="params">(ChannelHandlerContext ctx)</span> <span class="keyword">throws</span> Exception</span>;</span><br><span class="line">	<span class="function"><span class="keyword">void</span> <span class="title">userEventTriggered</span><span class="params">(ChannelHandlerContext ctx, Object evt)</span> <span class="keyword">throws</span> Exception</span>;</span><br><span class="line">	<span class="function"><span class="keyword">void</span> <span class="title">channelWritabilityChanged</span><span class="params">(ChannelHandlerContext ctx)</span> <span class="keyword">throws</span> Exception</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>自定义Handler时，一般继承ChannelInboundHandlerAdapter或 ChannelOutboundHandlerAdapter。</p>
+<p>需要注意的是，不建议在 ChannelHandler 中直接实现耗时或阻塞的操作，因为这可能会阻塞 Netty 工作线程，导致 Netty 无法及时响应 IO 处理。</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15228569420417.jpg" alt="ChannelPipline"></p>
+<h3 id="使用Netty实现Websocket协议"><a href="#使用Netty实现Websocket协议" class="headerlink" title="使用Netty实现Websocket协议"></a>使用Netty实现Websocket协议</h3><h5 id="Websocket协议"><a href="#Websocket协议" class="headerlink" title="Websocket协议"></a>Websocket协议</h5><p>不是本篇的重点，简单说明下：</p>
+<ul>
+<li>是一种长连接协议，大部分浏览器都支持，通过websocket，服务端可以主动发消息给客户端；</li>
+<li>Websocket协议，在握手阶段使用HTTP协议，握手完成之后，走Websocket自己的协议；</li>
+<li>Websocket是一种二进制协议；</li>
+</ul>
+<h5 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h5><p>Netty提供了ChannelInitializer类方便我们初始化，创建WebSocketServerInitializer类，继承ChannelInitializer类，用于添加ChannelHandler：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">WebSocketServerInitializer</span> <span class="keyword">extends</span> <span class="title">ChannelInitializer</span>&lt;<span class="title">SocketChannel</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Resource</span></span><br><span class="line">	<span class="keyword">private</span> CustomTextFrameHandler customTextFrameHandler;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">initChannel</span><span class="params">(SocketChannel ch)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        ChannelPipeline pipeline = ch.pipeline();</span><br><span class="line">        pipeline.addLast(<span class="string">"codec-http"</span>, <span class="keyword">new</span> HttpServerCodec());</span><br><span class="line">        pipeline.addLast(<span class="string">"aggregator"</span>, <span class="keyword">new</span> HttpObjectAggregator(<span class="number">65536</span>));</span><br><span class="line">        </span><br><span class="line">        pipeline.addLast(<span class="string">"websocket-protocal-handler"</span>,<span class="keyword">new</span> WebSocketServerProtocolHandler());</span><br><span class="line">        pipeline.addLast(<span class="string">"custome-handler"</span>, customTextFrameHandler);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>分析下这几个Handler，都是Netty默认提供的：</p>
+<ul>
+<li>HttpServerCodec：用于解析Http请求，主要在握手阶段进行处理；</li>
+<li>HttpObjectAggregator：用于合并Http请求头和请求体，主要在握手阶段进行处理；</li>
+<li>WebSocketServerProtocolHandler：处理Websocket协议；</li>
+<li>CustomTextFrameHandler：自定义的Handler，用于添加自己的业务逻辑。</li>
+</ul>
+<p>是不是很方便，经过WebSocketServerProtocolHandler处理后，读取出来的就是文本数据了，不用自己处理数据合包、拆包问题。</p>
+<h5 id="CustomTextFrameHandler"><a href="#CustomTextFrameHandler" class="headerlink" title="CustomTextFrameHandler"></a>CustomTextFrameHandler</h5><p>自定义的Handler，进行业务处理：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CustomTextFrameHandler</span> <span class="keyword">extends</span> <span class="title">SimpleChannelInboundHandler</span>&lt;<span class="title">TextWebSocketFrame</span>&gt; </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">channelRead0</span><span class="params">(<span class="keyword">final</span> ChannelHandlerContext ctx, TextWebSocketFrame frame)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="keyword">final</span> String content = frame.text();</span><br><span class="line">        System.out.println(<span class="string">"接收到数据："</span>+content);   </span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 回复数据</span></span><br><span class="line">        TextWebSocketFrame respFrame = <span class="keyword">new</span> TextWebSocketFrame(<span class="string">"我收到了你的数据"</span>);</span><br><span class="line">        <span class="keyword">if</span> (ctx.channel().isWritable()) &#123;</span><br><span class="line">		      ChannelFuture future = ctx.writeAndFlush(respFrame);</span><br><span class="line">		  &#125;			        </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<hr>
+<h3 id="福利说明"><a href="#福利说明" class="headerlink" title="福利说明"></a>福利说明</h3><p>最后，说下福利：小爱音箱F码。</p>
+<p>准备了2份，主要为了感谢「微信公众号」和「掘金社区」的朋友，每一份包括1个小爱音箱F码和1个小爱音箱 mini F码。</p>
+<blockquote>
+<p>小米手机F码源自于英文单词”Friend”，是小米公司提供给小米核心用户及为小米做出贡献的网友的优先购买权，如果您有小米F码的话无需等待即可直接利用小米F码购买相关产品！</p>
+</blockquote>
+<p>简单来说，F码就是不用抢了，可以直接购买 ~ </p>
+<h5 id="抽奖截止时间"><a href="#抽奖截止时间" class="headerlink" title="抽奖截止时间"></a>抽奖截止时间</h5><p>4月9号中午12点</p>
+<h5 id="抽奖规则"><a href="#抽奖规则" class="headerlink" title="抽奖规则"></a>抽奖规则</h5><h5 id="掘金社区"><a href="#掘金社区" class="headerlink" title="掘金社区"></a>掘金社区</h5><ul>
+<li><p>需要关注我的掘金账号才有效，<a href="https://juejin.im/user/565b3a5f00b0bf379f155b39/posts" target="_blank" rel="noopener">个人主页</a>；</p>
+</li>
+<li><p>使用微信抽奖助手随机抽取for掘金社区；<br><img src="https://user-gold-cdn.xitu.io/2018/4/4/1628c9353e7fa787?w=300&amp;h=469&amp;f=jpeg&amp;s=17236" alt="掘金抽奖"></p>
+</li>
+</ul>
+<h5 id="微信公众号"><a href="#微信公众号" class="headerlink" title="微信公众号"></a>微信公众号</h5><ul>
+<li><p>需要关注我的微信公众号才有效；<br><img src="https://user-gold-cdn.xitu.io/2018/4/2/16282238835861ea?w=258&amp;h=258&amp;f=jpeg&amp;s=16282" alt="情情说"></p>
+</li>
+<li><p>使用微信抽奖助手随机抽取for微信公众号；<br><img src="https://user-gold-cdn.xitu.io/2018/4/4/1628c9354977d20a?w=300&amp;h=470&amp;f=jpeg&amp;s=13425" alt="微信公众号抽奖"></p>
+</li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Netty/" rel="tag"># Netty</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/04/03/送福利：小爱音箱F码/" rel="next" title="送福利：小爱音箱F码">
+                <i class="fa fa-chevron-left"></i> 送福利：小爱音箱F码
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/head.png"
+                alt="calm" />
+            
+              <p class="site-author-name" itemprop="name">calm</p>
+              <p class="site-description motion-element" itemprop="description">拥抱简单生活，保持平和心态，享受浪漫生活</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">31</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#事件监听和处理模型"><span class="nav-number">1.</span> <span class="nav-text">事件监听和处理模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#EventLoop"><span class="nav-number">2.</span> <span class="nav-text">EventLoop</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ChannelPipeline和ChannelHandler"><span class="nav-number">3.</span> <span class="nav-text">ChannelPipeline和ChannelHandler</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用Netty实现Websocket协议"><span class="nav-number">4.</span> <span class="nav-text">使用Netty实现Websocket协议</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Websocket协议"><span class="nav-number">4.0.1.</span> <span class="nav-text">Websocket协议</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#初始化"><span class="nav-number">4.0.2.</span> <span class="nav-text">初始化</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#CustomTextFrameHandler"><span class="nav-number">4.0.3.</span> <span class="nav-text">CustomTextFrameHandler</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#福利说明"><span class="nav-number">5.</span> <span class="nav-text">福利说明</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#抽奖截止时间"><span class="nav-number">5.0.1.</span> <span class="nav-text">抽奖截止时间</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#抽奖规则"><span class="nav-number">5.0.2.</span> <span class="nav-text">抽奖规则</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#掘金社区"><span class="nav-number">5.0.3.</span> <span class="nav-text">掘金社区</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#微信公众号"><span class="nav-number">5.0.4.</span> <span class="nav-text">微信公众号</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">calm</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
