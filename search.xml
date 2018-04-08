@@ -4,8 +4,117 @@
   
     
     <entry>
+      <title><![CDATA[写好一个项目不容易]]></title>
+      <url>https://qqdong.github.io/2018/04/08/%E5%86%99%E5%A5%BD%E4%B8%80%E4%B8%AA%E9%A1%B9%E7%9B%AE%E4%B8%8D%E5%AE%B9%E6%98%93/</url>
+      <content type="html"><![CDATA[<p>曾几何时，我多少次吐槽自己接触的项目，数落它们的种种不是，项目文件结构混乱、代码层次不清晰、严重的代码冗余、巨型代码块、缺少注释和日志、散落在各处的静态配置项、混乱的数据校验和异常捕获、脆弱的稳定性和扩展性，每一次功能升级和问题解决，都是胆战心惊的。</p>
+<p>这些问题仅仅是后端开发阶段可能出现的问题，加上需求分析、功能确认、界面设计、架构设计、技术选型、测试等阶段，会有更多问题暴露出来，每个阶段都是相互递进、相互补充的，需要得到大部分同事的认同才可以往下执行，过程中，需要反复的沟通和讨论，团队成员要合理划分、有所成长，项目成本和进度也要合理的控制。</p>
+<p>可见，对于一个大项目，写好多不容易。</p>
+<a id="more"></a>
+<h4 id="我的问题和想法"><a href="#我的问题和想法" class="headerlink" title="我的问题和想法"></a>我的问题和想法</h4><p>我主要做Java后端开发，工作有5年了，遗憾的是没有写过令自己满意的代码，开始说的问题多多少少都会有，另外，对自己开发过程中使用的技术也不是特别深入，遇到一些特殊的问题时，也是无从下手。</p>
+<p>究其原因，总结有2点：</p>
+<ul>
+<li>没想清楚「做完一个项目」或「解决一个问题」能够获得什么？</li>
+<li>浮于技术的表面，深度不够；</li>
+</ul>
+<p>记得之前发过一个空间说说：“遇到一个问题时，如果能够嘴角上扬，那是很高境界了”，确实，当遇到问题时，特别是线上紧急问题，内心会有排斥和压迫感，一方面肚子里没水，没有相关的积累和经验，更重要的是心态不对，没想清楚问题解决之后，能够获得什么。</p>
+<p>其实，做完一个项目，最直观的收获是：会使用一些技术了，但如果是已经会的而且很熟的技术呢，还能获得什么？更不用说到处copy代码了。</p>
+<p>所以，不能仅仅关注功能实现了，对自己来说，实现的过程和质量才是最重要的，一步一步递进，稳步执行，不断总结，慢慢形成自己的方法论。</p>
+<p>另外，面对问题，多想想自己从中获得的经验和积累，就不会有排斥心理了，而会很用心的完成它。</p>
+<p>有方法、好心态是前提，很重要，想要很好的实现，就需要技术功力了，功力不够，在面对一些特殊的线上问题，或是考虑系统的可用性、性能、高访问量、扩展性时，就会很棘手。</p>
+<p>所以，对于经常使用的技术要深入、专一，才能更好的实现系统功能，应对各种问题。</p>
+<p>以上是我的现状和反思，希望自己能有所改进。</p>
+<h4 id="关注点"><a href="#关注点" class="headerlink" title="关注点"></a>关注点</h4><p>现在的我觉得数据结构和算法等基础很重要，虽然实际开发中很少用到，但对于理解JDK核心类库或框架等的实现和设计思路，有很大帮助，这恰恰又是我相对薄弱的地方，一定要慢慢补回来。</p>
+<p>在处理高并发时，多线程、IO是基础、网络，多线程使你能够并行处理一个任务，IO使你能够在各个服务和组件中交互，网络是连接的基础，共同完成一个业务操作，掌握它们，对高并发的优化、相关框架的理解有很大帮助。</p>
+<p>另外，清晰的项目文件结构和代码层次，统一的代码规范和版本控制，一致的数据校验和异常处理也很重要。</p>
+<p>最后是考虑系统的可用性、高性能、易扩展、高吞吐量等，使用领域驱动的思想进行整体设计，深入了解常用的框架和组件，灵活运用各种设计模式。</p>
+<p>团队协作和项目管理也很关键，它们是项目真正实施的有力保障，想转向管理的我，要多向身边的人学习。</p>
+<p>以后的工作过程中，应多关注以上方面的积累，重视每一个需求点和问题，因为这是积累最好方法。</p>
+<p>想到能够获得这么多，你还会排斥吗 ~</p>
+<p>随着互联网的发展，项目会不断变大，要求会越来越苛刻，技术也会不断变化，写好一个项目更不容易，要明确自己的关注点，时刻学习和实践。</p>
+<p><strong>欢迎扫描下方二维码，关注我的个人微信公众号 ~</strong></p>
+<p><div align="center"><br><img src="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="情情说"></div></p>
+]]></content>
+      
+        <categories>
+            
+            <category> summary </category>
+            
+        </categories>
+        
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[RabbitMQ实战：消息通信模式和最佳实践]]></title>
+      <url>https://qqdong.github.io/2018/04/07/RabbitMQ%E5%AE%9E%E6%88%98%EF%BC%9A%E6%B6%88%E6%81%AF%E9%80%9A%E4%BF%A1%E6%A8%A1%E5%BC%8F%E5%92%8C%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/</url>
+      <content type="html"><![CDATA[<blockquote>
+<p>本系列是「RabbitMQ实战：高效部署分布式消息队列」书籍的总结笔记。</p>
+</blockquote>
+<p>通过前2篇的介绍，了解了消息通信的主要元素和交互过程，以及如何运行和管理RabbitMQ，这篇将站在开发模式的角度理解「面向消息通信」带来的好处，以及在各种场景下的最佳实践。</p>
+<p>通过介绍，你会了解到：</p>
+<ul>
+<li>面向消息通信的好处</li>
+<li>发后即忘模型</li>
+<li>用RabbitMQ实现RPC</li>
+</ul>
+<a id="more"></a>
+<h3 id="面向消息通信的好处"><a href="#面向消息通信的好处" class="headerlink" title="面向消息通信的好处"></a>面向消息通信的好处</h3><p>主要从异步状态思维、处理能力扩展性、集成复杂度方面，说明面向消息通信的好处。</p>
+<h5 id="异步状态思维"><a href="#异步状态思维" class="headerlink" title="异步状态思维"></a>异步状态思维</h5><p>当将消息通信集成到应用程序时，开发模式将从同步模型变为异步模型，RabbitMQ提供了不同的方法，允许我们在一处发送请求，在另一处进行处理，这样同步程序可以继续执行其他逻辑。</p>
+<p>举个简单的例子来说明，通过支付宝还信用卡：</p>
+<ul>
+<li>用户填写信用卡号、发卡银行、持卡人姓名、还款金额，提交还款申请；</li>
+<li>支付宝会立即提示用户，申请已提交，多少小时内完成还款；</li>
+<li>还款完成后，会推送给用户一条消息，提醒还款是否成功；</li>
+</ul>
+<p>如果是同步请求，用户需要等待几个小时查看结果，等待过程中不能进行其他操作，这是很不合理的。</p>
+<p>异步的思维是将请求和处理分离，在应用中紧密耦合的两部分中间使用RabbitMQ，请求解析后，发送一条业务能够理解的消息到RabbitMQ，就返回给用户，真正的处理由另外的服务异步处理。</p>
+<h5 id="扩展性"><a href="#扩展性" class="headerlink" title="扩展性"></a>扩展性</h5><p>随着业务的扩展，对服务处理能力的要求越来越高，RabbitMQ可以很简单的增加处理能力。</p>
+<p>因为RabbitMQ可以将请求在处理服务器间平均地分发，不需要负载均衡器了。</p>
+<h5 id="零成本API"><a href="#零成本API" class="headerlink" title="零成本API"></a>零成本API</h5><p>系统间相互调用，需要约定一套API，通常来讲，需要花费一点点时间，编写一大段代码将传入的HTTP请求转化为应用程序中的函数调用。</p>
+<p>如果使用AMQP来连接应用程序的各个部分，无需额外定义API，使用消息通信即可。另外， AMQP是语言无关的，拥有数十种语言的本地语言绑定。</p>
+<h3 id="发后即忘模型"><a href="#发后即忘模型" class="headerlink" title="发后即忘模型"></a>发后即忘模型</h3><p>当考虑消息通信能够解决的问题类型时，消息通信适用的主要领域是的「发后即忘」处理模式。关心的是任务将会完成，但无须实时完成，创建一个任务，发送到交换器上后，就可以返回继续工作，甚至都不需要通知用户任务已经完成。</p>
+<p>匹配该模式的两种类型任务：</p>
+<ul>
+<li>批处理：针对大型数据集合的工作或者转换，多个任务对数据集合的独立部分进行操作；</li>
+<li>通知：对发送事件的描述，可以是消息的日志，或者通知另一个程序或者管理员；</li>
+</ul>
+<p>书上介绍的实例比较简单，就不在此列出了，主要是根据不同的场景，确定交换器的类型和routingkey，可以参考上一篇介绍的「收集日志」的例子进行理解。</p>
+<h3 id="用RabbitMQ实现RPC"><a href="#用RabbitMQ实现RPC" class="headerlink" title="用RabbitMQ实现RPC"></a>用RabbitMQ实现RPC</h3><p>有多种方式来实现远程过程调用RPC，比如REST API、SOAP、Thrift等，这些传统的RPC实现方法有共同之处：客户端和服务器紧密相连、而且要等待返回结果。另外考虑这些问题：</p>
+<ul>
+<li>当有多个服务节点时，客户端如何发现对应服务器；</li>
+<li>如果客户端连接的RPC服务器崩溃了，客户端需要额外逻辑进行重连；</li>
+</ul>
+<p>通过MQ服务器来实现时，只是简单地发布消息而已，将消息路由到合适的地方放，通过多台RPC服务器对消息进行负载均衡，当处理消息的服务器崩溃时，将RPC消息重发到另一台。</p>
+<p>现在的问题在于，如果将应答返回给客户端？</p>
+<p>RabbitMQ使用消息来发回应答，在AMQP消息头里有一个字段叫做reply_to，消息的生成者可以通过该字段来确定队列名称，并监听队列等待应答，消息接收者能够检查reply_to字段，并创建包含应答内容的新的消息，并以队列名称作为路由键。</p>
+<p>关于reply_to的队列名称，如果生成者声明了没有名字的队列，RabbitMQ为自动生成一个唯一的队列名，同时在声明的时候指定exclusive参数，确保只有创建队列的生产者可以读取队列上的消息。</p>
+<p>这样，所有RPC客户端要做的，就是声明临时的、排他的、匿名队列，并将该队列名称包含到RPC消息的reply_to头中，这样服务器端就知道应答消息该发往哪儿了。</p>
+<blockquote>
+<p>很多场景使用「发后即忘」模型，不需要处理者响应，如果需要响应，可以使用RabbitMQ的RPC模型。</p>
+</blockquote>
+<p>下一篇将介绍RabbitMQ集群和高可用性以及它们的设置。</p>
+<p><strong>欢迎扫描下方二维码，关注我的个人微信公众号 ~</strong></p>
+<p><div align="center"><br><img src="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="情情说"></div></p>
+]]></content>
+      
+        <categories>
+            
+            <category> 消息队列 </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> RabbitMQ </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[RabbitMQ实战：运行和管理RabbitMQ]]></title>
-      <url>https://qqdong.github.io/2018/04/04/RabbitMQ%E5%AE%9E%E6%88%98%EF%BC%9A%E8%BF%90%E8%A1%8C%E5%92%8C%E7%AE%A1%E7%90%86Rabbit/</url>
+      <url>https://qqdong.github.io/2018/04/06/RabbitMQ%E5%AE%9E%E6%88%98%EF%BC%9A%E8%BF%90%E8%A1%8C%E5%92%8C%E7%AE%A1%E7%90%86Rabbit/</url>
       <content type="html"><![CDATA[<blockquote>
 <p>本系列是「RabbitMQ实战：高效部署分布式消息队列」书籍的总结笔记。</p>
 </blockquote>
@@ -207,37 +316,6 @@
     </entry>
     
     <entry>
-      <title><![CDATA[送福利：小爱音箱F码]]></title>
-      <url>https://qqdong.github.io/2018/04/03/%E9%80%81%E7%A6%8F%E5%88%A9%EF%BC%9A%E5%B0%8F%E7%88%B1%E9%9F%B3%E7%AE%B1F%E7%A0%81/</url>
-      <content type="html"><![CDATA[<p>一年一度的米粉节活动开始了，活动时间为 4.3 - 4.10，公司给我们发了福利，其中包含4个小爱音箱F码，包括2个小米AI音箱F码，2个小米小爱音箱mini F码，想把这个福利分享给大家，以感谢大家的支持和鼓励。</p>
-<p>开始认真写文章有1个半月了，不说有多大的收获，最起码自己的一部分时间很好的利用了，最开心的是让一些朋友有所收货。</p>
-<a id="more"></a>
-<blockquote>
-<p>小米公司是在2010年4月6日成立的。<br>为了感谢米粉们一路以来对小米公司的支持与陪伴，回馈一路支持的粉丝，每年都会在这一天举办粉丝的盛大狂欢，进行对米粉的答谢活动。<br>所以把这一天命名为米粉节！</p>
-</blockquote>
-<p><img src="http://oc3r3rke2.bkt.clouddn.com/15227310135315.jpg?imageView2/2/w/500" alt="掘金社区成就"></p>
-<p><img src="http://oc3r3rke2.bkt.clouddn.com/15227310755728.jpg?imageView2/2/w/500" alt="网友的感谢"></p>
-<p><img src="http://oc3r3rke2.bkt.clouddn.com/15227311491258.jpg?imageView2/2/w/500" alt="网友的感谢"></p>
-<p>会在「微信公众号」和「掘金社区」分别抽奖，分别为1个小爱音箱F码和1个小爱音箱mini F码。</p>
-<h4 id="抽奖截止时间"><a href="#抽奖截止时间" class="headerlink" title="抽奖截止时间"></a>抽奖截止时间</h4><p>4月9号中午12点</p>
-<h4 id="抽奖规则"><a href="#抽奖规则" class="headerlink" title="抽奖规则"></a>抽奖规则</h4><ul>
-<li>需要关注我的微信公众号才有效；</li>
-<li>使用微信抽奖助手随机抽取；</li>
-</ul>
-<p>抽奖链接：<br><img src="http://oc3r3rke2.bkt.clouddn.com/15227319180470.jpg?imageView2/2/w/500" alt=""></p>
-<p>公众号：<br><img src="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="情情说"></p>
-]]></content>
-      
-        <categories>
-            
-            <category> life </category>
-            
-        </categories>
-        
-        
-    </entry>
-    
-    <entry>
       <title><![CDATA[Netty事件监听和处理（上）]]></title>
       <url>https://qqdong.github.io/2018/04/03/Netty%E4%BA%8B%E4%BB%B6%E7%9B%91%E5%90%AC%E5%92%8C%E5%A4%84%E7%90%86%EF%BC%88%E4%B8%8A%EF%BC%89/</url>
       <content type="html"><![CDATA[<p>陪产假结束了，今天又开始正常上班了，正好赶上米粉节活动，又要忙上一阵了，米粉节活动时间为4.03 - 4.10，有不少优惠，感兴趣的可以关注mi.com或小米商城app。</p>
@@ -356,6 +434,37 @@
             <tag> Netty </tag>
             
         </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[送福利：小爱音箱F码]]></title>
+      <url>https://qqdong.github.io/2018/04/03/%E9%80%81%E7%A6%8F%E5%88%A9%EF%BC%9A%E5%B0%8F%E7%88%B1%E9%9F%B3%E7%AE%B1F%E7%A0%81/</url>
+      <content type="html"><![CDATA[<p>一年一度的米粉节活动开始了，活动时间为 4.3 - 4.10，公司给我们发了福利，其中包含4个小爱音箱F码，包括2个小米AI音箱F码，2个小米小爱音箱mini F码，想把这个福利分享给大家，以感谢大家的支持和鼓励。</p>
+<p>开始认真写文章有1个半月了，不说有多大的收获，最起码自己的一部分时间很好的利用了，最开心的是让一些朋友有所收货。</p>
+<a id="more"></a>
+<blockquote>
+<p>小米公司是在2010年4月6日成立的。<br>为了感谢米粉们一路以来对小米公司的支持与陪伴，回馈一路支持的粉丝，每年都会在这一天举办粉丝的盛大狂欢，进行对米粉的答谢活动。<br>所以把这一天命名为米粉节！</p>
+</blockquote>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15227310135315.jpg?imageView2/2/w/500" alt="掘金社区成就"></p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15227310755728.jpg?imageView2/2/w/500" alt="网友的感谢"></p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15227311491258.jpg?imageView2/2/w/500" alt="网友的感谢"></p>
+<p>会在「微信公众号」和「掘金社区」分别抽奖，分别为1个小爱音箱F码和1个小爱音箱mini F码。</p>
+<h4 id="抽奖截止时间"><a href="#抽奖截止时间" class="headerlink" title="抽奖截止时间"></a>抽奖截止时间</h4><p>4月9号中午12点</p>
+<h4 id="抽奖规则"><a href="#抽奖规则" class="headerlink" title="抽奖规则"></a>抽奖规则</h4><ul>
+<li>需要关注我的微信公众号才有效；</li>
+<li>使用微信抽奖助手随机抽取；</li>
+</ul>
+<p>抽奖链接：<br><img src="http://oc3r3rke2.bkt.clouddn.com/15227319180470.jpg?imageView2/2/w/500" alt=""></p>
+<p>公众号：<br><img src="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="情情说"></p>
+]]></content>
+      
+        <categories>
+            
+            <category> life </category>
+            
+        </categories>
+        
         
     </entry>
     
