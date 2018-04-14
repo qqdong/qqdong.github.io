@@ -4,6 +4,94 @@
   
     
     <entry>
+      <title><![CDATA[RabbitMQ实战：界面管理和监控]]></title>
+      <url>https://qqdong.github.io/2018/04/14/RabbitMQ%E5%AE%9E%E6%88%98%EF%BC%9A%E7%95%8C%E9%9D%A2%E7%AE%A1%E7%90%86%E5%92%8C%E7%9B%91%E6%8E%A7/</url>
+      <content type="html"><![CDATA[<blockquote>
+<p>本系列是「RabbitMQ实战：高效部署分布式消息队列」书籍的总结笔记。</p>
+</blockquote>
+<p>上一篇总结了可能出现的异常场景，并对RabbitMQ提供的可用性保证进行了分析，在出现服务器宕机后，仍然可以正常服务。另外，需要尽快恢复异常的服务器，重新加入集群，推送未消费的消息，通过监控可第一时间接收到错误并进行处理。</p>
+<p>另外，我们想主动了解消息堆积和消费的情况，以及服务器节点的压力，RabbitMQ提供了几种方式便捷、直观的了解，包括Web管理插件、REST API、rabbitmqadmin脚本。</p>
+<p>通过介绍，你会了解到：</p>
+<ul>
+<li>web管理插件</li>
+<li>REST API</li>
+<li>rabbitmqadmin脚本</li>
+<li>Nagios和监控RabbitMQ</li>
+</ul>
+<a id="more"></a>
+<h3 id="web管理插件"><a href="#web管理插件" class="headerlink" title="web管理插件"></a>web管理插件</h3><p>RabbitMQ的插件是由Erlang语言写的，并且和服务器一同运行在同一个Erlang VM中，通过下面的命令启用web管理插件：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo ./rabbitmq-plugins enable rabbitmq_management</span><br></pre></td></tr></table></figure>
+<p>启动之后，访问15672端口，可看到Web管理页面主页面：</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15236961623170.jpg" alt="RabbitMQ主页面"></p>
+<h5 id="添加用户"><a href="#添加用户" class="headerlink" title="添加用户"></a>添加用户</h5><p>默认会提供一个默认用户guest，密码也是guest，线上环境需要创建一个新用户，并把guest用户删除。</p>
+<p>首先切换到Admin标签页，可以查看或添加用户，添加用户时，可指定Tags，相当于角色，会拥有对应的权限：</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15236965301277.jpg" alt="查看和添加用户"></p>
+<p>点击用户列表的用户名，可分配权限、编辑或删除用户，分配权限时，可细化到某个virtual下的某个topic，并按读、写、配置类别进行分开：</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15236967206789.jpg" alt="添加权限"></p>
+<h5 id="管理队列、交换器、绑定"><a href="#管理队列、交换器、绑定" class="headerlink" title="管理队列、交换器、绑定"></a>管理队列、交换器、绑定</h5><p>切换到“Exchanges”标签，可查看和管理交换器，单击交换器名称，可查看到更多详细信息，比如交换器绑定，还可以添加新的绑定：</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15236973415380.jpg" alt="交换器"></p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15236974598888.jpg" alt="交换器绑定"></p>
+<p>切换到“Queues”标签，可以查看队列信息，点击队列名称，可查看队列所有状态的消息数量和大小等统计信息：</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15236977612543.jpg" alt="队列列表"></p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15236978771376.jpg" alt="队列统计信息"></p>
+<p>还可以查看消费者和绑定，发布、获取消息：</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15236979638847.jpg" alt="查看消费者和绑定"></p>
+<h3 id="REST-API"><a href="#REST-API" class="headerlink" title="REST API"></a>REST API</h3><p>有时需要初始化一些列队列和交换器，每次部署一套新环境后，都需要一步一步创建会有点麻烦，通过REST API可方便的实现自动化脚本。</p>
+<p>当启用web管理插件后，不仅获得了WEB UI，也拥一个REST化的WEB管理API，任何语言或脚本只要有HTTP库，都能调用。</p>
+<p>接口会返回json串，比如获取所有队列：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -i -u admin:admin http://localhost:15672/api/queues</span><br></pre></td></tr></table></figure>
+<p>会返回一个json数组，每个元素是一个队列，包含队列的各种属性：</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15236988542679.jpg" alt="REST API请求结果"></p>
+<h3 id="rabbitmqadmin脚本"><a href="#rabbitmqadmin脚本" class="headerlink" title="rabbitmqadmin脚本"></a>rabbitmqadmin脚本</h3><p>另外，还提供了rabbitmqadmin脚本的方式查看元数据信息和一些统计数据，它会包装REST API，使用干净的接口与其交互，而且输出内容也是格式化过的，方便我们查看。</p>
+<p>比如查看所有队列，可以这样写：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./rabbitmqadmin list queues</span><br></pre></td></tr></table></figure>
+<p>会返回如下结果：</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15236991986916.jpg" alt="rabbitmqadmin返回结果"></p>
+<h3 id="监控"><a href="#监控" class="headerlink" title="监控"></a>监控</h3><p>监控RabbitMQ并不只是确保端口5672是开启的并能接收TCP连接而已，还要能够模拟AMQP客户端来确保连接之后获取信道，如果能使用REST API找出是否所有构成RabbitMQ部件都正常运行，并且之间能正常通信，就更好了。</p>
+<p>书中介绍使用Nagios监控框架进行监控，我之前没有使用，这里搜集了一些资料，会做下简单介绍。</p>
+<h5 id="Nagios"><a href="#Nagios" class="headerlink" title="Nagios"></a>Nagios</h5><p>Nagios是一款开源的监控工具，能有效监控Windows、Linux和Unix的主机状态，交换机路由器等网络设置，打印机等。在系统或服务状态异常时发出邮件或短信报警第一时间通知网站运维人员，在状态恢复后发出正常的邮件或短信通知。</p>
+<p>它本身不包括这部分功能，所有的监控、检测功能都是通过各种插件完成的，启动Nagios后，它会周期性的自动调用插件去检测服务器状态，同时Nagios会维持一个队列，所有插件返回来的状态信息都进入队列，Nagios每次都从队首开始读取信息，并进行处理后，把状态结果通过web显示出来。</p>
+<p>Nagios可以识别4种状态返回信息：</p>
+<ul>
+<li>0(OK)表示状态正常/绿色；</li>
+<li>1(WARNING)表示出现警告/黄色；</li>
+<li>2(CRITICAL)表示出现非常严重的错误/红色；</li>
+<li>3(UNKNOWN)表示未知错误/深黄色；</li>
+</ul>
+<p>Nagios根据插件返回来的值，来判断监控对象的状态，并通过web显示出来，以供管理员及时发现故障。</p>
+<p>它是如何管理远端服务器对象的，使用NRPE插件，主要过程如下：</p>
+<ul>
+<li>Nagios 执行安装在它里面的check_nrpe插件，并告诉check_nrpe去检测哪些服务；</li>
+<li>通过SSL，check_nrpe连接远端机子上的NRPE daemon；</li>
+<li>NRPE 运行本地的各种插件去检测本地的服务和状态；</li>
+<li>NRPE把检测的结果传给主机端的check_nrpe，check_nrpe再把结果送到Nagios状态队列中；</li>
+<li>Nagios 依次读取队列中的信息，再把结果显示出来；</li>
+</ul>
+<h5 id="监控RabbitMQ"><a href="#监控RabbitMQ" class="headerlink" title="监控RabbitMQ"></a>监控RabbitMQ</h5><p>书中提到监控RabbitMQ的各个方面，比如：监控Rabbit内部状态、确认RabbitMQ可用并且能够响应、观察队列状态检测消费者异常、检测消息通信结构中不合需求的配置更改等。</p>
+<p>基本思路都是通过编写Nagios需要的检测脚本，使用AMQP客户端或REST API的方式，获取关心的监控信息，根据情况返回不同的状态码。</p>
+<p>具体的脚本脚本就不一一介绍了，这里举个例子，监控队列的持久化配置是否正确，通过api/queues/<vhost>/<queuename>获取队列信息，判断它的durable属性是否为true，脚本如下：</queuename></vhost></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> sys, json, httplib, urllib, base64, socket</span><br><span class="line"></span><br><span class="line"><span class="comment"># 1.定义状态码</span></span><br><span class="line">EXIT_OK = <span class="number">0</span></span><br><span class="line">EXIT_WARNING = <span class="number">1</span></span><br><span class="line">EXIT_CRITICAL = <span class="number">2</span></span><br><span class="line">EXIT_UNKNOWN = <span class="number">3</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 2.解析参数</span></span><br><span class="line">server, port = sys.argv[<span class="number">1</span>].split(<span class="string">":"</span>)</span><br><span class="line">vhost = sys.argv[<span class="number">2</span>]</span><br><span class="line">username = sys.argv[<span class="number">3</span>]</span><br><span class="line">password = sys.argv[<span class="number">4</span>]</span><br><span class="line">queue_name = sys.argv[<span class="number">5</span>]</span><br><span class="line">auto_delete = json.loads(sys.argv[<span class="number">6</span>].lower())</span><br><span class="line">durable = json.loads(sys.argv[<span class="number">7</span>].lower())</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3.连接服务器</span></span><br><span class="line">conn = httplib.HTTPConnection(server, port)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 4.构建api路径</span></span><br><span class="line">path = <span class="string">"/api/queues/%s/%s"</span> % (urllib.quote(vhost, safe=<span class="string">""</span>),</span><br><span class="line">                              urllib.quote(queue_name))</span><br><span class="line">method = <span class="string">"GET"</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 5.执行http请求</span></span><br><span class="line">credentials = base64.b64encode(<span class="string">"%s:%s"</span> % (username, password))</span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    conn.request(method, path, <span class="string">""</span>,</span><br><span class="line">                 &#123;<span class="string">"Content-Type"</span> : <span class="string">"application/json"</span>,</span><br><span class="line">                  <span class="string">"Authorization"</span> : <span class="string">"Basic "</span> + credentials&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 6.连接异常，退出</span></span><br><span class="line"><span class="keyword">except</span> socket.error:</span><br><span class="line">    <span class="keyword">print</span> <span class="string">"UNKNOWN: Could not connect to %s:%s"</span> % (server, port)</span><br><span class="line">    exit(EXIT_UNKNOWN)</span><br><span class="line"></span><br><span class="line">response = conn.getresponse()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 7.状态码为404，说明队列不存在，退出</span></span><br><span class="line"><span class="keyword">if</span> response.status == <span class="number">404</span>:</span><br><span class="line">    <span class="keyword">print</span> <span class="string">"CRITICAL: Queue %s does not exist."</span> % queue_name</span><br><span class="line">    exit(EXIT_CRITICAL)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 8.durable属性是否正确</span></span><br><span class="line"><span class="keyword">if</span> response[<span class="string">"durable"</span>] != durable:</span><br><span class="line">    <span class="keyword">print</span> <span class="string">"WARN: Queue '%s' - durable flag is NOT %s."</span> % \</span><br><span class="line">          (queue_name, durable)</span><br><span class="line">    exit(EXIT_WARNING)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 9.返回正常</span></span><br><span class="line"><span class="keyword">print</span> <span class="string">"OK: Queue %s configured correctly."</span> % queue_name</span><br><span class="line">exit(EXIT_OK)</span><br></pre></td></tr></table></figure>
+<p>下一篇将介绍RabbitMQ安全和性能方面的考虑。</p>
+<p><strong><font color="green">欢迎扫描下方二维码，关注我的个人微信公众号</font> ~</strong></p>
+<p><div align="center"><br><img src="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="情情说"></div></p>
+]]></content>
+      
+        <categories>
+            
+            <category> 消息队列 </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> RabbitMQ </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[RabbitMQ实战：可用性分析和实现]]></title>
       <url>https://qqdong.github.io/2018/04/12/RabbitMQ%E5%AE%9E%E6%88%98%EF%BC%9A%E5%8F%AF%E7%94%A8%E6%80%A7%E5%88%86%E6%9E%90%E5%92%8C%E5%AE%9E%E7%8E%B0/</url>
       <content type="html"><![CDATA[<blockquote>
