@@ -4,6 +4,101 @@
   
     
     <entry>
+      <title><![CDATA[让数据传输更安全]]></title>
+      <url>https://qqdong.github.io/2018/04/21/%E8%AE%A9%E6%95%B0%E6%8D%AE%E4%BC%A0%E8%BE%93%E6%9B%B4%E5%AE%89%E5%85%A8/</url>
+      <content type="html"><![CDATA[<p>在阅读RabbitMQ数据传输安全的章节时，提到了ssl协议，用了很大篇幅介绍使用openssl生成一些列秘钥和证书，如果没有相关基础，会不太好理解，本篇就来总结下数据安全相关的概念以及浏览器HTTPS的应用。</p>
+<p>通过介绍，你会了解到：</p>
+<ul>
+<li>数据安全的基本概念</li>
+<li>加密算法</li>
+<li>数字证书和证书机构</li>
+<li>ssl和openssl基本介绍</li>
+<li>https应用</li>
+</ul>
+<h3 id="数据安全的基本概念"><a href="#数据安全的基本概念" class="headerlink" title="数据安全的基本概念"></a>数据安全的基本概念</h3><p>数据要在网络中传输，就会存在安全问题，因为任何人都可以获得你发送的数据包，从而获得你的数据，需要对数据进行加密，对于数据发送者，也可能被伪造，需要对双方身份做验证，另外，数据的完整性也需要考虑。</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15242963891613.jpg" alt="数据安全的问题"></p>
+<p>总结下安全的定义：</p>
+<ul>
+<li>保密性：只有自己和允许的人能看到或看懂数据；</li>
+<li>完整性：数据没有被破坏或篡改；</li>
+<li>可信任性：确保消息是对方发的，不是伪造者发的；</li>
+</ul>
+<a id="more"></a>
+<h3 id="加密算法"><a href="#加密算法" class="headerlink" title="加密算法"></a>加密算法</h3><p>加密是保证数据安全的常用手段，已经有很多现成的加密算法了，这些算法都是经过验证和考验的，想要破解非常困难，所以，一般不需要设计算法，可以直接使用，这里只会介绍常见算法的基本概念和特性，不涉及算法实现细节。</p>
+<h5 id="散列"><a href="#散列" class="headerlink" title="散列"></a>散列</h5><p>散列就是hash算法，把任意长度的输入，通过散列算法，变换成固定长度的输出，该输出就是散列值，常见的hash算法有MD5和SHA。</p>
+<p>MD5即Message-Digest Algorithm 5，称为信息-摘要算法5，主要用于确保信息传输的完整性，输入是不定长度信息，输出固定长度128比特的串。</p>
+<p>SHA即Secure Hash Algorithm，称为安全哈希算法，和MD5一样，也是从MD4发展而来，与MD5的最大区别在于其摘要比MD5长32比特。</p>
+<p>还有很重要的一点是，任意两个文档得到相同字符串的概率几乎等于0。</p>
+<h5 id="对称加密"><a href="#对称加密" class="headerlink" title="对称加密"></a>对称加密</h5><p>加密就是把原始数据通过某种变换变成看不懂的东西，对于对称加密，这个操作是可逆的，另外，加密算法不能单独工作，必须有密钥配合，加密和解密的密钥是同一个，目前流行的对称加密算法有DES，AES。</p>
+<p>DES即Data Encryption Standard，称为数据加密标准，是美国政府采纳IBM公司设计的方案作为非机密数据的正式数据加密标准，DES算法的入口参数有三个：Key、Data、Mode：</p>
+<ul>
+<li>Key为8个字节，是DES算法的工作密钥；</li>
+<li>Data也为8个字节，是要被加密或被解密的数据；</li>
+<li>Mode为DES的工作方式：加密或解密；</li>
+</ul>
+<p>如Mode为加密，用Key把Data进行加密，生成Data的密码形式（64位）作为DES的输出结果，如Mode为解密，用Key把密码形式的Data解密，还原为Data的明码形式（64位）作为DES的输出结果。</p>
+<p>AES即Advanced Encryption Standard，称为高级加密标准，是下一代的加密算法标准，速度快，安全级别高，它可以使用128、192和256位密钥。</p>
+<p>对称加密算法的优点是速度快，缺点是密钥管理不方便，要求共享密钥。</p>
+<h5 id="非对称加密"><a href="#非对称加密" class="headerlink" title="非对称加密"></a>非对称加密</h5><p>相对于对称加密，非对称加密和解密不是同一个密钥，一个称为公钥，另一个称为私钥。公钥就是公开的，大家都知道，而私钥只有你自己知道。</p>
+<p>用公钥加密的内容只能由相应的私钥来解密，反过来，用私钥加密的内容只能由相应的公钥来解密，常用的非对称加密算法有RSA、ECC。</p>
+<p>RSA算法是第一个能同时用于加密和数字签名的算法，也易于理解和操作，应用比较广泛。</p>
+<p>非对称加密算法的优点是密钥管理很方便，缺点是速度慢。</p>
+<h5 id="数字签名"><a href="#数字签名" class="headerlink" title="数字签名"></a>数字签名</h5><p>数字签名主要保证可信任性，不可伪造，所用的技术是前面介绍的散列和非对称加密。</p>
+<p>首先为要签名的数据生成一个Hash字串hash1，然后用你的私钥加密得到encrypted(hash1)，这就是数据的数字签名。当别人需要验证数据是否是你发送的时候，只需要用你的公钥解密你的签名得到hash1，并和数据计算出来的hash2对比，查看是否一致。</p>
+<blockquote>
+<p>对于非对称加密和数字签名，如果之前没接触过，可能不太好理解，可以阅读相关文章进一步了解，在后面介绍https应用时，会说明其应用过程。</p>
+</blockquote>
+<h3 id="数字证书和证书机构"><a href="#数字证书和证书机构" class="headerlink" title="数字证书和证书机构"></a>数字证书和证书机构</h3><p>为了方便传递公钥秘钥，一般把它存储在数字证书中，为了保证证书的可信性，一般由专业证书机构颁发。</p>
+<p>考虑这样一个场景，用户A想访问小米网mi.com，但由于手误，写成了ni.com，假设ni.com是不法分子仿照小米网创建的网站，包含一个伪造的数字证书，如果浏览器可以验证数字证书的真实性，就会提示用户证书异常，防止用户的损失。</p>
+<p>CA就是证书的签发机构，负责签发证书、认证证书、管理已颁发证书的机关，制定了具体步骤来验证、识别用户身份，并对用户证书进行签名，以确保证书持有者的身份和公钥的拥有权。</p>
+<p>要申请证书，应先向CA提出申请，在CA确认申请者的身份后，会分配一个公钥，然后将该公钥与申请者的身份信息绑在一起，使用CA的私钥进行签名，便形成证书发给申请者。</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15243052313169.jpg" alt="申请证书"></p>
+<p>如果想鉴别证书的真伪，用CA的公钥对证书上的签字进行验证，一旦验证通过，并且在有效期之内，该证书就被认为是有效的。</p>
+<p>所以，配置ssl时，需要CA根证书的公钥，用于验证证书的真伪。</p>
+<h3 id="ssl和openssl基本介绍"><a href="#ssl和openssl基本介绍" class="headerlink" title="ssl和openssl基本介绍"></a>ssl和openssl基本介绍</h3><p>ssl是保证数据安全传输的一个协议，openssl是一个工具，包含各种协议和算法的实现。</p>
+<h5 id="ssl"><a href="#ssl" class="headerlink" title="ssl"></a>ssl</h5><p>保证数据传输安全，比较简单的方法是用非对称加密，如果双方都认证了对方的数字证书么每次传输数据的时候都用对方的公钥加密，那么只有对方能解密，从而保证了信息的安全。但是对于日常应用（比如网页浏览）有两个问题：</p>
+<ul>
+<li>非对称加密速度很慢，而且消耗资源；</li>
+<li>不可能要求每个用户都去申请数字证书，因为过程比较麻烦；</li>
+</ul>
+<p>SSL（Secure Sockets Layer）通过握手协议和传输协议来解决上面的问题，它是一种间于传输层（比如TCP/IP）和应用层（比如HTTP）的协议，对数据进行加密和签名处理。</p>
+<p>它由网景公司设计的，到了1999年，SSL因为应用广泛，已经成为互联网上的事实标准，IETF就在那年把SSL标准化，标准化之后的名称改为TLS（Transport Layer Security），中文叫做“传输层安全协议”，所以两者可以视作同一个东西的不同阶段。</p>
+<p>SSL的基本思想是用非对称加密来建立链接（握手阶段），用对称加密来传输数据（传输阶段）。这样既保证了密钥分发的安全，也保证了通信的效率。</p>
+<p>具体过程，介绍https应用时，会详细介绍。</p>
+<h5 id="openssl"><a href="#openssl" class="headerlink" title="openssl"></a>openssl</h5><p>openssl是一套开源工具集，主要包含3个组件：</p>
+<ul>
+<li>openssl：多用途的命令行工具</li>
+<li>libcrypto：加密算法库，实现了常用的加密算法；</li>
+<li>libssl：加密模块应用库，实现了ssl及tls协议；</li>
+</ul>
+<p>下面举几个实例来说明它的使用。</p>
+<p>1.使用MD5加密<br><img src="http://oc3r3rke2.bkt.clouddn.com/15243091373538.jpg" alt="使用MD5加密"></p>
+<p>2.生成随机数<br><img src="http://oc3r3rke2.bkt.clouddn.com/15243090402932.jpg" alt="生成随机数"></p>
+<p>3.对称加密<br><img src="http://oc3r3rke2.bkt.clouddn.com/15243088698952.jpg" alt="对称加密"></p>
+<p>4.生成秘钥对<br><img src="http://oc3r3rke2.bkt.clouddn.com/15243092469580.jpg" alt="生成秘钥对"></p>
+<h3 id="https应用"><a href="#https应用" class="headerlink" title="https应用"></a>https应用</h3><p>HTTPS 协议，说白了就是HTTP协议和SSL/TLS协议的组合，可以把HTTPS大致理解为：HTTP over SSL。</p>
+<p>Https在建立Socket连接之前，需要进行握手，单向认证和双向认证不同。</p>
+<p>具体过程网上很多，我就摘录一个 <a href="https://blog.csdn.net/duanbokan/article/details/50847612" target="_blank" rel="noopener">博友</a> 的一个图，说明下双向认证的过程：</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15243096748688.jpg" alt="双向认证过程"></p>
+<p>下一篇就来说说RabbitMQ的性能和安全考虑。</p>
+]]></content>
+      
+        <categories>
+            
+            <category> 安全 </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> 安全 </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[RabbitMQ实战：界面管理和监控]]></title>
       <url>https://qqdong.github.io/2018/04/14/RabbitMQ%E5%AE%9E%E6%88%98%EF%BC%9A%E7%95%8C%E9%9D%A2%E7%AE%A1%E7%90%86%E5%92%8C%E7%9B%91%E6%8E%A7/</url>
       <content type="html"><![CDATA[<blockquote>
@@ -506,37 +601,6 @@
     </entry>
     
     <entry>
-      <title><![CDATA[送福利：小爱音箱F码]]></title>
-      <url>https://qqdong.github.io/2018/04/03/%E9%80%81%E7%A6%8F%E5%88%A9%EF%BC%9A%E5%B0%8F%E7%88%B1%E9%9F%B3%E7%AE%B1F%E7%A0%81/</url>
-      <content type="html"><![CDATA[<p>一年一度的米粉节活动开始了，活动时间为 4.3 - 4.10，公司给我们发了福利，其中包含4个小爱音箱F码，包括2个小米AI音箱F码，2个小米小爱音箱mini F码，想把这个福利分享给大家，以感谢大家的支持和鼓励。</p>
-<p>开始认真写文章有1个半月了，不说有多大的收获，最起码自己的一部分时间很好的利用了，最开心的是让一些朋友有所收货。</p>
-<a id="more"></a>
-<blockquote>
-<p>小米公司是在2010年4月6日成立的。<br>为了感谢米粉们一路以来对小米公司的支持与陪伴，回馈一路支持的粉丝，每年都会在这一天举办粉丝的盛大狂欢，进行对米粉的答谢活动。<br>所以把这一天命名为米粉节！</p>
-</blockquote>
-<p><img src="http://oc3r3rke2.bkt.clouddn.com/15227310135315.jpg?imageView2/2/w/500" alt="掘金社区成就"></p>
-<p><img src="http://oc3r3rke2.bkt.clouddn.com/15227310755728.jpg?imageView2/2/w/500" alt="网友的感谢"></p>
-<p><img src="http://oc3r3rke2.bkt.clouddn.com/15227311491258.jpg?imageView2/2/w/500" alt="网友的感谢"></p>
-<p>会在「微信公众号」和「掘金社区」分别抽奖，分别为1个小爱音箱F码和1个小爱音箱mini F码。</p>
-<h4 id="抽奖截止时间"><a href="#抽奖截止时间" class="headerlink" title="抽奖截止时间"></a>抽奖截止时间</h4><p>4月9号中午12点</p>
-<h4 id="抽奖规则"><a href="#抽奖规则" class="headerlink" title="抽奖规则"></a>抽奖规则</h4><ul>
-<li>需要关注我的微信公众号才有效；</li>
-<li>使用微信抽奖助手随机抽取；</li>
-</ul>
-<p>抽奖链接：<br><img src="http://oc3r3rke2.bkt.clouddn.com/15227319180470.jpg?imageView2/2/w/500" alt=""></p>
-<p>公众号：<br><img src="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="情情说"></p>
-]]></content>
-      
-        <categories>
-            
-            <category> life </category>
-            
-        </categories>
-        
-        
-    </entry>
-    
-    <entry>
       <title><![CDATA[Netty事件监听和处理（上）]]></title>
       <url>https://qqdong.github.io/2018/04/03/Netty%E4%BA%8B%E4%BB%B6%E7%9B%91%E5%90%AC%E5%92%8C%E5%A4%84%E7%90%86%EF%BC%88%E4%B8%8A%EF%BC%89/</url>
       <content type="html"><![CDATA[<p>陪产假结束了，今天又开始正常上班了，正好赶上米粉节活动，又要忙上一阵了，米粉节活动时间为4.03 - 4.10，有不少优惠，感兴趣的可以关注mi.com或小米商城app。</p>
@@ -655,6 +719,37 @@
             <tag> Netty </tag>
             
         </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[送福利：小爱音箱F码]]></title>
+      <url>https://qqdong.github.io/2018/04/03/%E9%80%81%E7%A6%8F%E5%88%A9%EF%BC%9A%E5%B0%8F%E7%88%B1%E9%9F%B3%E7%AE%B1F%E7%A0%81/</url>
+      <content type="html"><![CDATA[<p>一年一度的米粉节活动开始了，活动时间为 4.3 - 4.10，公司给我们发了福利，其中包含4个小爱音箱F码，包括2个小米AI音箱F码，2个小米小爱音箱mini F码，想把这个福利分享给大家，以感谢大家的支持和鼓励。</p>
+<p>开始认真写文章有1个半月了，不说有多大的收获，最起码自己的一部分时间很好的利用了，最开心的是让一些朋友有所收货。</p>
+<a id="more"></a>
+<blockquote>
+<p>小米公司是在2010年4月6日成立的。<br>为了感谢米粉们一路以来对小米公司的支持与陪伴，回馈一路支持的粉丝，每年都会在这一天举办粉丝的盛大狂欢，进行对米粉的答谢活动。<br>所以把这一天命名为米粉节！</p>
+</blockquote>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15227310135315.jpg?imageView2/2/w/500" alt="掘金社区成就"></p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15227310755728.jpg?imageView2/2/w/500" alt="网友的感谢"></p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15227311491258.jpg?imageView2/2/w/500" alt="网友的感谢"></p>
+<p>会在「微信公众号」和「掘金社区」分别抽奖，分别为1个小爱音箱F码和1个小爱音箱mini F码。</p>
+<h4 id="抽奖截止时间"><a href="#抽奖截止时间" class="headerlink" title="抽奖截止时间"></a>抽奖截止时间</h4><p>4月9号中午12点</p>
+<h4 id="抽奖规则"><a href="#抽奖规则" class="headerlink" title="抽奖规则"></a>抽奖规则</h4><ul>
+<li>需要关注我的微信公众号才有效；</li>
+<li>使用微信抽奖助手随机抽取；</li>
+</ul>
+<p>抽奖链接：<br><img src="http://oc3r3rke2.bkt.clouddn.com/15227319180470.jpg?imageView2/2/w/500" alt=""></p>
+<p>公众号：<br><img src="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="情情说"></p>
+]]></content>
+      
+        <categories>
+            
+            <category> life </category>
+            
+        </categories>
+        
         
     </entry>
     

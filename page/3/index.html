@@ -272,6 +272,174 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/03/12/git分支管理和工作流规范：基本概念/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="calm">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/head.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="情情说">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/03/12/git分支管理和工作流规范：基本概念/" itemprop="url">git分支管理和工作流规范：基本概念说明</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-12T22:00:00+08:00">
+                2018-03-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/版本控制/" itemprop="url" rel="index">
+                    <span itemprop="name">版本控制</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>「单点登录与权限管理」系列第二部分，Demo项目的设计和开发，需要一段时间才能完成。这段时间，会把以前学习、实践、梳理过的知识分享给大家，希望大家能够喜欢。</p>
+<p>接下来，会分享「git分支管理和工作流规范」相关内容，当一个项目大了后，会有多人共同协作开发，如果没有相关规范，代码合并的时候会有很多冲突，代码的版本和提交历史也会显得很乱。针对这2个问题，可以通过分支的管理、工作流规范很好的解决。</p>
+<p>针对不同的场景创建不同的分支，始终保持主分支可靠、干净，比如新增功能、修复线上问题、修复测试环境的bug等场景，需要创建不同的分支。另外，要对下一版本要上线的功能提前规划好，把功能细分，分配给每个人去完成，功能相互依赖的在同一个分支，不确定要上线的功能要单独创建分支，这样可以减少合并时的冲突。</p>
+<p>提交代码时，要保持提交历史的清晰，提交的注释也要规范，关于提交历史，总结了3个要点：</p>
+<ul>
+<li>一个git用户非常重要的技能是能够维护一个清晰的语义化的变更历史;</li>
+<li>通过查看版本变更历史就可以反映出团队的开发目的、功能变更；</li>
+<li>版本变更历史记录的是代码的发展，而不是开发者在编码时的活动；</li>
+</ul>
+<p>会分3篇文章分享「git分支管理和工作流规范」：</p>
+<ul>
+<li>git相关概念</li>
+<li>具体规范</li>
+<li>不同场景细化和演示</li>
+</ul>
+<p>本篇主要介绍下git相关概念，太基础的我就不介绍了，网上资料比较多，主要包括：</p>
+<ul>
+<li>文件的状态</li>
+<li>分支的概念</li>
+<li>merge合并</li>
+<li>rebase衍合</li>
+<li>git工作流程</li>
+</ul>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018/03/12/git分支管理和工作流规范：基本概念/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/03/11/单点登录本质之五：权限管理介绍/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1625,156 +1793,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/02/22/我的常用工具集/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="calm">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/head.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="情情说">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/02/22/我的常用工具集/" itemprop="url">我的常用工具集</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-02-22T22:10:00+08:00">
-                2018-02-22
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/tool/" itemprop="url" rel="index">
-                    <span itemprop="name">tool</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>今天年后第一天上班，去年会有公司高管在门口发红包，本来想早点去公司，但还是晚到20分钟，错失了我的大红包 ：）。上午一直不在状态，可能是所谓的节后综合征，下午慢慢好起来，调研和整理了 「多租户的实现方案」。</p>
-<p>今天想说说我的常用工具集，主要是mac上的工具，希望大家有喜欢的。如果有更好用的，大家可以在留言区留言，让更多的人知道。</p>
-<p>16年初来到小米后，标配是双显示器，配置是8核16G内存，系统推荐使用ubuntu，之后就一直用这个。但我们的项目有好多子项目，每次在本地调试时，会导致机器会非常卡，比较影响工作效率。</p>
-<p>所以，今天又把我的mac笔记本带到公司了，分担一部分压力，以后会同时用公司电脑和mac上，分别显示在2个显示器上。</p>
-<p>公司电脑只运行idea集成开发软件，mac上主要运行idea以外的所有的常用软件，比如微信、qq、文档工具、邮件客户端、xmind、笔记软件、浏览器等。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2018/02/22/我的常用工具集/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1829,7 +1847,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">36</span>
+                  <span class="site-state-item-count">37</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -1840,7 +1858,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-count">11</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -1851,7 +1869,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-count">21</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
