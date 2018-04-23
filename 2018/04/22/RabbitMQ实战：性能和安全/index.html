@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="RabbitMQ" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="本系列是「RabbitMQ实战：高效部署分布式消息队列」书籍的总结笔记。  前两篇介绍了RabbitMQ在可用性、监控方面的考虑，这是基础保障，因为在某些场景下是不容许丢失消息的，但它和性能往往是对立的，需要根据业务场景做取舍。 当处理一些敏感数据时，比如银行卡信息，需要考虑安全性问题，上一篇总结了数据传输安全方面的知识点，这里就比较好理解了。 通过介绍，你会了解到：  对速度的考虑 对内存和进">
+<meta name="keywords" content="RabbitMQ">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RabbitMQ实战：性能和安全">
+<meta property="og:url" content="https://qqdong.github.io/2018/04/22/RabbitMQ实战：性能和安全/index.html">
+<meta property="og:site_name" content="情情说">
+<meta property="og:description" content="本系列是「RabbitMQ实战：高效部署分布式消息队列」书籍的总结笔记。  前两篇介绍了RabbitMQ在可用性、监控方面的考虑，这是基础保障，因为在某些场景下是不容许丢失消息的，但它和性能往往是对立的，需要根据业务场景做取舍。 当处理一些敏感数据时，比如银行卡信息，需要考虑安全性问题，上一篇总结了数据传输安全方面的知识点，这里就比较好理解了。 通过介绍，你会了解到：  对速度的考虑 对内存和进">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15243936714954.jpg">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15243965217710.jpg">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15243964853185.jpg">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15243955229591.jpg">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:updated_time" content="2018-04-22T12:45:55.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="RabbitMQ实战：性能和安全">
+<meta name="twitter:description" content="本系列是「RabbitMQ实战：高效部署分布式消息队列」书籍的总结笔记。  前两篇介绍了RabbitMQ在可用性、监控方面的考虑，这是基础保障，因为在某些场景下是不容许丢失消息的，但它和性能往往是对立的，需要根据业务场景做取舍。 当处理一些敏感数据时，比如银行卡信息，需要考虑安全性问题，上一篇总结了数据传输安全方面的知识点，这里就比较好理解了。 通过介绍，你会了解到：  对速度的考虑 对内存和进">
+<meta name="twitter:image" content="http://oc3r3rke2.bkt.clouddn.com/15243936714954.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://qqdong.github.io/2018/04/22/RabbitMQ实战：性能和安全/"/>
+
+
+
+
+
+  <title>RabbitMQ实战：性能和安全 | 情情说</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?48e81d160a0773a1af5455493c416547";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">情情说</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">记录工作、学习和生活</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/04/22/RabbitMQ实战：性能和安全/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="calm">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/head.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="情情说">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">RabbitMQ实战：性能和安全</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-22T22:00:00+08:00">
+                2018-04-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/消息队列/" itemprop="url" rel="index">
+                    <span itemprop="name">消息队列</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>本系列是「RabbitMQ实战：高效部署分布式消息队列」书籍的总结笔记。</p>
+</blockquote>
+<p>前两篇介绍了RabbitMQ在可用性、监控方面的考虑，这是基础保障，因为在某些场景下是不容许丢失消息的，但它和性能往往是对立的，需要根据业务场景做取舍。</p>
+<p>当处理一些敏感数据时，比如银行卡信息，需要考虑安全性问题，上一篇总结了数据传输安全方面的知识点，这里就比较好理解了。</p>
+<p>通过介绍，你会了解到：</p>
+<ul>
+<li>对速度的考虑</li>
+<li>对内存和进程的考虑</li>
+<li>对安全的考虑</li>
+</ul>
+<a id="more"></a>
+<h3 id="对速度的考虑"><a href="#对速度的考虑" class="headerlink" title="对速度的考虑"></a>对速度的考虑</h3><p>有很多因素影响RabbitMQ投递消息的速度，包括消息持久化、路由算法、绑定数目、以及消息确认策略等，下面分别来介绍。</p>
+<h5 id="消息持久化"><a href="#消息持久化" class="headerlink" title="消息持久化"></a>消息持久化</h5><p>当发布消息时，需要决定丢失其中的任何消息是否可以接受，如果可以接受，可以将delivery-model设置为1，消息就不会持久化到硬盘了。</p>
+<h5 id="消息确认"><a href="#消息确认" class="headerlink" title="消息确认"></a>消息确认</h5><p>当消费消息时，可以在队列订阅时，通过设定no-ack标记加快消息投递，如果设置为true，服务器就会在消息发送给客户端后自动将其出队。</p>
+<p>这样，处理完消息之后就无须再发送确认消息回服务器了，能极大地加快消费者消费消息，但由于某些原因连接中断了，或客户端应用程序发生故障了，消息就永远消息了。</p>
+<h5 id="路由算法和绑定规则"><a href="#路由算法和绑定规则" class="headerlink" title="路由算法和绑定规则"></a>路由算法和绑定规则</h5><p>前面介绍了3种类型的交换器：direct、fanout、topic，每种交换器代表了服务器实现的特定路由算法，会根据消息的路由键以及队列与交换器之间的绑定来选择队列。</p>
+<p>在服务器端，交换器和绑定作为记录条目存储在Mnesia数据库中，当匹配消息路由键时，会尝试查找对应路由键的绑定。</p>
+<p>fanout交换器在路由消息的时候，会忽略路由键，不需要进行查找。direct只有一个绑定，也会比较快，topic存储的路由信息比较复杂，由于路由键可以包含以点分隔的多个词，所以匹配消息路由键不仅仅是简单字符串的匹配，也会占用更多内存。</p>
+<p>RabbitMQ实现了trie树数据结构用来存储绑定路由键模式，以支持快速查询，关于这种数据结构，我之前没接触过，据说比桶状哈希表还快，后面专门写一篇介绍这个数据结构吧。</p>
+<h5 id="投递消息"><a href="#投递消息" class="headerlink" title="投递消息"></a>投递消息</h5><p>在交换器找到消息需要路由的目的地之后，会将目的地列表返回给rabbit_router，之后会将消息的副本投递到每一个目的地，如果发布的消息中mandatory和immediate标记设置为false，这个过程会以异步方式执行，从客户端角度看，服务器会变得很快，否则会同步投递。</p>
+<blockquote>
+<p>当mandatory标志位设置为true时，如果exchange根据自身类型和消息routeKey无法找到一个符合条件的queue，那么会调用basic.return方法将消息返还给生产者，当mandatory设为false时，出现上述情形broker会直接将消息扔掉。</p>
+<p>当immediate标志位设置为true时，如果exchange在将消息route到queue(s)时发现对应的queue上没有消费者，那么这条消息不会放入队列中。当与消息routeKey关联的所有queue(一个或多个)都没有消费者时，该消息会通过basic.return方法返还给生产者。</p>
+</blockquote>
+<p>假如找到了投递的队列且有消费者准备好接收消息，如果队列为空，消息会直接发送给消费者，不会经过队列这一步，会极大提升速度，所以制定容量规划并计算消息的进出率时，应尽可能让队列保持为空，如果消费滞后导致队列填满的化，服务器会收到内存告警，并将消息刷出磁盘。</p>
+<p>还有个参数要注意：auto-ack，消费者接收到消息后，会立刻确认消息，而不用等到逻辑处理好。</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15243936714954.jpg" alt="消息路由过程"></p>
+<blockquote>
+<p>以上说的提高速度的方法大部分都会牺牲可用性，要根据不同的业务场景进行平衡。</p>
+</blockquote>
+<h3 id="对内存和进程的考虑"><a href="#对内存和进程的考虑" class="headerlink" title="对内存和进程的考虑"></a>对内存和进程的考虑</h3><p>在设计应用程序的时候，会有两个基本限制：选择的技术允许做什么，以及当前硬件设定允许做什么。上面讨论了第一点：不同消息路由和分发算法如何影响设计决策。关于第二点，需要考虑AMQP的元素需要多少内存，以及Erlang VM对可以创建的进程总数的硬件限制。</p>
+<h5 id="内存考虑"><a href="#内存考虑" class="headerlink" title="内存考虑"></a>内存考虑</h5><p>关于内存占用，书上有详细说明，这里只列出分析结果，供大家在预估容量时参考：(√表示哪些表会为队列声明添加记录)</p>
+<p>1.队列元数据</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15243965217710.jpg" alt="队列元数据"></p>
+<p>2.交换器元数据</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15243964853185.jpg" alt="交换器元数据"></p>
+<p>3.绑定元数据</p>
+<p>一个持久化队列绑定到一个瞬时交换器会导致在rabbit_semi_durable_router表上创建条目。</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15243955229591.jpg" alt="绑定元数据"></p>
+<h5 id="Erlang进程计数"><a href="#Erlang进程计数" class="headerlink" title="Erlang进程计数"></a>Erlang进程计数</h5><p>可以在节点启动时指定Erlang节点上能运行的最大Erlang进程数，默认设置是每个Erlang节点1048576，即2^20个。</p>
+<p>Erlang应用程序在整个生命周期中会多次创建并销毁进程。比如，RabbitMQ接收到AMQP客户端的TCP连接时，会创建一个进程进行管理该连接，同时，会有很多Erlang进程来处理消息存储的逻辑。</p>
+<p>主要通过以下事件来增加进程数：到服务器的新连接、创建新的信道以及队列声明。一条新的连接会创建四个新的进程，一个新的通道也会创建四个新的进程，队列的开销最小，每个队列一个进程。</p>
+<h3 id="对安全的考虑"><a href="#对安全的考虑" class="headerlink" title="对安全的考虑"></a>对安全的考虑</h3><p>有些消息，想以一种安全的方式进行传输，可以使用SSL协议在消息通信终端传输数据，RabbitMQ默认支持SSL，只需要配置相应的证书，使用openssl库进行设置和操作。</p>
+<p>关于证书、openssl以及ssl，上一篇文章详细介绍了，现在来看看如何使用。</p>
+<h3 id="服务端"><a href="#服务端" class="headerlink" title="服务端"></a>服务端</h3><p>只需要修改下rabbitmq的配置即可，在rabbitmq.config中添加ssl_listeners和ssl_options配置项：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">[</span><br><span class="line">    &#123;rabbit,[</span><br><span class="line">        &#123;ssl_listeners, [<span class="number">5671</span>]&#125;,</span><br><span class="line">        &#123;ssl_options, [</span><br><span class="line">            &#123;cacertfile,<span class="string">"/path/to/rmqca/cacert.pem"</span>&#125;,</span><br><span class="line">            &#123;certfile,<span class="string">"/path/to/server/cert.pem"</span>&#125;,</span><br><span class="line">            &#123;keyfile,<span class="string">"/path/to/server/key.pem"</span>&#125;,</span><br><span class="line">            &#123;verify,verify&#125;,</span><br><span class="line">            &#123;fail_if_no_peer_cert,false&#125;</span><br><span class="line">        ]&#125;</span><br><span class="line">    ]&#125;</span><br><span class="line"></span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+<p>配置中指定了ca的证书，服务端的证书，以及服务端的秘钥。</p>
+<h3 id="客户端"><a href="#客户端" class="headerlink" title="客户端"></a>客户端</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">require_once</span>(<span class="keyword">__DIR__</span> . <span class="string">'/../amqp.inc'</span>);</span><br><span class="line"></span><br><span class="line">define(<span class="string">'HOST'</span>, <span class="string">'localhost'</span>);</span><br><span class="line">define(<span class="string">'PORT'</span>, <span class="number">5671</span>);</span><br><span class="line">define(<span class="string">'USER'</span>, <span class="string">'guest'</span>);</span><br><span class="line">define(<span class="string">'PASS'</span>, <span class="string">'guest'</span>);</span><br><span class="line">define(<span class="string">'VHOST'</span>, <span class="string">'/'</span>);</span><br><span class="line">define(<span class="string">'AMQP_DEBUG'</span>, <span class="keyword">true</span>);</span><br><span class="line">define(<span class="string">'CERTS_PATH'</span>,</span><br><span class="line">  <span class="string">'/path/to/ca/folder/'</span>);</span><br><span class="line">  </span><br><span class="line">$ssl_options = <span class="keyword">array</span>(</span><br><span class="line">      <span class="string">'cafile'</span> =&gt; CERTS_PATH . <span class="string">'/rmqca/cacert.pem'</span>,</span><br><span class="line">      <span class="string">'local_cert'</span> =&gt; CERTS_PATH . <span class="string">'/phpcert.pem'</span>,</span><br><span class="line">      <span class="string">'verify_peer'</span> =&gt; <span class="keyword">true</span></span><br><span class="line">  );</span><br><span class="line">$conn = <span class="keyword">new</span> AMQPSSLConnection(HOST, PORT, USER, PASS, VHOST, $ssl_options);</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">shutdown</span><span class="params">($conn)</span></span>&#123;</span><br><span class="line">    $conn-&gt;close();</span><br><span class="line">&#125;</span><br><span class="line">register_shutdown_function(<span class="string">'shutdown'</span>, $conn);</span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span>(<span class="number">1</span>)&#123;&#125;</span><br></pre></td></tr></table></figure>
+<p>客户端代码指定了ca根证书和客户端证书和秘钥，phpcert.pem是客户端证书、秘钥、ca根证书的合并文件。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ cat client/key.pem &gt; phpcert.pem</span><br><span class="line">$ cat client/cert.pem &gt;&gt; phpcert.pem</span><br><span class="line">$ cat rmqca/cacert.pem &gt;&gt; phpcert.pem</span><br></pre></td></tr></table></figure>
+<p>下一篇会介绍下RabbitMQ的插件，以便自定义插件扩展RabbitMQ功能。</p>
+<p><strong><font color="green">欢迎扫描下方二维码，关注我的个人微信公众号，查看更多文章</font> ~</strong></p>
+<p><div align="center"><br><img src="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="情情说"></div></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/RabbitMQ/" rel="tag"># RabbitMQ</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/04/21/让数据传输更安全/" rel="next" title="让数据传输更安全">
+                <i class="fa fa-chevron-left"></i> 让数据传输更安全
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/head.png"
+                alt="calm" />
+            
+              <p class="site-author-name" itemprop="name">calm</p>
+              <p class="site-description motion-element" itemprop="description">拥抱简单生活，保持平和心态，享受浪漫生活</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">38</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">11</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">21</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#对速度的考虑"><span class="nav-number">1.</span> <span class="nav-text">对速度的考虑</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#消息持久化"><span class="nav-number">1.0.1.</span> <span class="nav-text">消息持久化</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#消息确认"><span class="nav-number">1.0.2.</span> <span class="nav-text">消息确认</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#路由算法和绑定规则"><span class="nav-number">1.0.3.</span> <span class="nav-text">路由算法和绑定规则</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#投递消息"><span class="nav-number">1.0.4.</span> <span class="nav-text">投递消息</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#对内存和进程的考虑"><span class="nav-number">2.</span> <span class="nav-text">对内存和进程的考虑</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#内存考虑"><span class="nav-number">2.0.1.</span> <span class="nav-text">内存考虑</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Erlang进程计数"><span class="nav-number">2.0.2.</span> <span class="nav-text">Erlang进程计数</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#对安全的考虑"><span class="nav-number">3.</span> <span class="nav-text">对安全的考虑</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#服务端"><span class="nav-number">4.</span> <span class="nav-text">服务端</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#客户端"><span class="nav-number">5.</span> <span class="nav-text">客户端</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">calm</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

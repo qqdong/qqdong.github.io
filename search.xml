@@ -4,6 +4,80 @@
   
     
     <entry>
+      <title><![CDATA[RabbitMQ实战：性能和安全]]></title>
+      <url>https://qqdong.github.io/2018/04/22/RabbitMQ%E5%AE%9E%E6%88%98%EF%BC%9A%E6%80%A7%E8%83%BD%E5%92%8C%E5%AE%89%E5%85%A8/</url>
+      <content type="html"><![CDATA[<blockquote>
+<p>本系列是「RabbitMQ实战：高效部署分布式消息队列」书籍的总结笔记。</p>
+</blockquote>
+<p>前两篇介绍了RabbitMQ在可用性、监控方面的考虑，这是基础保障，因为在某些场景下是不容许丢失消息的，但它和性能往往是对立的，需要根据业务场景做取舍。</p>
+<p>当处理一些敏感数据时，比如银行卡信息，需要考虑安全性问题，上一篇总结了数据传输安全方面的知识点，这里就比较好理解了。</p>
+<p>通过介绍，你会了解到：</p>
+<ul>
+<li>对速度的考虑</li>
+<li>对内存和进程的考虑</li>
+<li>对安全的考虑</li>
+</ul>
+<a id="more"></a>
+<h3 id="对速度的考虑"><a href="#对速度的考虑" class="headerlink" title="对速度的考虑"></a>对速度的考虑</h3><p>有很多因素影响RabbitMQ投递消息的速度，包括消息持久化、路由算法、绑定数目、以及消息确认策略等，下面分别来介绍。</p>
+<h5 id="消息持久化"><a href="#消息持久化" class="headerlink" title="消息持久化"></a>消息持久化</h5><p>当发布消息时，需要决定丢失其中的任何消息是否可以接受，如果可以接受，可以将delivery-model设置为1，消息就不会持久化到硬盘了。</p>
+<h5 id="消息确认"><a href="#消息确认" class="headerlink" title="消息确认"></a>消息确认</h5><p>当消费消息时，可以在队列订阅时，通过设定no-ack标记加快消息投递，如果设置为true，服务器就会在消息发送给客户端后自动将其出队。</p>
+<p>这样，处理完消息之后就无须再发送确认消息回服务器了，能极大地加快消费者消费消息，但由于某些原因连接中断了，或客户端应用程序发生故障了，消息就永远消息了。</p>
+<h5 id="路由算法和绑定规则"><a href="#路由算法和绑定规则" class="headerlink" title="路由算法和绑定规则"></a>路由算法和绑定规则</h5><p>前面介绍了3种类型的交换器：direct、fanout、topic，每种交换器代表了服务器实现的特定路由算法，会根据消息的路由键以及队列与交换器之间的绑定来选择队列。</p>
+<p>在服务器端，交换器和绑定作为记录条目存储在Mnesia数据库中，当匹配消息路由键时，会尝试查找对应路由键的绑定。</p>
+<p>fanout交换器在路由消息的时候，会忽略路由键，不需要进行查找。direct只有一个绑定，也会比较快，topic存储的路由信息比较复杂，由于路由键可以包含以点分隔的多个词，所以匹配消息路由键不仅仅是简单字符串的匹配，也会占用更多内存。</p>
+<p>RabbitMQ实现了trie树数据结构用来存储绑定路由键模式，以支持快速查询，关于这种数据结构，我之前没接触过，据说比桶状哈希表还快，后面专门写一篇介绍这个数据结构吧。</p>
+<h5 id="投递消息"><a href="#投递消息" class="headerlink" title="投递消息"></a>投递消息</h5><p>在交换器找到消息需要路由的目的地之后，会将目的地列表返回给rabbit_router，之后会将消息的副本投递到每一个目的地，如果发布的消息中mandatory和immediate标记设置为false，这个过程会以异步方式执行，从客户端角度看，服务器会变得很快，否则会同步投递。</p>
+<blockquote>
+<p>当mandatory标志位设置为true时，如果exchange根据自身类型和消息routeKey无法找到一个符合条件的queue，那么会调用basic.return方法将消息返还给生产者，当mandatory设为false时，出现上述情形broker会直接将消息扔掉。</p>
+<p>当immediate标志位设置为true时，如果exchange在将消息route到queue(s)时发现对应的queue上没有消费者，那么这条消息不会放入队列中。当与消息routeKey关联的所有queue(一个或多个)都没有消费者时，该消息会通过basic.return方法返还给生产者。</p>
+</blockquote>
+<p>假如找到了投递的队列且有消费者准备好接收消息，如果队列为空，消息会直接发送给消费者，不会经过队列这一步，会极大提升速度，所以制定容量规划并计算消息的进出率时，应尽可能让队列保持为空，如果消费滞后导致队列填满的化，服务器会收到内存告警，并将消息刷出磁盘。</p>
+<p>还有个参数要注意：auto-ack，消费者接收到消息后，会立刻确认消息，而不用等到逻辑处理好。</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15243936714954.jpg" alt="消息路由过程"></p>
+<blockquote>
+<p>以上说的提高速度的方法大部分都会牺牲可用性，要根据不同的业务场景进行平衡。</p>
+</blockquote>
+<h3 id="对内存和进程的考虑"><a href="#对内存和进程的考虑" class="headerlink" title="对内存和进程的考虑"></a>对内存和进程的考虑</h3><p>在设计应用程序的时候，会有两个基本限制：选择的技术允许做什么，以及当前硬件设定允许做什么。上面讨论了第一点：不同消息路由和分发算法如何影响设计决策。关于第二点，需要考虑AMQP的元素需要多少内存，以及Erlang VM对可以创建的进程总数的硬件限制。</p>
+<h5 id="内存考虑"><a href="#内存考虑" class="headerlink" title="内存考虑"></a>内存考虑</h5><p>关于内存占用，书上有详细说明，这里只列出分析结果，供大家在预估容量时参考：(√表示哪些表会为队列声明添加记录)</p>
+<p>1.队列元数据</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15243965217710.jpg" alt="队列元数据"></p>
+<p>2.交换器元数据</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15243964853185.jpg" alt="交换器元数据"></p>
+<p>3.绑定元数据</p>
+<p>一个持久化队列绑定到一个瞬时交换器会导致在rabbit_semi_durable_router表上创建条目。</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15243955229591.jpg" alt="绑定元数据"></p>
+<h5 id="Erlang进程计数"><a href="#Erlang进程计数" class="headerlink" title="Erlang进程计数"></a>Erlang进程计数</h5><p>可以在节点启动时指定Erlang节点上能运行的最大Erlang进程数，默认设置是每个Erlang节点1048576，即2^20个。</p>
+<p>Erlang应用程序在整个生命周期中会多次创建并销毁进程。比如，RabbitMQ接收到AMQP客户端的TCP连接时，会创建一个进程进行管理该连接，同时，会有很多Erlang进程来处理消息存储的逻辑。</p>
+<p>主要通过以下事件来增加进程数：到服务器的新连接、创建新的信道以及队列声明。一条新的连接会创建四个新的进程，一个新的通道也会创建四个新的进程，队列的开销最小，每个队列一个进程。</p>
+<h3 id="对安全的考虑"><a href="#对安全的考虑" class="headerlink" title="对安全的考虑"></a>对安全的考虑</h3><p>有些消息，想以一种安全的方式进行传输，可以使用SSL协议在消息通信终端传输数据，RabbitMQ默认支持SSL，只需要配置相应的证书，使用openssl库进行设置和操作。</p>
+<p>关于证书、openssl以及ssl，上一篇文章详细介绍了，现在来看看如何使用。</p>
+<h3 id="服务端"><a href="#服务端" class="headerlink" title="服务端"></a>服务端</h3><p>只需要修改下rabbitmq的配置即可，在rabbitmq.config中添加ssl_listeners和ssl_options配置项：</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">[</span><br><span class="line">    &#123;rabbit,[</span><br><span class="line">        &#123;ssl_listeners, [<span class="number">5671</span>]&#125;,</span><br><span class="line">        &#123;ssl_options, [</span><br><span class="line">            &#123;cacertfile,<span class="string">"/path/to/rmqca/cacert.pem"</span>&#125;,</span><br><span class="line">            &#123;certfile,<span class="string">"/path/to/server/cert.pem"</span>&#125;,</span><br><span class="line">            &#123;keyfile,<span class="string">"/path/to/server/key.pem"</span>&#125;,</span><br><span class="line">            &#123;verify,verify&#125;,</span><br><span class="line">            &#123;fail_if_no_peer_cert,false&#125;</span><br><span class="line">        ]&#125;</span><br><span class="line">    ]&#125;</span><br><span class="line"></span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+<p>配置中指定了ca的证书，服务端的证书，以及服务端的秘钥。</p>
+<h3 id="客户端"><a href="#客户端" class="headerlink" title="客户端"></a>客户端</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">require_once</span>(<span class="keyword">__DIR__</span> . <span class="string">'/../amqp.inc'</span>);</span><br><span class="line"></span><br><span class="line">define(<span class="string">'HOST'</span>, <span class="string">'localhost'</span>);</span><br><span class="line">define(<span class="string">'PORT'</span>, <span class="number">5671</span>);</span><br><span class="line">define(<span class="string">'USER'</span>, <span class="string">'guest'</span>);</span><br><span class="line">define(<span class="string">'PASS'</span>, <span class="string">'guest'</span>);</span><br><span class="line">define(<span class="string">'VHOST'</span>, <span class="string">'/'</span>);</span><br><span class="line">define(<span class="string">'AMQP_DEBUG'</span>, <span class="keyword">true</span>);</span><br><span class="line">define(<span class="string">'CERTS_PATH'</span>,</span><br><span class="line">  <span class="string">'/path/to/ca/folder/'</span>);</span><br><span class="line">  </span><br><span class="line">$ssl_options = <span class="keyword">array</span>(</span><br><span class="line">      <span class="string">'cafile'</span> =&gt; CERTS_PATH . <span class="string">'/rmqca/cacert.pem'</span>,</span><br><span class="line">      <span class="string">'local_cert'</span> =&gt; CERTS_PATH . <span class="string">'/phpcert.pem'</span>,</span><br><span class="line">      <span class="string">'verify_peer'</span> =&gt; <span class="keyword">true</span></span><br><span class="line">  );</span><br><span class="line">$conn = <span class="keyword">new</span> AMQPSSLConnection(HOST, PORT, USER, PASS, VHOST, $ssl_options);</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">shutdown</span><span class="params">($conn)</span></span>&#123;</span><br><span class="line">    $conn-&gt;close();</span><br><span class="line">&#125;</span><br><span class="line">register_shutdown_function(<span class="string">'shutdown'</span>, $conn);</span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span>(<span class="number">1</span>)&#123;&#125;</span><br></pre></td></tr></table></figure>
+<p>客户端代码指定了ca根证书和客户端证书和秘钥，phpcert.pem是客户端证书、秘钥、ca根证书的合并文件。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ cat client/key.pem &gt; phpcert.pem</span><br><span class="line">$ cat client/cert.pem &gt;&gt; phpcert.pem</span><br><span class="line">$ cat rmqca/cacert.pem &gt;&gt; phpcert.pem</span><br></pre></td></tr></table></figure>
+<p>下一篇会介绍下RabbitMQ的插件，以便自定义插件扩展RabbitMQ功能。</p>
+<p><strong><font color="green">欢迎扫描下方二维码，关注我的个人微信公众号，查看更多文章</font> ~</strong></p>
+<p><div align="center"><br><img src="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="情情说"></div></p>
+]]></content>
+      
+        <categories>
+            
+            <category> 消息队列 </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> RabbitMQ </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[让数据传输更安全]]></title>
       <url>https://qqdong.github.io/2018/04/21/%E8%AE%A9%E6%95%B0%E6%8D%AE%E4%BC%A0%E8%BE%93%E6%9B%B4%E5%AE%89%E5%85%A8/</url>
       <content type="html"><![CDATA[<p>在阅读RabbitMQ数据传输安全的章节时，提到了ssl协议，用了很大篇幅介绍使用openssl生成一些列秘钥和证书，如果没有相关基础，会不太好理解，本篇就来总结下数据安全相关的概念以及浏览器HTTPS的应用。</p>
@@ -81,6 +155,8 @@
 <p>具体过程网上很多，我就摘录一个 <a href="https://blog.csdn.net/duanbokan/article/details/50847612" target="_blank" rel="noopener">博友</a> 的一个图，说明下双向认证的过程：</p>
 <p><img src="http://oc3r3rke2.bkt.clouddn.com/15243096748688.jpg" alt="双向认证过程"></p>
 <p>下一篇就来说说RabbitMQ的性能和安全考虑。</p>
+<p><strong><font color="green">欢迎扫描下方二维码，关注我的个人微信公众号，查看更多文章</font> ~</strong></p>
+<p><div align="center"><br><img src="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="情情说"></div></p>
 ]]></content>
       
         <categories>
@@ -601,6 +677,37 @@
     </entry>
     
     <entry>
+      <title><![CDATA[送福利：小爱音箱F码]]></title>
+      <url>https://qqdong.github.io/2018/04/03/%E9%80%81%E7%A6%8F%E5%88%A9%EF%BC%9A%E5%B0%8F%E7%88%B1%E9%9F%B3%E7%AE%B1F%E7%A0%81/</url>
+      <content type="html"><![CDATA[<p>一年一度的米粉节活动开始了，活动时间为 4.3 - 4.10，公司给我们发了福利，其中包含4个小爱音箱F码，包括2个小米AI音箱F码，2个小米小爱音箱mini F码，想把这个福利分享给大家，以感谢大家的支持和鼓励。</p>
+<p>开始认真写文章有1个半月了，不说有多大的收获，最起码自己的一部分时间很好的利用了，最开心的是让一些朋友有所收货。</p>
+<a id="more"></a>
+<blockquote>
+<p>小米公司是在2010年4月6日成立的。<br>为了感谢米粉们一路以来对小米公司的支持与陪伴，回馈一路支持的粉丝，每年都会在这一天举办粉丝的盛大狂欢，进行对米粉的答谢活动。<br>所以把这一天命名为米粉节！</p>
+</blockquote>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15227310135315.jpg?imageView2/2/w/500" alt="掘金社区成就"></p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15227310755728.jpg?imageView2/2/w/500" alt="网友的感谢"></p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15227311491258.jpg?imageView2/2/w/500" alt="网友的感谢"></p>
+<p>会在「微信公众号」和「掘金社区」分别抽奖，分别为1个小爱音箱F码和1个小爱音箱mini F码。</p>
+<h4 id="抽奖截止时间"><a href="#抽奖截止时间" class="headerlink" title="抽奖截止时间"></a>抽奖截止时间</h4><p>4月9号中午12点</p>
+<h4 id="抽奖规则"><a href="#抽奖规则" class="headerlink" title="抽奖规则"></a>抽奖规则</h4><ul>
+<li>需要关注我的微信公众号才有效；</li>
+<li>使用微信抽奖助手随机抽取；</li>
+</ul>
+<p>抽奖链接：<br><img src="http://oc3r3rke2.bkt.clouddn.com/15227319180470.jpg?imageView2/2/w/500" alt=""></p>
+<p>公众号：<br><img src="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="情情说"></p>
+]]></content>
+      
+        <categories>
+            
+            <category> life </category>
+            
+        </categories>
+        
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[Netty事件监听和处理（上）]]></title>
       <url>https://qqdong.github.io/2018/04/03/Netty%E4%BA%8B%E4%BB%B6%E7%9B%91%E5%90%AC%E5%92%8C%E5%A4%84%E7%90%86%EF%BC%88%E4%B8%8A%EF%BC%89/</url>
       <content type="html"><![CDATA[<p>陪产假结束了，今天又开始正常上班了，正好赶上米粉节活动，又要忙上一阵了，米粉节活动时间为4.03 - 4.10，有不少优惠，感兴趣的可以关注mi.com或小米商城app。</p>
@@ -719,37 +826,6 @@
             <tag> Netty </tag>
             
         </tags>
-        
-    </entry>
-    
-    <entry>
-      <title><![CDATA[送福利：小爱音箱F码]]></title>
-      <url>https://qqdong.github.io/2018/04/03/%E9%80%81%E7%A6%8F%E5%88%A9%EF%BC%9A%E5%B0%8F%E7%88%B1%E9%9F%B3%E7%AE%B1F%E7%A0%81/</url>
-      <content type="html"><![CDATA[<p>一年一度的米粉节活动开始了，活动时间为 4.3 - 4.10，公司给我们发了福利，其中包含4个小爱音箱F码，包括2个小米AI音箱F码，2个小米小爱音箱mini F码，想把这个福利分享给大家，以感谢大家的支持和鼓励。</p>
-<p>开始认真写文章有1个半月了，不说有多大的收获，最起码自己的一部分时间很好的利用了，最开心的是让一些朋友有所收货。</p>
-<a id="more"></a>
-<blockquote>
-<p>小米公司是在2010年4月6日成立的。<br>为了感谢米粉们一路以来对小米公司的支持与陪伴，回馈一路支持的粉丝，每年都会在这一天举办粉丝的盛大狂欢，进行对米粉的答谢活动。<br>所以把这一天命名为米粉节！</p>
-</blockquote>
-<p><img src="http://oc3r3rke2.bkt.clouddn.com/15227310135315.jpg?imageView2/2/w/500" alt="掘金社区成就"></p>
-<p><img src="http://oc3r3rke2.bkt.clouddn.com/15227310755728.jpg?imageView2/2/w/500" alt="网友的感谢"></p>
-<p><img src="http://oc3r3rke2.bkt.clouddn.com/15227311491258.jpg?imageView2/2/w/500" alt="网友的感谢"></p>
-<p>会在「微信公众号」和「掘金社区」分别抽奖，分别为1个小爱音箱F码和1个小爱音箱mini F码。</p>
-<h4 id="抽奖截止时间"><a href="#抽奖截止时间" class="headerlink" title="抽奖截止时间"></a>抽奖截止时间</h4><p>4月9号中午12点</p>
-<h4 id="抽奖规则"><a href="#抽奖规则" class="headerlink" title="抽奖规则"></a>抽奖规则</h4><ul>
-<li>需要关注我的微信公众号才有效；</li>
-<li>使用微信抽奖助手随机抽取；</li>
-</ul>
-<p>抽奖链接：<br><img src="http://oc3r3rke2.bkt.clouddn.com/15227319180470.jpg?imageView2/2/w/500" alt=""></p>
-<p>公众号：<br><img src="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="情情说"></p>
-]]></content>
-      
-        <categories>
-            
-            <category> life </category>
-            
-        </categories>
-        
         
     </entry>
     
@@ -1318,7 +1394,7 @@
       <content type="html"><![CDATA[<p>上一篇介绍了JDBC的相关概念、MyBatis的特性与Hibernate的区别、MyBatis的基本组件与生命周期，基本可以使用MyBatis了。</p>
 <p>这一篇详细介绍MyBatis的配置，首先看下配置XML文件的层次结构，然后详细介绍每个配置项，说明每项的作用，值的取值与含义。</p>
 <p>下面列出MyBatis配置XML文件的层次结构，这些层次是不能够颠倒顺序的。</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version="1.0" encoding="UTF-8"?&gt;  </span><br><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">properties</span>/&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">settings</span>/&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">typeAliases</span>/&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">typeHandles</span>/&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">objectFactory</span>/&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">plugins</span>/&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">environments</span>&gt;</span>  </span><br><span class="line">        <span class="tag">&lt;<span class="name">environment</span>&gt;</span>  </span><br><span class="line">            <span class="tag">&lt;<span class="name">transanctionManager</span>/&gt;</span> <span class="comment">&lt;!-- 配置事务管理器 --&gt;</span>  </span><br><span class="line">            <span class="tag">&lt;<span class="name">dataSource</span>/&gt;</span> <span class="comment">&lt;!-- 配置数据源 --&gt;</span>  </span><br><span class="line">        <span class="tag">&lt;/<span class="name">environment</span>&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;/<span class="name">environments</span>&gt;</span>  </span><br><span class="line">  </span><br><span class="line">    <span class="tag">&lt;<span class="name">databaseIdProvider</span>/&gt;</span> <span class="comment">&lt;!-- 数据库厂商标识 --&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">mappers</span>/&gt;</span> <span class="comment">&lt;!-- 映射器 --&gt;</span>  </span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="php"><span class="meta">&lt;?</span>xml version=<span class="string">"1.0"</span> encoding=<span class="string">"UTF-8"</span><span class="meta">?&gt;</span></span>  </span><br><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">properties</span>/&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">settings</span>/&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">typeAliases</span>/&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">typeHandles</span>/&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">objectFactory</span>/&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">plugins</span>/&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">environments</span>&gt;</span>  </span><br><span class="line">        <span class="tag">&lt;<span class="name">environment</span>&gt;</span>  </span><br><span class="line">            <span class="tag">&lt;<span class="name">transanctionManager</span>/&gt;</span> <span class="comment">&lt;!-- 配置事务管理器 --&gt;</span>  </span><br><span class="line">            <span class="tag">&lt;<span class="name">dataSource</span>/&gt;</span> <span class="comment">&lt;!-- 配置数据源 --&gt;</span>  </span><br><span class="line">        <span class="tag">&lt;/<span class="name">environment</span>&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;/<span class="name">environments</span>&gt;</span>  </span><br><span class="line">  </span><br><span class="line">    <span class="tag">&lt;<span class="name">databaseIdProvider</span>/&gt;</span> <span class="comment">&lt;!-- 数据库厂商标识 --&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">mappers</span>/&gt;</span> <span class="comment">&lt;!-- 映射器 --&gt;</span>  </span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
 <a id="more"></a>
 <h4 id="properties元素"><a href="#properties元素" class="headerlink" title="properties元素"></a>properties元素</h4><p>将一些公用、经常变更的值单独声明，能在配置文件的上下文中使用它，MyBatis提供了3种配置方式：</p>
 <ul>
@@ -1450,7 +1526,7 @@
 <h5 id="构建SqlSessionFactory"><a href="#构建SqlSessionFactory" class="headerlink" title="构建SqlSessionFactory"></a>构建SqlSessionFactory</h5><p>每个MyBatis应用都是以SqlSessionFactory的实例为中心的，它的任务是创建SqlSession。SqlSesion类似于一个JDBC的Connection对象。</p>
 <p>提供了2种方式创建SqlSessionFactory：一种是XML配置的方式，一种是代码的方式，推荐使用XML配置的方式。</p>
 <p>定义mybatis-config.xml文件如下：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">&lt;? xml version="1.0" encoding="UTF-8"?&gt;</span><br><span class="line"><span class="meta">&lt;!DOCTYPE configuration</span></span><br><span class="line"><span class="meta"> PUBLIC "-//mybatis.org//DTD Config 3.0//EN"</span></span><br><span class="line"><span class="meta"> "http://mybatis.org/dtd/mybatis-3-config.dtd"&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line"> <span class="tag">&lt;<span class="name">properties</span> <span class="attr">resource</span>=<span class="string">"application.properties"</span>&gt;</span></span><br><span class="line"> <span class="tag">&lt;/<span class="name">properties</span>&gt;</span></span><br><span class="line"> </span><br><span class="line"> <span class="comment">&lt;!-- 定义别名 --&gt;</span></span><br><span class="line"> <span class="tag">&lt;<span class="name">typeAliases</span>&gt;</span></span><br><span class="line"> <span class="tag">&lt;<span class="name">typeAlias</span> <span class="attr">alias</span>=<span class="string">"role"</span> <span class="attr">type</span>=<span class="string">"com.learn.chapter2.po.Role"</span>/&gt;</span></span><br><span class="line"> <span class="tag">&lt;/<span class="name">typeAliases</span>&gt;</span></span><br><span class="line"> </span><br><span class="line"> <span class="comment">&lt;!-- 定义数据库信息.默认使用development数据库构建环境 --&gt;</span></span><br><span class="line"> <span class="tag">&lt;<span class="name">environments</span> <span class="attr">default</span>=<span class="string">"development"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">environment</span> <span class="attr">id</span>=<span class="string">"development"</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- 采用jdbc事务管理 --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">transactionManager</span> <span class="attr">type</span>=<span class="string">"JDBC"</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dataSource</span> <span class="attr">type</span>=<span class="string">"POOLED"</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"driver"</span> <span class="attr">value</span>=<span class="string">"$&#123;driver&#125;"</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"url"</span> <span class="attr">value</span>=<span class="string">"$&#123;url&#125;"</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"username"</span> <span class="attr">value</span>=<span class="string">"$&#123;username&#125;"</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"password"</span> <span class="attr">value</span>=<span class="string">"$&#123;password&#125;"</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dataSource</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">environment</span>&gt;</span></span><br><span class="line"> <span class="tag">&lt;/<span class="name">environments</span>&gt;</span></span><br><span class="line"> </span><br><span class="line"> <span class="comment">&lt;!-- 定义映射器 --&gt;</span></span><br><span class="line"> <span class="tag">&lt;<span class="name">mappers</span>&gt;</span></span><br><span class="line"> <span class="tag">&lt;<span class="name">mapper</span> <span class="attr">resource</span>=<span class="string">"com\learn\chapter2\mapper\roleMapper.xml"</span>/&gt;</span></span><br><span class="line"> <span class="tag">&lt;/<span class="name">mappers</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="php"><span class="meta">&lt;?</span> xml version=<span class="string">"1.0"</span> encoding=<span class="string">"UTF-8"</span><span class="meta">?&gt;</span></span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE configuration</span></span><br><span class="line"><span class="meta"> PUBLIC "-//mybatis.org//DTD Config 3.0//EN"</span></span><br><span class="line"><span class="meta"> "http://mybatis.org/dtd/mybatis-3-config.dtd"&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line"> <span class="tag">&lt;<span class="name">properties</span> <span class="attr">resource</span>=<span class="string">"application.properties"</span>&gt;</span></span><br><span class="line"> <span class="tag">&lt;/<span class="name">properties</span>&gt;</span></span><br><span class="line"> </span><br><span class="line"> <span class="comment">&lt;!-- 定义别名 --&gt;</span></span><br><span class="line"> <span class="tag">&lt;<span class="name">typeAliases</span>&gt;</span></span><br><span class="line"> <span class="tag">&lt;<span class="name">typeAlias</span> <span class="attr">alias</span>=<span class="string">"role"</span> <span class="attr">type</span>=<span class="string">"com.learn.chapter2.po.Role"</span>/&gt;</span></span><br><span class="line"> <span class="tag">&lt;/<span class="name">typeAliases</span>&gt;</span></span><br><span class="line"> </span><br><span class="line"> <span class="comment">&lt;!-- 定义数据库信息.默认使用development数据库构建环境 --&gt;</span></span><br><span class="line"> <span class="tag">&lt;<span class="name">environments</span> <span class="attr">default</span>=<span class="string">"development"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">environment</span> <span class="attr">id</span>=<span class="string">"development"</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- 采用jdbc事务管理 --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">transactionManager</span> <span class="attr">type</span>=<span class="string">"JDBC"</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dataSource</span> <span class="attr">type</span>=<span class="string">"POOLED"</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"driver"</span> <span class="attr">value</span>=<span class="string">"$&#123;driver&#125;"</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"url"</span> <span class="attr">value</span>=<span class="string">"$&#123;url&#125;"</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"username"</span> <span class="attr">value</span>=<span class="string">"$&#123;username&#125;"</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"password"</span> <span class="attr">value</span>=<span class="string">"$&#123;password&#125;"</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dataSource</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">environment</span>&gt;</span></span><br><span class="line"> <span class="tag">&lt;/<span class="name">environments</span>&gt;</span></span><br><span class="line"> </span><br><span class="line"> <span class="comment">&lt;!-- 定义映射器 --&gt;</span></span><br><span class="line"> <span class="tag">&lt;<span class="name">mappers</span>&gt;</span></span><br><span class="line"> <span class="tag">&lt;<span class="name">mapper</span> <span class="attr">resource</span>=<span class="string">"com\learn\chapter2\mapper\roleMapper.xml"</span>/&gt;</span></span><br><span class="line"> <span class="tag">&lt;/<span class="name">mappers</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
 <p>创建SqlSessionFactory</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">String resource = <span class="string">"mybatis-config.xml"</span>;</span><br><span class="line">InputStream inputStream = Resources.getResourceAsStream(resource);</span><br><span class="line">SqlSessionFactory  sqlSessionFactory = <span class="keyword">new</span> SqlSessionFactoryBuilder().build(inputStream);</span><br></pre></td></tr></table></figure>
 <h5 id="创建SqlSession"><a href="#创建SqlSession" class="headerlink" title="创建SqlSession"></a>创建SqlSession</h5><p>SqlSession是一个接口类，扮演者门面的作用，真正干活的是Executor接口。需要保证每次用完正常关闭它。</p>
@@ -1465,7 +1541,7 @@
 <p>首先，定义Java接口：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">RoleMapper</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> Role <span class="title">getRole</span><span class="params">(Long id)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>然后，定义映射XML文件，RoleMapper.xml</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&lt;? xml version="1.0" encoding="UTF-8"?&gt;</span><br><span class="line"><span class="meta">&lt;!DOCTYPE configuration</span></span><br><span class="line"><span class="meta"> PUBLIC "-//mybatis.org//DTD Config 3.0//EN"</span></span><br><span class="line"><span class="meta"> "http://mybatis.org/dtd/mybatis-3-config.dtd"&gt;</span></span><br><span class="line"> </span><br><span class="line"> <span class="tag">&lt;<span class="name">mapper</span> <span class="attr">namespace</span> =<span class="string">"com.learn.chapter2.mapper.RoleMapper"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">"getRole"</span> <span class="attr">paramterType</span>=<span class="string">"long"</span> <span class="attr">resultType</span>=<span class="string">"role"</span> &gt;</span></span><br><span class="line">        select id,role_name as roleName , note from t_role where id=#&#123;id&#125;</span><br><span class="line">    <span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br><span class="line"> <span class="tag">&lt;/<span class="name">mapper</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="php"><span class="meta">&lt;?</span> xml version=<span class="string">"1.0"</span> encoding=<span class="string">"UTF-8"</span><span class="meta">?&gt;</span></span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE configuration</span></span><br><span class="line"><span class="meta"> PUBLIC "-//mybatis.org//DTD Config 3.0//EN"</span></span><br><span class="line"><span class="meta"> "http://mybatis.org/dtd/mybatis-3-config.dtd"&gt;</span></span><br><span class="line"> </span><br><span class="line"> <span class="tag">&lt;<span class="name">mapper</span> <span class="attr">namespace</span> =<span class="string">"com.learn.chapter2.mapper.RoleMapper"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">"getRole"</span> <span class="attr">paramterType</span>=<span class="string">"long"</span> <span class="attr">resultType</span>=<span class="string">"role"</span> &gt;</span></span><br><span class="line">        select id,role_name as roleName , note from t_role where id=#&#123;id&#125;</span><br><span class="line">    <span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br><span class="line"> <span class="tag">&lt;/<span class="name">mapper</span>&gt;</span></span><br></pre></td></tr></table></figure>
 <p>POJO对象Role的定义比较简单，就不列出了。#{id}为这条SQL的参数，SQL列的别名和POJO的属性名称保持一致，会把这条语句的查询结果自动映射到Role属性上，这就是自动映射。</p>
 <p>执行查询</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">RoleMapper roleMapper=sqlSession.getMapper(RoleMapper.class);</span><br><span class="line">Role role=roleMapper.getRole(<span class="number">1L</span>);</span><br><span class="line">String roleName=role.getRoleName();</span><br></pre></td></tr></table></figure>
