@@ -95,7 +95,7 @@
 <meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15243092469580.jpg">
 <meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15243096748688.jpg">
 <meta property="og:image" content="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2018-04-23T15:42:22.000Z">
+<meta property="og:updated_time" content="2018-04-25T05:11:37.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="让数据传输更安全">
 <meta name="twitter:description" content="在阅读RabbitMQ数据传输安全的章节时，提到了ssl协议，用了很大篇幅介绍使用openssl生成一些列秘钥和证书，如果没有相关基础，会不太好理解，本篇就来总结下数据安全相关的概念以及浏览器HTTPS的应用。 通过介绍，你会了解到：  数据安全的基本概念 加密算法 数字证书和证书机构 ssl和openssl基本介绍 https应用  数据安全的基本概念数据要在网络中传输，就会存在安全问题，因为任">
@@ -380,7 +380,7 @@
 <li>ssl和openssl基本介绍</li>
 <li>https应用</li>
 </ul>
-<h3 id="数据安全的基本概念"><a href="#数据安全的基本概念" class="headerlink" title="数据安全的基本概念"></a>数据安全的基本概念</h3><p>数据要在网络中传输，就会存在安全问题，因为任何人都可以获得你发送的数据包，从而获得你的数据，需要对数据进行加密，对于数据发送者，也可能被伪造，需要对双方身份做验证，另外，数据的完整性也需要考虑。</p>
+<h4 id="数据安全的基本概念"><a href="#数据安全的基本概念" class="headerlink" title="数据安全的基本概念"></a>数据安全的基本概念</h4><p>数据要在网络中传输，就会存在安全问题，因为任何人都可以获得你发送的数据包，从而获得你的数据，需要对数据进行加密，对于数据发送者，也可能被伪造，需要对双方身份做验证，另外，数据的完整性也需要考虑。</p>
 <p><img src="http://oc3r3rke2.bkt.clouddn.com/15242963891613.jpg" alt="数据安全的问题"></p>
 <p>总结下安全的定义：</p>
 <ul>
@@ -389,7 +389,7 @@
 <li>可信任性：确保消息是对方发的，不是伪造者发的；</li>
 </ul>
 <a id="more"></a>
-<h3 id="加密算法"><a href="#加密算法" class="headerlink" title="加密算法"></a>加密算法</h3><p>加密是保证数据安全的常用手段，已经有很多现成的加密算法了，这些算法都是经过验证和考验的，想要破解非常困难，所以，一般不需要设计算法，可以直接使用，这里只会介绍常见算法的基本概念和特性，不涉及算法实现细节。</p>
+<h4 id="加密算法"><a href="#加密算法" class="headerlink" title="加密算法"></a>加密算法</h4><p>加密是保证数据安全的常用手段，已经有很多现成的加密算法了，这些算法都是经过验证和考验的，想要破解非常困难，所以，一般不需要设计算法，可以直接使用，这里只会介绍常见算法的基本概念和特性，不涉及算法实现细节。</p>
 <h5 id="散列"><a href="#散列" class="headerlink" title="散列"></a>散列</h5><p>散列就是hash算法，把任意长度的输入，通过散列算法，变换成固定长度的输出，该输出就是散列值，常见的hash算法有MD5和SHA。</p>
 <p>MD5即Message-Digest Algorithm 5，称为信息-摘要算法5，主要用于确保信息传输的完整性，输入是不定长度信息，输出固定长度128比特的串。</p>
 <p>SHA即Secure Hash Algorithm，称为安全哈希算法，和MD5一样，也是从MD4发展而来，与MD5的最大区别在于其摘要比MD5长32比特。</p>
@@ -413,14 +413,14 @@
 <blockquote>
 <p>对于非对称加密和数字签名，如果之前没接触过，可能不太好理解，可以阅读相关文章进一步了解，在后面介绍https应用时，会说明其应用过程。</p>
 </blockquote>
-<h3 id="数字证书和证书机构"><a href="#数字证书和证书机构" class="headerlink" title="数字证书和证书机构"></a>数字证书和证书机构</h3><p>为了方便传递公钥秘钥，一般把它存储在数字证书中，为了保证证书的可信性，一般由专业证书机构颁发。</p>
+<h4 id="数字证书和证书机构"><a href="#数字证书和证书机构" class="headerlink" title="数字证书和证书机构"></a>数字证书和证书机构</h4><p>为了方便传递公钥秘钥，一般把它存储在数字证书中，为了保证证书的可信性，一般由专业证书机构颁发。</p>
 <p>考虑这样一个场景，用户A想访问小米网mi.com，但由于手误，写成了ni.com，假设ni.com是不法分子仿照小米网创建的网站，包含一个伪造的数字证书，如果浏览器可以验证数字证书的真实性，就会提示用户证书异常，防止用户的损失。</p>
 <p>CA就是证书的签发机构，负责签发证书、认证证书、管理已颁发证书的机关，制定了具体步骤来验证、识别用户身份，并对用户证书进行签名，以确保证书持有者的身份和公钥的拥有权。</p>
 <p>要申请证书，应先向CA提出申请，在CA确认申请者的身份后，会分配一个公钥，然后将该公钥与申请者的身份信息绑在一起，使用CA的私钥进行签名，便形成证书发给申请者。</p>
 <p><img src="http://oc3r3rke2.bkt.clouddn.com/15243052313169.jpg" alt="申请证书"></p>
 <p>如果想鉴别证书的真伪，用CA的公钥对证书上的签字进行验证，一旦验证通过，并且在有效期之内，该证书就被认为是有效的。</p>
 <p>所以，配置ssl时，需要CA根证书的公钥，用于验证证书的真伪。</p>
-<h3 id="ssl和openssl基本介绍"><a href="#ssl和openssl基本介绍" class="headerlink" title="ssl和openssl基本介绍"></a>ssl和openssl基本介绍</h3><p>ssl是保证数据安全传输的一个协议，openssl是一个工具，包含各种协议和算法的实现。</p>
+<h4 id="ssl和openssl基本介绍"><a href="#ssl和openssl基本介绍" class="headerlink" title="ssl和openssl基本介绍"></a>ssl和openssl基本介绍</h4><p>ssl是保证数据安全传输的一个协议，openssl是一个工具，包含各种协议和算法的实现。</p>
 <h5 id="ssl"><a href="#ssl" class="headerlink" title="ssl"></a>ssl</h5><p>保证数据传输安全，比较简单的方法是用非对称加密，如果双方都认证了对方的数字证书么每次传输数据的时候都用对方的公钥加密，那么只有对方能解密，从而保证了信息的安全。但是对于日常应用（比如网页浏览）有两个问题：</p>
 <ul>
 <li>非对称加密速度很慢，而且消耗资源；</li>
@@ -441,7 +441,7 @@
 <p>2.生成随机数<br><img src="http://oc3r3rke2.bkt.clouddn.com/15243090402932.jpg" alt="生成随机数"></p>
 <p>3.对称加密<br><img src="http://oc3r3rke2.bkt.clouddn.com/15243088698952.jpg" alt="对称加密"></p>
 <p>4.生成秘钥对<br><img src="http://oc3r3rke2.bkt.clouddn.com/15243092469580.jpg" alt="生成秘钥对"></p>
-<h3 id="https应用"><a href="#https应用" class="headerlink" title="https应用"></a>https应用</h3><p>HTTPS 协议，说白了就是HTTP协议和SSL/TLS协议的组合，可以把HTTPS大致理解为：HTTP over SSL。</p>
+<h4 id="https应用"><a href="#https应用" class="headerlink" title="https应用"></a>https应用</h4><p>HTTPS 协议，说白了就是HTTP协议和SSL/TLS协议的组合，可以把HTTPS大致理解为：HTTP over SSL。</p>
 <p>Https在建立Socket连接之前，需要进行握手，单向认证和双向认证不同。</p>
 <p>具体过程网上很多，我就摘录一个 <a href="https://blog.csdn.net/duanbokan/article/details/50847612" target="_blank" rel="noopener">博友</a> 的一个图，说明下双向认证的过程：</p>
 <p><img src="http://oc3r3rke2.bkt.clouddn.com/15243096748688.jpg" alt="双向认证过程"></p>
@@ -626,7 +626,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#数据安全的基本概念"><span class="nav-number">1.</span> <span class="nav-text">数据安全的基本概念</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#加密算法"><span class="nav-number">2.</span> <span class="nav-text">加密算法</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#散列"><span class="nav-number">2.0.1.</span> <span class="nav-text">散列</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#对称加密"><span class="nav-number">2.0.2.</span> <span class="nav-text">对称加密</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#非对称加密"><span class="nav-number">2.0.3.</span> <span class="nav-text">非对称加密</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#数字签名"><span class="nav-number">2.0.4.</span> <span class="nav-text">数字签名</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#数字证书和证书机构"><span class="nav-number">3.</span> <span class="nav-text">数字证书和证书机构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ssl和openssl基本介绍"><span class="nav-number">4.</span> <span class="nav-text">ssl和openssl基本介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#ssl"><span class="nav-number">4.0.1.</span> <span class="nav-text">ssl</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#openssl"><span class="nav-number">4.0.2.</span> <span class="nav-text">openssl</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#https应用"><span class="nav-number">5.</span> <span class="nav-text">https应用</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#数据安全的基本概念"><span class="nav-number">1.</span> <span class="nav-text">数据安全的基本概念</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#加密算法"><span class="nav-number">2.</span> <span class="nav-text">加密算法</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#散列"><span class="nav-number">2.1.</span> <span class="nav-text">散列</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#对称加密"><span class="nav-number">2.2.</span> <span class="nav-text">对称加密</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#非对称加密"><span class="nav-number">2.3.</span> <span class="nav-text">非对称加密</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#数字签名"><span class="nav-number">2.4.</span> <span class="nav-text">数字签名</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#数字证书和证书机构"><span class="nav-number">3.</span> <span class="nav-text">数字证书和证书机构</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ssl和openssl基本介绍"><span class="nav-number">4.</span> <span class="nav-text">ssl和openssl基本介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#ssl"><span class="nav-number">4.1.</span> <span class="nav-text">ssl</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#openssl"><span class="nav-number">4.2.</span> <span class="nav-text">openssl</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#https应用"><span class="nav-number">5.</span> <span class="nav-text">https应用</span></a></li></ol></div>
             
 
           </div>

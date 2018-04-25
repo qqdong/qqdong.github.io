@@ -98,7 +98,7 @@
 <meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15236988542679.jpg">
 <meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15236991986916.jpg">
 <meta property="og:image" content="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2018-04-14T10:45:21.000Z">
+<meta property="og:updated_time" content="2018-04-25T05:11:16.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="RabbitMQ实战：界面管理和监控">
 <meta name="twitter:description" content="本系列是「RabbitMQ实战：高效部署分布式消息队列」书籍的总结笔记。  上一篇总结了可能出现的异常场景，并对RabbitMQ提供的可用性保证进行了分析，在出现服务器宕机后，仍然可以正常服务。另外，需要尽快恢复异常的服务器，重新加入集群，推送未消费的消息，通过监控可第一时间接收到错误并进行处理。 另外，我们想主动了解消息堆积和消费的情况，以及服务器节点的压力，RabbitMQ提供了几种方式便捷">
@@ -387,7 +387,7 @@
 <li>Nagios和监控RabbitMQ</li>
 </ul>
 <a id="more"></a>
-<h3 id="web管理插件"><a href="#web管理插件" class="headerlink" title="web管理插件"></a>web管理插件</h3><p>RabbitMQ的插件是由Erlang语言写的，并且和服务器一同运行在同一个Erlang VM中，通过下面的命令启用web管理插件：</p>
+<h4 id="web管理插件"><a href="#web管理插件" class="headerlink" title="web管理插件"></a>web管理插件</h4><p>RabbitMQ的插件是由Erlang语言写的，并且和服务器一同运行在同一个Erlang VM中，通过下面的命令启用web管理插件：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo ./rabbitmq-plugins enable rabbitmq_management</span><br></pre></td></tr></table></figure>
 <p>启动之后，访问15672端口，可看到Web管理页面主页面：</p>
 <p><img src="http://oc3r3rke2.bkt.clouddn.com/15236961623170.jpg" alt="RabbitMQ主页面"></p>
@@ -404,18 +404,18 @@
 <p><img src="http://oc3r3rke2.bkt.clouddn.com/15236978771376.jpg" alt="队列统计信息"></p>
 <p>还可以查看消费者和绑定，发布、获取消息：</p>
 <p><img src="http://oc3r3rke2.bkt.clouddn.com/15236979638847.jpg" alt="查看消费者和绑定"></p>
-<h3 id="REST-API"><a href="#REST-API" class="headerlink" title="REST API"></a>REST API</h3><p>有时需要初始化一些列队列和交换器，每次部署一套新环境后，都需要一步一步创建会有点麻烦，通过REST API可方便的实现自动化脚本。</p>
+<h4 id="REST-API"><a href="#REST-API" class="headerlink" title="REST API"></a>REST API</h4><p>有时需要初始化一些列队列和交换器，每次部署一套新环境后，都需要一步一步创建会有点麻烦，通过REST API可方便的实现自动化脚本。</p>
 <p>当启用web管理插件后，不仅获得了WEB UI，也拥一个REST化的WEB管理API，任何语言或脚本只要有HTTP库，都能调用。</p>
 <p>接口会返回json串，比如获取所有队列：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -i -u admin:admin http://localhost:15672/api/queues</span><br></pre></td></tr></table></figure>
 <p>会返回一个json数组，每个元素是一个队列，包含队列的各种属性：</p>
 <p><img src="http://oc3r3rke2.bkt.clouddn.com/15236988542679.jpg" alt="REST API请求结果"></p>
-<h3 id="rabbitmqadmin脚本"><a href="#rabbitmqadmin脚本" class="headerlink" title="rabbitmqadmin脚本"></a>rabbitmqadmin脚本</h3><p>另外，还提供了rabbitmqadmin脚本的方式查看元数据信息和一些统计数据，它会包装REST API，使用干净的接口与其交互，而且输出内容也是格式化过的，方便我们查看。</p>
+<h4 id="rabbitmqadmin脚本"><a href="#rabbitmqadmin脚本" class="headerlink" title="rabbitmqadmin脚本"></a>rabbitmqadmin脚本</h4><p>另外，还提供了rabbitmqadmin脚本的方式查看元数据信息和一些统计数据，它会包装REST API，使用干净的接口与其交互，而且输出内容也是格式化过的，方便我们查看。</p>
 <p>比如查看所有队列，可以这样写：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./rabbitmqadmin list queues</span><br></pre></td></tr></table></figure>
 <p>会返回如下结果：</p>
 <p><img src="http://oc3r3rke2.bkt.clouddn.com/15236991986916.jpg" alt="rabbitmqadmin返回结果"></p>
-<h3 id="监控"><a href="#监控" class="headerlink" title="监控"></a>监控</h3><p>监控RabbitMQ并不只是确保端口5672是开启的并能接收TCP连接而已，还要能够模拟AMQP客户端来确保连接之后获取信道，如果能使用REST API找出是否所有构成RabbitMQ部件都正常运行，并且之间能正常通信，就更好了。</p>
+<h4 id="监控"><a href="#监控" class="headerlink" title="监控"></a>监控</h4><p>监控RabbitMQ并不只是确保端口5672是开启的并能接收TCP连接而已，还要能够模拟AMQP客户端来确保连接之后获取信道，如果能使用REST API找出是否所有构成RabbitMQ部件都正常运行，并且之间能正常通信，就更好了。</p>
 <p>书中介绍使用Nagios监控框架进行监控，我之前没有使用，这里搜集了一些资料，会做下简单介绍。</p>
 <h5 id="Nagios"><a href="#Nagios" class="headerlink" title="Nagios"></a>Nagios</h5><p>Nagios是一款开源的监控工具，能有效监控Windows、Linux和Unix的主机状态，交换机路由器等网络设置，打印机等。在系统或服务状态异常时发出邮件或短信报警第一时间通知网站运维人员，在状态恢复后发出正常的邮件或短信通知。</p>
 <p>它本身不包括这部分功能，所有的监控、检测功能都是通过各种插件完成的，启动Nagios后，它会周期性的自动调用插件去检测服务器状态，同时Nagios会维持一个队列，所有插件返回来的状态信息都进入队列，Nagios每次都从队首开始读取信息，并进行处理后，把状态结果通过web显示出来。</p>
@@ -620,7 +620,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#web管理插件"><span class="nav-number">1.</span> <span class="nav-text">web管理插件</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#添加用户"><span class="nav-number">1.0.1.</span> <span class="nav-text">添加用户</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#管理队列、交换器、绑定"><span class="nav-number">1.0.2.</span> <span class="nav-text">管理队列、交换器、绑定</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#REST-API"><span class="nav-number">2.</span> <span class="nav-text">REST API</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#rabbitmqadmin脚本"><span class="nav-number">3.</span> <span class="nav-text">rabbitmqadmin脚本</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#监控"><span class="nav-number">4.</span> <span class="nav-text">监控</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Nagios"><span class="nav-number">4.0.1.</span> <span class="nav-text">Nagios</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#监控RabbitMQ"><span class="nav-number">4.0.2.</span> <span class="nav-text">监控RabbitMQ</span></a></li></ol></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#web管理插件"><span class="nav-number">1.</span> <span class="nav-text">web管理插件</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#添加用户"><span class="nav-number">1.1.</span> <span class="nav-text">添加用户</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#管理队列、交换器、绑定"><span class="nav-number">1.2.</span> <span class="nav-text">管理队列、交换器、绑定</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#REST-API"><span class="nav-number">2.</span> <span class="nav-text">REST API</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#rabbitmqadmin脚本"><span class="nav-number">3.</span> <span class="nav-text">rabbitmqadmin脚本</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#监控"><span class="nav-number">4.</span> <span class="nav-text">监控</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Nagios"><span class="nav-number">4.1.</span> <span class="nav-text">Nagios</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#监控RabbitMQ"><span class="nav-number">4.2.</span> <span class="nav-text">监控RabbitMQ</span></a></li></ol></li></ol></div>
             
 
           </div>

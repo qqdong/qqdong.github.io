@@ -94,7 +94,7 @@
 <meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15230262154620.jpg">
 <meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15230264497340.jpg">
 <meta property="og:image" content="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2018-04-07T13:38:10.000Z">
+<meta property="og:updated_time" content="2018-04-25T05:10:07.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="RabbitMQ实战：运行和管理RabbitMQ">
 <meta name="twitter:description" content="本系列是「RabbitMQ实战：高效部署分布式消息队列」书籍的总结笔记。  上一篇 介绍了AMQP消息通信，包括队列、交换器和绑定，通过虚拟主机还可以隔离数据和权限，消息持久化和发送方确认模式确保了消息不丢失。 本篇主要介绍如何运行和管理RabbitMQ，在介绍之前，会有个DEMO演示消息发送和接收，一方面对AMQP的元素有更直观的认识，一方面为后面介绍监控做数据来源。 通过介绍，你会了解到：">
@@ -383,7 +383,7 @@
 <li>使用统计</li>
 </ul>
 <a id="more"></a>
-<h3 id="消息发送和接收简单实现"><a href="#消息发送和接收简单实现" class="headerlink" title="消息发送和接收简单实现"></a>消息发送和接收简单实现</h3><p>该Demo主要用于收集日志，消息发送者是各个应用子系统，消息接收者是日志收集服务，使用RabbitMQ可以很容易实现。</p>
+<h4 id="消息发送和接收简单实现"><a href="#消息发送和接收简单实现" class="headerlink" title="消息发送和接收简单实现"></a>消息发送和接收简单实现</h4><p>该Demo主要用于收集日志，消息发送者是各个应用子系统，消息接收者是日志收集服务，使用RabbitMQ可以很容易实现。</p>
 <p>基于Spring Boot框架实现，主要类的作用如下：</p>
 <ul>
 <li>LogRabbitConfig：创建队列、交换器、绑定等初始化操作；</li>
@@ -412,7 +412,7 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RunWith</span>(SpringRunner.class)</span><br><span class="line"><span class="meta">@SpringBootTest</span></span><br><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LogSenderTest</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    Sender sender;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">sendLog</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        sender.send();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>运行日志如下：<br><img src="http://oc3r3rke2.bkt.clouddn.com/15230234561541.jpg?imageView2/2/w/400" alt="运行日志"></p>
 <p>可以看到，error收到了2次，说明exchange同时分发给了log.all和log.error队列，其他级别的日志分发给了log.all队列。</p>
-<h3 id="服务器管理-启动和停止节点"><a href="#服务器管理-启动和停止节点" class="headerlink" title="服务器管理-启动和停止节点"></a>服务器管理-启动和停止节点</h3><p>RabbitMQ是用Erlang编写的，Erlang天生就能让应用程序无需知道对方是否在同一台机器上即可相互通信，这让集群和可靠的消息路由变得简单。</p>
+<h4 id="服务器管理-启动和停止节点"><a href="#服务器管理-启动和停止节点" class="headerlink" title="服务器管理-启动和停止节点"></a>服务器管理-启动和停止节点</h4><p>RabbitMQ是用Erlang编写的，Erlang天生就能让应用程序无需知道对方是否在同一台机器上即可相互通信，这让集群和可靠的消息路由变得简单。</p>
 <h5 id="理解节点和Erlang应用程序"><a href="#理解节点和Erlang应用程序" class="headerlink" title="理解节点和Erlang应用程序"></a>理解节点和Erlang应用程序</h5><p>和Java有JVM虚拟机类似，Erlang也有虚拟机，虚拟机的每个实例称之为「节点」，不同的是，多个Erlang应用程序可以运行在同一个节点之上，如果应用程序崩溃了，Erlang节点会自动尝试自动重启应用程序。</p>
 <p>节点的操作：</p>
 <ul>
@@ -428,14 +428,14 @@
 <li>rabbit：是rabbitmq特定的配置选项；</li>
 </ul>
 <p>每个应用如果有多个选项，用逗号隔开。</p>
-<h3 id="权限配置"><a href="#权限配置" class="headerlink" title="权限配置"></a>权限配置</h3><p>RabbitMQ权限系统中，单个用户可以跨越多个vhost进行授权，而且可以对读、写、配置分别授权。</p>
+<h4 id="权限配置"><a href="#权限配置" class="headerlink" title="权限配置"></a>权限配置</h4><p>RabbitMQ权限系统中，单个用户可以跨越多个vhost进行授权，而且可以对读、写、配置分别授权。</p>
 <p>首先创建一个用户dongqingqing，密码为123456：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./rabbitmqctl add_user dongqingqing 123456</span><br></pre></td></tr></table></figure>
 <p>授予dongqingqing用户权限，可以读取所有队列和交换器，只可写log.*格式的队列和交换器，无法创建或删除队列和交换器</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./rabbitmqctl set_permissions  dongqingqing ".*" "log.*" ""</span><br></pre></td></tr></table></figure>
 <p>set_permissions 后面的参数分别为用户名、读权限、写权限、配置权限。</p>
 <p>其他详细用法可查看文档。</p>
-<h3 id="使用统计"><a href="#使用统计" class="headerlink" title="使用统计"></a>使用统计</h3><h5 id="查看数据统计"><a href="#查看数据统计" class="headerlink" title="查看数据统计"></a>查看数据统计</h5><p>可通过rabbitmqctl命令查看数据统计信息，比如队列和消息数目、交换器和绑定等。</p>
+<h4 id="使用统计"><a href="#使用统计" class="headerlink" title="使用统计"></a>使用统计</h4><h5 id="查看数据统计"><a href="#查看数据统计" class="headerlink" title="查看数据统计"></a>查看数据统计</h5><p>可通过rabbitmqctl命令查看数据统计信息，比如队列和消息数目、交换器和绑定等。</p>
 <p>查看所有队列，包含上面demo定义的log.all和log.error：<br><img src="http://oc3r3rke2.bkt.clouddn.com/15230258944759.jpg?imageView2/2/w/400" alt="查看所有队列"></p>
 <p>查看所有交换器，包含上面demo定义的log<br><img src="http://oc3r3rke2.bkt.clouddn.com/15230259391498.jpg?imageView2/2/w/400" alt="查看所有交换器"></p>
 <p>另外，rabbitmq提供了管理界面插件，更方便的查看各种统计，可以通过下面的命令开启：</p>
@@ -624,7 +624,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#消息发送和接收简单实现"><span class="nav-number">1.</span> <span class="nav-text">消息发送和接收简单实现</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#配置"><span class="nav-number">1.0.1.</span> <span class="nav-text">配置</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#LogRabbitConfig实现"><span class="nav-number">1.0.2.</span> <span class="nav-text">LogRabbitConfig实现</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Sender实现"><span class="nav-number">1.0.3.</span> <span class="nav-text">Sender实现</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#AllReceiver和ErrorReceiver实现"><span class="nav-number">1.0.4.</span> <span class="nav-text">AllReceiver和ErrorReceiver实现</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#LogSenderTest测试用例"><span class="nav-number">1.0.5.</span> <span class="nav-text">LogSenderTest测试用例</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#服务器管理-启动和停止节点"><span class="nav-number">2.</span> <span class="nav-text">服务器管理-启动和停止节点</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#理解节点和Erlang应用程序"><span class="nav-number">2.0.1.</span> <span class="nav-text">理解节点和Erlang应用程序</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#配置文件"><span class="nav-number">2.0.2.</span> <span class="nav-text">配置文件</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#权限配置"><span class="nav-number">3.</span> <span class="nav-text">权限配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用统计"><span class="nav-number">4.</span> <span class="nav-text">使用统计</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#查看数据统计"><span class="nav-number">4.0.1.</span> <span class="nav-text">查看数据统计</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#查看日志"><span class="nav-number">4.0.2.</span> <span class="nav-text">查看日志</span></a></li></ol></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#消息发送和接收简单实现"><span class="nav-number">1.</span> <span class="nav-text">消息发送和接收简单实现</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#配置"><span class="nav-number">1.1.</span> <span class="nav-text">配置</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#LogRabbitConfig实现"><span class="nav-number">1.2.</span> <span class="nav-text">LogRabbitConfig实现</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Sender实现"><span class="nav-number">1.3.</span> <span class="nav-text">Sender实现</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#AllReceiver和ErrorReceiver实现"><span class="nav-number">1.4.</span> <span class="nav-text">AllReceiver和ErrorReceiver实现</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#LogSenderTest测试用例"><span class="nav-number">1.5.</span> <span class="nav-text">LogSenderTest测试用例</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#服务器管理-启动和停止节点"><span class="nav-number">2.</span> <span class="nav-text">服务器管理-启动和停止节点</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#理解节点和Erlang应用程序"><span class="nav-number">2.1.</span> <span class="nav-text">理解节点和Erlang应用程序</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#配置文件"><span class="nav-number">2.2.</span> <span class="nav-text">配置文件</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#权限配置"><span class="nav-number">3.</span> <span class="nav-text">权限配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#使用统计"><span class="nav-number">4.</span> <span class="nav-text">使用统计</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#查看数据统计"><span class="nav-number">4.1.</span> <span class="nav-text">查看数据统计</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#查看日志"><span class="nav-number">4.2.</span> <span class="nav-text">查看日志</span></a></li></ol></li></ol></div>
             
 
           </div>

@@ -88,7 +88,7 @@
 <meta property="og:description" content="本系列是「RabbitMQ实战：高效部署分布式消息队列」书籍的总结笔记。  通过前2篇的介绍，了解了消息通信的主要元素和交互过程，以及如何运行和管理RabbitMQ，这篇将站在开发模式的角度理解「面向消息通信」带来的好处，以及在各种场景下的最佳实践。 通过介绍，你会了解到：  面向消息通信的好处 发后即忘模型 用RabbitMQ实现RPC">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2018-04-07T13:38:21.000Z">
+<meta property="og:updated_time" content="2018-04-25T05:10:22.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="RabbitMQ实战：消息通信模式和最佳实践">
 <meta name="twitter:description" content="本系列是「RabbitMQ实战：高效部署分布式消息队列」书籍的总结笔记。  通过前2篇的介绍，了解了消息通信的主要元素和交互过程，以及如何运行和管理RabbitMQ，这篇将站在开发模式的角度理解「面向消息通信」带来的好处，以及在各种场景下的最佳实践。 通过介绍，你会了解到：  面向消息通信的好处 发后即忘模型 用RabbitMQ实现RPC">
@@ -375,7 +375,7 @@
 <li>用RabbitMQ实现RPC</li>
 </ul>
 <a id="more"></a>
-<h3 id="面向消息通信的好处"><a href="#面向消息通信的好处" class="headerlink" title="面向消息通信的好处"></a>面向消息通信的好处</h3><p>主要从异步状态思维、处理能力扩展性、集成复杂度方面，说明面向消息通信的好处。</p>
+<h4 id="面向消息通信的好处"><a href="#面向消息通信的好处" class="headerlink" title="面向消息通信的好处"></a>面向消息通信的好处</h4><p>主要从异步状态思维、处理能力扩展性、集成复杂度方面，说明面向消息通信的好处。</p>
 <h5 id="异步状态思维"><a href="#异步状态思维" class="headerlink" title="异步状态思维"></a>异步状态思维</h5><p>当将消息通信集成到应用程序时，开发模式将从同步模型变为异步模型，RabbitMQ提供了不同的方法，允许我们在一处发送请求，在另一处进行处理，这样同步程序可以继续执行其他逻辑。</p>
 <p>举个简单的例子来说明，通过支付宝还信用卡：</p>
 <ul>
@@ -389,14 +389,14 @@
 <p>因为RabbitMQ可以将请求在处理服务器间平均地分发，不需要负载均衡器了。</p>
 <h5 id="零成本API"><a href="#零成本API" class="headerlink" title="零成本API"></a>零成本API</h5><p>系统间相互调用，需要约定一套API，通常来讲，需要花费一点点时间，编写一大段代码将传入的HTTP请求转化为应用程序中的函数调用。</p>
 <p>如果使用AMQP来连接应用程序的各个部分，无需额外定义API，使用消息通信即可。另外， AMQP是语言无关的，拥有数十种语言的本地语言绑定。</p>
-<h3 id="发后即忘模型"><a href="#发后即忘模型" class="headerlink" title="发后即忘模型"></a>发后即忘模型</h3><p>当考虑消息通信能够解决的问题类型时，消息通信适用的主要领域是的「发后即忘」处理模式。关心的是任务将会完成，但无须实时完成，创建一个任务，发送到交换器上后，就可以返回继续工作，甚至都不需要通知用户任务已经完成。</p>
+<h4 id="发后即忘模型"><a href="#发后即忘模型" class="headerlink" title="发后即忘模型"></a>发后即忘模型</h4><p>当考虑消息通信能够解决的问题类型时，消息通信适用的主要领域是的「发后即忘」处理模式。关心的是任务将会完成，但无须实时完成，创建一个任务，发送到交换器上后，就可以返回继续工作，甚至都不需要通知用户任务已经完成。</p>
 <p>匹配该模式的两种类型任务：</p>
 <ul>
 <li>批处理：针对大型数据集合的工作或者转换，多个任务对数据集合的独立部分进行操作；</li>
 <li>通知：对发送事件的描述，可以是消息的日志，或者通知另一个程序或者管理员；</li>
 </ul>
 <p>书上介绍的实例比较简单，就不在此列出了，主要是根据不同的场景，确定交换器的类型和routingkey，可以参考上一篇介绍的「收集日志」的例子进行理解。</p>
-<h3 id="用RabbitMQ实现RPC"><a href="#用RabbitMQ实现RPC" class="headerlink" title="用RabbitMQ实现RPC"></a>用RabbitMQ实现RPC</h3><p>有多种方式来实现远程过程调用RPC，比如REST API、SOAP、Thrift等，这些传统的RPC实现方法有共同之处：客户端和服务器紧密相连、而且要等待返回结果。另外考虑这些问题：</p>
+<h4 id="用RabbitMQ实现RPC"><a href="#用RabbitMQ实现RPC" class="headerlink" title="用RabbitMQ实现RPC"></a>用RabbitMQ实现RPC</h4><p>有多种方式来实现远程过程调用RPC，比如REST API、SOAP、Thrift等，这些传统的RPC实现方法有共同之处：客户端和服务器紧密相连、而且要等待返回结果。另外考虑这些问题：</p>
 <ul>
 <li>当有多个服务节点时，客户端如何发现对应服务器；</li>
 <li>如果客户端连接的RPC服务器崩溃了，客户端需要额外逻辑进行重连；</li>
@@ -590,7 +590,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#面向消息通信的好处"><span class="nav-number">1.</span> <span class="nav-text">面向消息通信的好处</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#异步状态思维"><span class="nav-number">1.0.1.</span> <span class="nav-text">异步状态思维</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#扩展性"><span class="nav-number">1.0.2.</span> <span class="nav-text">扩展性</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#零成本API"><span class="nav-number">1.0.3.</span> <span class="nav-text">零成本API</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#发后即忘模型"><span class="nav-number">2.</span> <span class="nav-text">发后即忘模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#用RabbitMQ实现RPC"><span class="nav-number">3.</span> <span class="nav-text">用RabbitMQ实现RPC</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#面向消息通信的好处"><span class="nav-number">1.</span> <span class="nav-text">面向消息通信的好处</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#异步状态思维"><span class="nav-number">1.1.</span> <span class="nav-text">异步状态思维</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#扩展性"><span class="nav-number">1.2.</span> <span class="nav-text">扩展性</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#零成本API"><span class="nav-number">1.3.</span> <span class="nav-text">零成本API</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#发后即忘模型"><span class="nav-number">2.</span> <span class="nav-text">发后即忘模型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#用RabbitMQ实现RPC"><span class="nav-number">3.</span> <span class="nav-text">用RabbitMQ实现RPC</span></a></li></ol></div>
             
 
           </div>
