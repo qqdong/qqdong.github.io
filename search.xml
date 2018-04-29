@@ -4,6 +4,101 @@
   
     
     <entry>
+      <title><![CDATA[RabbitMQ实战：扩展RabbitMQ与系列总结]]></title>
+      <url>https://qqdong.github.io/2018/04/29/RabbitMQ%E5%AE%9E%E6%88%98%EF%BC%9A%E6%89%A9%E5%B1%95RabbitMQ%E4%B8%8E%E7%B3%BB%E5%88%97%E6%80%BB%E7%BB%93/</url>
+      <content type="html"><![CDATA[<blockquote>
+<p>本系列是「RabbitMQ实战：高效部署分布式消息队列」书籍的总结笔记。</p>
+</blockquote>
+<p>本篇是「RabbitMQ实战」系列的最后一篇，主要介绍RabbitMQ插件，了解如何安装和启用它，列举一些常用的插件，以及如何自定义。</p>
+<p>在介绍之前，先总结下本系列的主要内容，把它们串起来。</p>
+<h4 id="系列总结"><a href="#系列总结" class="headerlink" title="系列总结"></a>系列总结</h4><p>开篇时，这样定义过RabbitMQ：它是一个开源的消息代理和队列服务器，可以通过基本协议在完全不同的应用之间共享数据，可以将作业排队以便让分布式服务进行处理。</p>
+<p>这句话有几个关键词：消息代理、队列服务器、共享数据、分布式处理，分别来说明下，以加深理解。</p>
+<p>消息代理：可以把RabbitMQ看成一个代理服务器，一方面把消息生产者和消费者进行了解耦，更灵活；一方面，消息如何分发不用生产者考虑了，RabbitMQ提供多种分发策略。</p>
+<p>队列服务器：消息最终是缓存在队列中的，消费者从指定的队列中消费消息，所以需要管理队列和队列中的消息。</p>
+<p>共享数据：主要是说消息可以在不同应用间传输数据，通过AMQP协议进行规范，达到共享数据的目的。</p>
+<p>分布式处理：多个消费者可以订阅同一个队列，这样，多台机器就可以同时处理同一批数据，达到分布式处理的效果。</p>
+<a id="more"></a>
+<p>如果理解AMQP基本元素和消息模型，上面的概念会很好理解，有2篇文章重点介绍了这块。</p>
+<p>有些场景，对RabbitMQ可用性要求比较高，不容许有消息的丢失，需要了解RabbitMQ的可用性保障和实现。另外， 要能够实时监控RabbitMQ的本身及各个组件的运行情况，有问题时及时报警，快速进行处理。</p>
+<p>如果消息量和并发量比较高，需要根据不同的业务场景，在可用性和性能上进行平衡，以满足业务的需要。</p>
+<p>有些消息比较敏感，在传输的过程中要进行加密处理，通过ssl协议可以很好的解决。</p>
+<p>最后，RabbitMQ提供了一些列的插件，为我们提供了很多有用的功能，比如Web管理界面插件、Shovel跨机房复制插件等，还允许我们自定义插件，扩展需要的功能。</p>
+<p><strong>完整索引</strong>：</p>
+<ol>
+<li><a href="http://qqidol.com/2018/04/01/RabbitMQ%E5%AE%9E%E6%88%98%EF%BC%9A%E7%90%86%E8%A7%A3%E6%B6%88%E6%81%AF%E9%80%9A%E4%BF%A1/" target="_blank" rel="noopener">理解消息通信</a></li>
+<li><a href="http://qqidol.com/2018/04/06/RabbitMQ%E5%AE%9E%E6%88%98%EF%BC%9A%E8%BF%90%E8%A1%8C%E5%92%8C%E7%AE%A1%E7%90%86Rabbit/" target="_blank" rel="noopener">运行和管理</a></li>
+<li><a href="http://qqidol.com/2018/04/07/RabbitMQ%E5%AE%9E%E6%88%98%EF%BC%9A%E6%B6%88%E6%81%AF%E9%80%9A%E4%BF%A1%E6%A8%A1%E5%BC%8F%E5%92%8C%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/" target="_blank" rel="noopener">消息通信模型和最佳实践</a></li>
+<li><a href="http://qqidol.com/2018/04/12/RabbitMQ%E5%AE%9E%E6%88%98%EF%BC%9A%E5%8F%AF%E7%94%A8%E6%80%A7%E5%88%86%E6%9E%90%E5%92%8C%E5%AE%9E%E7%8E%B0/" target="_blank" rel="noopener">可用性分析和实现</a></li>
+<li><a href="http://qqidol.com/2018/04/14/RabbitMQ%E5%AE%9E%E6%88%98%EF%BC%9A%E7%95%8C%E9%9D%A2%E7%AE%A1%E7%90%86%E5%92%8C%E7%9B%91%E6%8E%A7/" target="_blank" rel="noopener">界面管理和监控</a></li>
+<li><a href="http://qqidol.com/2018/04/21/%E8%AE%A9%E6%95%B0%E6%8D%AE%E4%BC%A0%E8%BE%93%E6%9B%B4%E5%AE%89%E5%85%A8/" target="_blank" rel="noopener">数据传输的安全性介绍</a></li>
+<li><a href="http://qqidol.com/2018/04/22/RabbitMQ%E5%AE%9E%E6%88%98%EF%BC%9A%E6%80%A7%E8%83%BD%E5%92%8C%E5%AE%89%E5%85%A8/" target="_blank" rel="noopener">性能和安全</a></li>
+<li><a href="">扩展</a></li>
+</ol>
+<h4 id="插件介绍"><a href="#插件介绍" class="headerlink" title="插件介绍"></a>插件介绍</h4><p>当需要某些功能而服务器没有时，可以通过添加插件的方式来进行增强，可以从网络上找，也可以自己编写插件。</p>
+<h5 id="用插件可以做什么"><a href="#用插件可以做什么" class="headerlink" title="用插件可以做什么"></a>用插件可以做什么</h5><p>先简单举几个例子，这些可以通过安装插件来解决：</p>
+<ul>
+<li>支持AMQP以外的协议；</li>
+<li>不同的认证机制（LDAP、自定义数据库）；</li>
+<li>消息复制；</li>
+<li>新的交换器和路由算法；</li>
+<li>消息日志和审计；</li>
+</ul>
+<p>STOMP是一个简单的基于文本的协议，用于在应用之间传输数据，它可以与ActiveMQ服务器一起工作，如果你的代码基于ActiveMQ和STOMP，但想使用RabbitMQ，就可以使用STOMP插件进行适配。</p>
+<p>假设你的系统中所有的用户管理均通过LDAP，想在RabbitMQ中使用它进行认证，可以使用rabbitmq-auth-backend-ldap插件进行集成。</p>
+<blockquote>
+<p>LDAP是轻量目录访问协议，一个为查询、浏览和搜索而优化的专业分布式数据库，它呈树状结构组织数据，就好象Linux/Unix系统中的文件目录一样。目录数据库和关系数据库不同，它有优异的读性能，但写性能差，并且没有事务处理、回滚等复杂功能，不适于存储修改频繁的数据。所以目录天生是用来查询的，就好象它的名字一样。</p>
+</blockquote>
+<p>还可以自定义路由规则的交换器，下面会详细介绍。</p>
+<h5 id="查找和管理插件"><a href="#查找和管理插件" class="headerlink" title="查找和管理插件"></a>查找和管理插件</h5><p>可以查看 <a href="https://www.rabbitmq.com/plugins.html" target="_blank" rel="noopener">官网页面</a>，查找到维护和实验阶段的插件。</p>
+<p>再来看看插件的一些管理命令：</p>
+<p>开启插件，插件开启后，需要重启RabbitMQ服务器：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./rabbitmq-plugins <span class="built_in">enable</span> &lt;plugin-name&gt;</span><br></pre></td></tr></table></figure>
+<p>禁用插件，禁用插件后，需要重启RabbitMQ服务器：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./rabbitmq-plugins <span class="built_in">disable</span> &lt;plugin-name&gt;</span><br></pre></td></tr></table></figure>
+<p>查看启用的插件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./rabbitmq-plugins list -e</span><br></pre></td></tr></table></figure>
+<h4 id="自定义插件"><a href="#自定义插件" class="headerlink" title="自定义插件"></a>自定义插件</h4><p>使用一个具体的例子来介绍自定义插件的开发，有这样一个场景：使用RabbitMQ为聊天应用建模，该模型中有一个全局聊天室，所有的用户都连接到这里，每位用户拥有自己的队列，绑定到全局fanout交换器上。</p>
+<p>每次发消息到该交换器上时，该消息会群发给所有绑定的队列上，但如果有一个新的客户端连接到这个聊天室，只会得到发送给聊天室的新消息，无法了解在加入之前会话的上下文。</p>
+<p>如果能将最近的消息发送给新来的客户，用户体验更更好点，可以通过自定义交换器实现这个功能。</p>
+<h5 id="插件开发环境和说明"><a href="#插件开发环境和说明" class="headerlink" title="插件开发环境和说明"></a>插件开发环境和说明</h5><p>RabbitMQ开发者制定了开发环境，即RabbitMQ Public Umbrella，通过把它从代码库中签出，然后把自己的插件添加到项目结构中。</p>
+<p>RabbitMQ是用Erlang语言开发的，Erlang源代码是以模块的方式组织起来的，模块内的函数实现了应用程序需要提供的功能，插件只需要一个模块来包含自定义交互器的实现。</p>
+<p>在面向对象编程中，拥有接口的概念，在Erlang中有相同的概念：behavious（行为）。</p>
+<p>Erlang behavior 确定了模块需要实现和导出哪些函数，这样调用该模块的代码才知道该如何使用它。</p>
+<p>另一个不同的地方在于，Erlang没有java那样可见性概念，拥有的就是一个模块导出列表，如果模块实现了函数fun1、fun2和fun3，但只导出fun1的话，fun2和fun3将无法被外界调用。</p>
+<p>另外，还有一个函数参数数量的概念，可以接受名字相同、参数数量不同的函数，因此behavious可以确定函数fun1/1和fun1/2是两个不同的函数。</p>
+<h5 id="一般步骤"><a href="#一般步骤" class="headerlink" title="一般步骤"></a>一般步骤</h5><p>首先，确认要扩展的behavios，RabbitMQ暴露了一个交换器behavious，名为rabbit_exchange_type，它会明确需要实现哪些函数来成为一个符合要求的交换器。</p>
+<p>然后，梳理实现思路：我们要实现的是一个加强版的fanout类型交换器，缓存最近20条消息，可以基于RabbitMQ上的fanout交换器进行实现。</p>
+<ul>
+<li>需要缓存已路由的消息，每当交换器路由消息的时候，就将该消息存储到某个数据库中，该功能可在函数route/2中实现；</li>
+<li>当队列绑定到交换器时，需要把缓存的消息投递过去，该功能可在函数add_binding/3中实现；</li>
+<li>当交换器删除的时候，需要丢弃缓存的消息，该功能可在函数delete/3中实现；</li>
+</ul>
+<p>然后，实现交换器behavious，我没有看相关实现细节，感兴趣的可以查看实现代码：<a href="https://github.com/rabbitinaction/sourcecode/tree/master/erlang/chapter-12/rabbitmq-recent-history-exchange" target="_blank" rel="noopener">传送门</a>。</p>
+<p>最后，将交换器注册到RabbitMQ，RabbitMQ维护了一个注册表，用这张表来跟踪所有的交换器类型及其模块名称，假设将消息发布到fanout交换器上，RabbitMQ会进入注册表，检查由哪个模块来实现fanout交换器，找到后，会继续调用该模块的路由函数。</p>
+<p>所以，需要找到一个方法将自定义交换器添加到注册表中，RabbitMQ支持启动步骤的概念，当服务器启动时会调用一系列步骤，可以在模块中添加一个启动步骤，RabbitMQ启动是，会将自定义交换器添加到rabbit_registry注册表中。</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">-rabbit_boot_step<span class="params">(&#123;rabbit_exchange_type_rh_registry,</span></span><br><span class="line"><span class="params">[&#123;description, <span class="string">"recent history exchange type: registry"</span>&#125;,</span></span><br><span class="line"><span class="params">  &#123;mfa, &#123;rabbit_registry, register,</span></span><br><span class="line"><span class="params">          [exchange, &lt;&lt;<span class="string">"x-recent-history"</span>&gt;&gt;,</span></span><br><span class="line"><span class="params">           ?MODULE]&#125;&#125;, //注册自定义交换器</span></span><br><span class="line"><span class="params">  &#123;requires, rabbit_registry&#125;, </span></span><br><span class="line"><span class="params">  &#123;enables, kernel_ready&#125;]&#125;)</span>.</span><br></pre></td></tr></table></figure>
+<p>以上，自定义交换器就完成了，可以编写程序进行验证。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">require_once(&apos;../lib/php-amqplib/amqp.inc&apos;);</span><br><span class="line">define(&apos;HOST&apos;, &apos;localhost&apos;);</span><br><span class="line">define(&apos;PORT&apos;, 5672);</span><br><span class="line">define(&apos;USER&apos;, &apos;guest&apos;);</span><br><span class="line">define(&apos;PASS&apos;, &apos;guest&apos;);</span><br><span class="line">define(&apos;VHOST&apos;, &apos;/&apos;);</span><br><span class="line"></span><br><span class="line">$exchange = &apos;rh-exchange&apos;;</span><br><span class="line">$conn = new AMQPConnection(HOST, PORT, USER, PASS, VHOST);</span><br><span class="line">$ch = $conn-&gt;channel();</span><br><span class="line">$ch-&gt;exchange_declare($exchange,</span><br><span class="line">        &apos;x-recent-history&apos;, //使用自定义交换器</span><br><span class="line">        false,</span><br><span class="line">        true,</span><br><span class="line">        false);</span><br></pre></td></tr></table></figure>
+<p><strong><font color="green">欢迎扫描下方二维码，关注我的个人微信公众号，分享我的工作、学习和生活</font> ~</strong></p>
+<p><div align="center"><br><img src="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="情情说"></div></p>
+]]></content>
+      
+        <categories>
+            
+            <category> 消息队列 </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> RabbitMQ </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[部门老大的发言引发的思考]]></title>
       <url>https://qqdong.github.io/2018/04/25/%E9%83%A8%E9%97%A8%E5%AD%A3%E5%BA%A6%E6%80%BB%E7%BB%93%E4%BC%9A%E5%BC%95%E5%8F%91%E7%9A%84%E6%80%9D%E8%80%83/</url>
       <content type="html"><![CDATA[<p>4月25号，部门召开了一季度的总结会，部门老大最后的总结发言，有很多值得学习的地方，在此做个记录。</p>
