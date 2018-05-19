@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="summary" />
+  <meta name="keywords" content="负载均衡" />
 
 
 
@@ -79,20 +79,26 @@
 
 
 
-<meta name="description" content="4月25号，部门召开了一季度的总结会，部门老大最后的总结发言，有很多值得学习的地方，在此做个记录。 另外，上级领导也开始慢慢放权，让我负责更多系统的管理工作，感激的同时多了不少压力，于是想引以为鉴，时常警惕自己。 部门老大，大家都叫他「海大人」，小米刚成立时，就跟着雷总干，他是开发出身，一股工程师的气息，很敬业，思路清晰、敏捷。 最后总结发言用了30多分钟，尽力领会他想表达的，映射到自己。  总结">
-<meta name="keywords" content="summary">
+<meta name="description" content="文章来自刘欣老师「码农翻身」公众号  上一篇介绍负载均衡的2种实现方式：NAT、DR，这一篇介绍负载均衡器的可用性，使用互为主备的方式既可以提高处理效率和机器利用率，又可以避免一台负载均衡器挂掉的影响。  夜半惊魂上次讲到，张大胖在Bill的指导下，成功地开发了一个四层的负载均衡软件， 把流量“均匀地”分发到了后面的几个服务器中， 获得了老板的1000块钱奖励。  但是张大胖心中隐隐不安，总觉得">
+<meta name="keywords" content="负载均衡">
 <meta property="og:type" content="article">
-<meta property="og:title" content="部门老大的发言引发的思考">
-<meta property="og:url" content="https://qqdong.github.io/2018/04/25/部门季度总结会引发的思考/index.html">
+<meta property="og:title" content="双机热备原理（转）">
+<meta property="og:url" content="https://qqdong.github.io/2018/05/09/双机热备原理/index.html">
 <meta property="og:site_name" content="情情说">
-<meta property="og:description" content="4月25号，部门召开了一季度的总结会，部门老大最后的总结发言，有很多值得学习的地方，在此做个记录。 另外，上级领导也开始慢慢放权，让我负责更多系统的管理工作，感激的同时多了不少压力，于是想引以为鉴，时常警惕自己。 部门老大，大家都叫他「海大人」，小米刚成立时，就跟着雷总干，他是开发出身，一股工程师的气息，很敬业，思路清晰、敏捷。 最后总结发言用了30多分钟，尽力领会他想表达的，映射到自己。  总结">
+<meta property="og:description" content="文章来自刘欣老师「码农翻身」公众号  上一篇介绍负载均衡的2种实现方式：NAT、DR，这一篇介绍负载均衡器的可用性，使用互为主备的方式既可以提高处理效率和机器利用率，又可以避免一台负载均衡器挂掉的影响。  夜半惊魂上次讲到，张大胖在Bill的指导下，成功地开发了一个四层的负载均衡软件， 把流量“均匀地”分发到了后面的几个服务器中， 获得了老板的1000块钱奖励。  但是张大胖心中隐隐不安，总觉得">
 <meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15258282169103.jpg">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15258282340877.jpg">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15258282477106.jpg">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15258282642583.jpg">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15258282986402.jpg">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15258282782686.jpg">
 <meta property="og:image" content="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2018-04-25T18:18:53.000Z">
+<meta property="og:updated_time" content="2018-05-19T05:27:23.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="部门老大的发言引发的思考">
-<meta name="twitter:description" content="4月25号，部门召开了一季度的总结会，部门老大最后的总结发言，有很多值得学习的地方，在此做个记录。 另外，上级领导也开始慢慢放权，让我负责更多系统的管理工作，感激的同时多了不少压力，于是想引以为鉴，时常警惕自己。 部门老大，大家都叫他「海大人」，小米刚成立时，就跟着雷总干，他是开发出身，一股工程师的气息，很敬业，思路清晰、敏捷。 最后总结发言用了30多分钟，尽力领会他想表达的，映射到自己。  总结">
-<meta name="twitter:image" content="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta name="twitter:title" content="双机热备原理（转）">
+<meta name="twitter:description" content="文章来自刘欣老师「码农翻身」公众号  上一篇介绍负载均衡的2种实现方式：NAT、DR，这一篇介绍负载均衡器的可用性，使用互为主备的方式既可以提高处理效率和机器利用率，又可以避免一台负载均衡器挂掉的影响。  夜半惊魂上次讲到，张大胖在Bill的指导下，成功地开发了一个四层的负载均衡软件， 把流量“均匀地”分发到了后面的几个服务器中， 获得了老板的1000块钱奖励。  但是张大胖心中隐隐不安，总觉得">
+<meta name="twitter:image" content="http://oc3r3rke2.bkt.clouddn.com/15258282169103.jpg">
 
 
 
@@ -122,13 +128,13 @@
 
 
 
-  <link rel="canonical" href="https://qqdong.github.io/2018/04/25/部门季度总结会引发的思考/"/>
+  <link rel="canonical" href="https://qqdong.github.io/2018/05/09/双机热备原理/"/>
 
 
 
 
 
-  <title>部门老大的发言引发的思考 | 情情说</title>
+  <title>双机热备原理（转） | 情情说</title>
   
 
 
@@ -275,7 +281,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/04/25/部门季度总结会引发的思考/">
+    <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/05/09/双机热备原理/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="calm">
@@ -292,7 +298,7 @@
 
         
         
-          <h2 class="post-title" itemprop="name headline">部门老大的发言引发的思考</h2>
+          <h2 class="post-title" itemprop="name headline">双机热备原理（转）</h2>
         
 
         <div class="post-meta">
@@ -304,8 +310,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-25T22:00:00+08:00">
-                2018-04-25
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-09T22:00:00+08:00">
+                2018-05-09
               </time>
             
 
@@ -327,8 +333,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/summary/" itemprop="url" rel="index">
-                    <span itemprop="name">summary</span>
+                  <a href="/categories/负载均衡/" itemprop="url" rel="index">
+                    <span itemprop="name">负载均衡</span>
                   </a>
                 </span>
 
@@ -364,41 +370,68 @@
       
 
       
-        <p>4月25号，部门召开了一季度的总结会，部门老大最后的总结发言，有很多值得学习的地方，在此做个记录。</p>
-<p>另外，上级领导也开始慢慢放权，让我负责更多系统的管理工作，感激的同时多了不少压力，于是想引以为鉴，时常警惕自己。</p>
-<p>部门老大，大家都叫他「海大人」，小米刚成立时，就跟着雷总干，他是开发出身，一股工程师的气息，很敬业，思路清晰、敏捷。</p>
-<p>最后总结发言用了30多分钟，尽力领会他想表达的，映射到自己。</p>
-<blockquote>
-<p>总结的这些，都是我要为之努力的，我还只是一个小兵。</p>
+        <blockquote>
+<p>文章来自刘欣老师「码农翻身」公众号</p>
 </blockquote>
-<h4 id="细节很重要"><a href="#细节很重要" class="headerlink" title="细节很重要"></a>细节很重要</h4><p>海大人很关注细节：会场两边的显示屏亮了（上一次不亮），每个项目组之间的PPT衔接更顺畅了，演讲的超时时间也少了，他对这次会议的准备提出了表扬。</p>
-<p>工作上，细节也很重要，如果项目的分析、规划和执行不够细致，很容易延期，团队的协作也会很乱，上线后，项目的可用性和稳定性也不敢保证。</p>
-<p>所以，做任何事情，都要细心，不放过任何一个细节，有些问题可以不解决，但也要了解，前期的细心分析和规划，会让执行更有章法和自信。</p>
-<h4 id="企业以盈利为目的"><a href="#企业以盈利为目的" class="headerlink" title="企业以盈利为目的"></a>企业以盈利为目的</h4><p>企业最终是要赚钱的，需求要不要做，系统是自研还是外采，都要考虑其产出比。</p>
-<p>我们部门，很多项目都是服务于各个业务部门的，比如订单、仓库、物流、销售、客服等，海大人提出了要进行内部核算，和每个业务口核算成本，项目成本占他们营收的成本有多少。</p>
-<p>所以，做项目、接需求时，要把价值说清楚，做好体验，让业务方满意，才能让对方认可你的成本。</p>
+<p>上一篇介绍负载均衡的2种实现方式：NAT、DR，这一篇介绍负载均衡器的可用性，使用互为主备的方式既可以提高处理效率和机器利用率，又可以避免一台负载均衡器挂掉的影响。</p>
+<hr>
+<h4 id="夜半惊魂"><a href="#夜半惊魂" class="headerlink" title="夜半惊魂"></a>夜半惊魂</h4><p>上次讲到，张大胖在Bill的指导下，成功地开发了一个四层的负载均衡软件， 把流量“均匀地”分发到了后面的几个服务器中， 获得了老板的1000块钱奖励。</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15258282169103.jpg" alt=""></p>
+<p>但是张大胖心中隐隐不安，总觉得系统埋着一颗定时炸弹，随时会引爆，这个炸弹就是：  Load Balancer 只有一台服务器，万一这个服务器挂掉了怎么办？</p>
 <a id="more"></a>
-<h4 id="做事情要有亮点"><a href="#做事情要有亮点" class="headerlink" title="做事情要有亮点"></a>做事情要有亮点</h4><p>海大人说：伤其十指，不如断其一指，要做重要的事情。</p>
-<p>还说：轻重缓急，生死攸关，做领导当下最关心的事情，很重要。</p>
-<p>我们组堆了很多需求，大部分都是业务方提的，说实话，我觉得的亮点的功能很少，更应该站在使用者的角度，找他们的痛点。</p>
-<p>后面，应先做亮点、更重要的事情，再慢慢查缺补漏，进行完善。</p>
-<h4 id="微信30分钟"><a href="#微信30分钟" class="headerlink" title="微信30分钟"></a>微信30分钟</h4><p>线上问题的及时处理很重要，大的话会导致多个系统不可用，小的话也会影响使用方的体验，所以，接到问题反馈时，应及时答复，即使短时间无法立刻解决，也要先回复。</p>
-<p>首先，人员的职责要划分清晰，接到问题反馈时，属于自己的问题会更主动的去解决；然后，节假日或小组聚会，要安排人值班，实时关注反馈的问题。</p>
-<h4 id="讲困难"><a href="#讲困难" class="headerlink" title="讲困难"></a>讲困难</h4><p>海大人说：和他讲困难的时候，要表达出自己的思考，给出可选的解决方案，评判方案时，要极心无二虑，尽公不顾私。</p>
-<p>工作中，确实有很多这样的人，包括我，遇到困难时，没有仔细分析、思考，就把问题抛给了上一级，不但自己没有锻炼，给领导的印象也会不好。</p>
-<p>所以，给领导讲困难时，最好给出自己的可选方案，还要站在公司利益的角度，进行分析，推荐出一个方案。</p>
-<h4 id="技术架构、业务架构"><a href="#技术架构、业务架构" class="headerlink" title="技术架构、业务架构"></a>技术架构、业务架构</h4><p>功能好、交互体验好还不够，稳定性、扩展性也很重要。</p>
-<p>另外，部门目前的技术和业务比较分散，跨大组的交流也比较少，导致好多组再做相似的事情。</p>
-<p>所以，部门成立了技术架构组和业务架构组，面向公司未来几年的发展，从整体上考虑技术和业务架构，规范一些事情，减少各个组的开发门槛。</p>
-<p>我这块的实践也比较少，多向他们学习。</p>
-<h4 id="翻篇了"><a href="#翻篇了" class="headerlink" title="翻篇了"></a>翻篇了</h4><p>以前的荣誉已经过去，不要卖老的功劳，已经翻篇了。</p>
-<p>要把老员工从舒适区拉到安全区、焦虑区，不断学习和成长。</p>
-<p>培养有精力、有能力的人，提拔他们，你能你上 ！</p>
-<p>我的性格偏内向，内向的人不会安于已有的成果，永远认为自己做的还不够好，这点我是符合的。</p>
-<h4 id="团队协作"><a href="#团队协作" class="headerlink" title="团队协作"></a>团队协作</h4><p>这部分是我自己加上的，最近深有感触。</p>
-<p>规划很重要，有了目标，大家才能向一个方向使劲。</p>
-<p>团队每个人都应齐心协力，按照规划的任务，按时高质量的完成，如果一个人偏离方向，都可能导致项目无法完成。</p>
-<p>团队氛围和凝聚力的培养是提高团队协作的有效方法，这块是我最薄弱的，后面多向同事学习。</p>
+<p>没有了Load Balancer这个入口，用户的请求无法分发过来，后面的这些服务器只能干瞪眼了。</p>
+<p>系统有“单点失败（Single Point of Failure）”的风险就是这个意思。</p>
+<p>有一天晚上张大胖做了一个梦，梦见这个Load Balancer在高峰期挂掉了，导致整个系统瘫痪，看到损失了无数的订单， 愤怒的老板不停地向他咆哮：扣你小子半年工资。</p>
+<p>吓得张大胖半夜醒来，出了一身冷汗。</p>
+<p>不想单点失败该怎么办？ 张大胖稍微思索下就能想到解决方案： 上两台Load Balancer ！</p>
+<p>可问题是：客户端究竟要访问哪一个？</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15258282340877.jpg" alt=""></p>
+<p>还用DNS轮询的方式？ 那就回到最原始的问题了。</p>
+<p>在这两个Load Balancer之前再加一个Load Balancer？  那岂不又是单点失败？</p>
+<p>不，这个路子是走不通的。</p>
+<p>张大胖准备另辟蹊径。</p>
+<p>在客户端看来，这两个Load Balancer 最好是一个整体，就像一个虚拟的服务器， 这个虚拟的服务对外提供一个IP (简称VIP)。</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15258282477106.jpg" alt=""></p>
+<p>两个Load Balancer中，一个叫做Master， 另外一个可以叫做Backup ， 平时Master 负责干活， Backup待命，一旦Master挂掉， Backup 服务器立刻接管。  在外界看来，那个虚拟的服务器还在工作，并不知道内部发生的“大地震”。</p>
+<p>想到这里，张大胖激动起来，竟然睡不着了， 干脆爬起来看邮件，写代码。</p>
+<h4 id="详细设计"><a href="#详细设计" class="headerlink" title="详细设计"></a>详细设计</h4><p>第二天，张大胖七点就来到了公司，想着把昨晚的方案给Bill 汇报下。</p>
+<p>可是他来得太早了，公司空无一人。 罢了，很多细节还没有完善，先不着急。</p>
+<p>首先是这个虚拟的VIP ， 怎么才能实现在两个服务器之间的“IP漂移”呢？</p>
+<p>张大胖曾经记得，一个网卡可以设置多个地址，比如在Linux上eth0表示网卡1，它可以绑定一个IP， 与此同时，还可以设置一个ip alias  或者 secondary ip 。</p>
+<p>eth0 –&gt; 192.168.1.10</p>
+<p>eth0:1  –&gt; 192.168.1.100</p>
+<p>张大胖想： 我可以让这个192.168.1.100为VIP，如果服务器是Master， 就可以把这个IP给绑定上， 如果是Backup，那就不绑定。</p>
+<p>换句话说，通过动态地绑定/解绑 就可以让这个VIP在两个服务器之间来回“漂移”了。</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15258282642583.jpg" alt=""></p>
+<p>“IP漂移”的问题可以这么解决， 但是那个Backup 怎么知道Master 挂掉了呢？</p>
+<p>从道理上说，很简单，只需要让Master不断地给Backup发“心跳”消息即可(可以采用广播的方式发消息)， 这个Backup(LoadBalancer2)得有个定时器， 如果在一个特定的时间（嗯，这个时间应该可以设置）内收不到心跳，那就认为Master完蛋了，就需要挺身而出，擦干眼泪，继承前任的遗志，很Happy地绑定VIP , 继续伟大的革命事业。</p>
+<p>可是那个之前的Master（LoadBalancer1）如果又活了呢？</p>
+<p>LoadBalancer2 该怎么办？革命的康庄大道还没走几步， 就要拱手让出还没捂热乎的VIP吗？</p>
+<p>如果LoadBalancer1是个性能更加强悍的机器，同志们肯定希望由他来统领全局。</p>
+<p>这里得定义一个策略，每个机器都得有个优先级（一个整数），在允许抢占的情况下，谁的优先级高，谁就是Master！</p>
+<p>张大胖想到： 看来需要我开发一个软件了，实现这些通信“协议”和策略， 这个软件需要安装运行在每个Load Balancer上，让他们组成单个虚拟的Load Balancer， 对外提供服务。</p>
+<p>在每个Load Balancer中，状态转换是这样的， 张大胖画了一张图：</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15258282986402.jpg" alt=""></p>
+<h4 id="汇报工作"><a href="#汇报工作" class="headerlink" title="汇报工作"></a>汇报工作</h4><p>到了9点钟， CTO Bill 准时上班， 张大胖赶忙跑去向领导汇报昨晚和今早的思想动态。</p>
+<p>Bill 听完，沉吟片刻，说道：“这个主意不错，我支持！ 可是。。。。。。”</p>
+<p>张大胖立刻紧张起来， 自己想得挺完善的啊，难道还有问题？</p>
+<p>只听Bill 说道：“你可以让那个IP地址在两个主机之间漂移，实现主备切换， 但是MAC地址怎么办？ ”</p>
+<p>张大胖说：“MAC地址 ? 关MAC地址什么事？ ”</p>
+<p>啊 ！ 他突然明白了，确实是忽略了， IP包是被封装在以太网帧中发送的，其中需要MAC地址。</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15258282782686.jpg" alt=""></p>
+<p>在发送第一个请求的时候，客户端（确切说是直接向Load Balancer发数据的那个机器）先是知道了VIP（如：192.168.1.100）， 接下来它需要知道这个VIP的MAC地址，这样才能发送数据。</p>
+<p>为了拿到MAC地址，它需要发起ARP查询： 这个VIP（192.168.1.100)的 MAC的地址是什么？</p>
+<p>如果Load Balancer 1是Master ，就会回复： 是23:39:8D:9C:0A:33  （记为 MAC1）</p>
+<p>这时候客户端就会缓存，记下来。</p>
+<p>然后Load Balancer 1 挂掉， Load Balancer 2 成为 Master。</p>
+<p>此时客户端如果再次发送数据，还会往MAC1去放送，于是就出错了。</p>
+<p>想通了这一层， 张大胖犯了愁， 这可怎么办？</p>
+<p>Bill 提醒道：“你不是有个虚拟的IP地址吗？ 是不是也可以搞一个虚拟的MAC地址啊！”</p>
+<p>张大胖如梦方醒： “对对， 无论是哪个机器成为Master， 每次响应ARP请求的时候，都返回这个虚拟的MAC地址。这样客户端面对的MAC地址就唯一了。”</p>
+<p>看来虚拟IP + 虚拟的MAC 地址才能完整地解决问题！</p>
+<h4 id="申请机器"><a href="#申请机器" class="headerlink" title="申请机器"></a>申请机器</h4><p>张大胖把软件开发出来了，小心翼翼地向抠门的老板去申请机器，老板看了方案，提了一个让张大胖大跌眼镜的问题： “你这里整了两个Load Balancer服务器， 但是平时只用一个，另外一个一直空闲，是不是极大的浪费啊？”</p>
+<p>怎么办？张大胖挠了挠头，犯难了。</p>
+<p>答：可以使用keepalived，两台Load balancer都作为master，分别为不同的业务做负载均衡，并且同时设置为对方的slave。</p>
 <p><strong><font color="green">欢迎扫描下方二维码，关注我的个人微信公众号，分享我的工作、学习和生活</font> ~</strong></p>
 <p><div align="center"><br><img src="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="情情说"></div></p>
 
@@ -418,7 +451,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/summary/" rel="tag"># summary</a>
+            <a href="/tags/负载均衡/" rel="tag"># 负载均衡</a>
           
         </div>
       
@@ -431,8 +464,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/04/22/RabbitMQ实战：性能和安全/" rel="next" title="RabbitMQ实战：性能和安全">
-                <i class="fa fa-chevron-left"></i> RabbitMQ实战：性能和安全
+              <a href="/2018/05/08/负载均衡的原理/" rel="next" title="负载均衡的原理（转）">
+                <i class="fa fa-chevron-left"></i> 负载均衡的原理（转）
               </a>
             
           </div>
@@ -441,8 +474,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2018/04/29/RabbitMQ实战：扩展RabbitMQ与系列总结/" rel="prev" title="RabbitMQ实战：扩展RabbitMQ与系列总结">
-                RabbitMQ实战：扩展RabbitMQ与系列总结 <i class="fa fa-chevron-right"></i>
+              <a href="/2018/05/16/项目管理全过程最佳实践（上）/" rel="prev" title="项目管理全过程最佳实践（上）">
+                项目管理全过程最佳实践（上） <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -590,7 +623,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#细节很重要"><span class="nav-number">1.</span> <span class="nav-text">细节很重要</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#企业以盈利为目的"><span class="nav-number">2.</span> <span class="nav-text">企业以盈利为目的</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#做事情要有亮点"><span class="nav-number">3.</span> <span class="nav-text">做事情要有亮点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#微信30分钟"><span class="nav-number">4.</span> <span class="nav-text">微信30分钟</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#讲困难"><span class="nav-number">5.</span> <span class="nav-text">讲困难</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#技术架构、业务架构"><span class="nav-number">6.</span> <span class="nav-text">技术架构、业务架构</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#翻篇了"><span class="nav-number">7.</span> <span class="nav-text">翻篇了</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#团队协作"><span class="nav-number">8.</span> <span class="nav-text">团队协作</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#夜半惊魂"><span class="nav-number">1.</span> <span class="nav-text">夜半惊魂</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#详细设计"><span class="nav-number">2.</span> <span class="nav-text">详细设计</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#汇报工作"><span class="nav-number">3.</span> <span class="nav-text">汇报工作</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#申请机器"><span class="nav-number">4.</span> <span class="nav-text">申请机器</span></a></li></ol></div>
             
 
           </div>
