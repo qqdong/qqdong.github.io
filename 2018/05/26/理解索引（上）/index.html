@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="索引" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="最近有个需求，要修改现有存储结构，涉及查询条件和查询效率的考量，看了几篇索引和HBase相关的文章，回忆了相关知识，结合项目需求，说说自己的理解和总结。  部分内容摘录了几个博友的文章，最后会给出文章链接，感谢他们的精彩分析。  会从以下几个方面介绍：  为什么需要索引 索引的类别 MySQL索引演化 MySQL索引优化 HBase介绍 HBase存储结构 HBase索引介绍 业务需求及设计  准">
+<meta name="keywords" content="索引">
+<meta property="og:type" content="article">
+<meta property="og:title" content="理解索引（上）">
+<meta property="og:url" content="https://qqdong.github.io/2018/05/26/理解索引（上）/index.html">
+<meta property="og:site_name" content="情情说">
+<meta property="og:description" content="最近有个需求，要修改现有存储结构，涉及查询条件和查询效率的考量，看了几篇索引和HBase相关的文章，回忆了相关知识，结合项目需求，说说自己的理解和总结。  部分内容摘录了几个博友的文章，最后会给出文章链接，感谢他们的精彩分析。  会从以下几个方面介绍：  为什么需要索引 索引的类别 MySQL索引演化 MySQL索引优化 HBase介绍 HBase存储结构 HBase索引介绍 业务需求及设计  准">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15273022279290.jpg">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15273039696533.jpg">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15273048516010.jpg">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15273104418397.jpg">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15273073110433.jpg">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15273079713353.jpg">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15273084943912.jpg">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15273085387564.jpg">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15273108499902.jpg">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15273127236653.jpg">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15273127522473.jpg">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15273130868585.jpg">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15273135384674.jpg">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15273136161769.jpg">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:updated_time" content="2018-05-26T06:21:05.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="理解索引（上）">
+<meta name="twitter:description" content="最近有个需求，要修改现有存储结构，涉及查询条件和查询效率的考量，看了几篇索引和HBase相关的文章，回忆了相关知识，结合项目需求，说说自己的理解和总结。  部分内容摘录了几个博友的文章，最后会给出文章链接，感谢他们的精彩分析。  会从以下几个方面介绍：  为什么需要索引 索引的类别 MySQL索引演化 MySQL索引优化 HBase介绍 HBase存储结构 HBase索引介绍 业务需求及设计  准">
+<meta name="twitter:image" content="http://oc3r3rke2.bkt.clouddn.com/15273022279290.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://qqdong.github.io/2018/05/26/理解索引（上）/"/>
+
+
+
+
+
+  <title>理解索引（上） | 情情说</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?e7e93bfed4e516cfa1c99cde191477e5";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">情情说</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">记录工作、学习和生活</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/05/26/理解索引（上）/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="calm">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/head.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="情情说">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">理解索引（上）</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-26T22:00:00+08:00">
+                2018-05-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/数据库/" itemprop="url" rel="index">
+                    <span itemprop="name">数据库</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>最近有个需求，要修改现有存储结构，涉及查询条件和查询效率的考量，看了几篇索引和HBase相关的文章，回忆了相关知识，结合项目需求，说说自己的理解和总结。</p>
+<blockquote>
+<p>部分内容摘录了几个博友的文章，最后会给出文章链接，感谢他们的精彩分析。</p>
+</blockquote>
+<p>会从以下几个方面介绍：</p>
+<ul>
+<li>为什么需要索引</li>
+<li>索引的类别</li>
+<li>MySQL索引演化</li>
+<li>MySQL索引优化</li>
+<li>HBase介绍</li>
+<li>HBase存储结构</li>
+<li>HBase索引介绍</li>
+<li>业务需求及设计</li>
+</ul>
+<p>准备分3篇文章介绍，这篇主要介绍前3小节，理解我们常常说的MySQL索引，第2篇重点介绍索引分析方法和常见索引优化，第3篇介绍下业务中使用的HBase。</p>
+<h4 id="为什么需要索引"><a href="#为什么需要索引" class="headerlink" title="为什么需要索引"></a>为什么需要索引</h4><p>总体来说，索引是为了提高查询速度的，当数据量比较大时，从头到尾依次检索是无法接受的。另外，存储的数据会包含多个属性来描述业务实体，属性可以连续或分开存储，分别对应到MySQL和HBase。</p>
+<p>以MySQL为例，学生这个实体有学号、姓名、性别、所属班级等属性，一般还有个主键ID，现在有个需求：查询学号为002的学生姓名。</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15273022279290.jpg" alt="学生实体"></p>
+<p>数据是存储在磁盘上的，操作系统读取磁盘的最小单位是块，如果没有索引，会加载所有的数据到内存，依次进行检索，加载的总数据会很多，磁盘IO多。</p>
+<p>如果有了索引，会以学号为key创建索引，MySQL采用B+树结构存储，一方面加载的数据只有学号和主键ID，另一方便采用了多叉平衡树，定位到指定学号会很快，根据关联的ID可以快速定位到对应行的数据，所以检索的速度会很快，因为加载的总数据很少，磁盘IO少。</p>
+<p>可见，索引可以大大减少检索数据的范围、减少磁盘IO，使查询速度很快，因为磁盘IO是很慢的，是由它的硬件结构决定的。</p>
+<p>下面，再详细介绍下磁盘存储结构和数据定位过程，加深对索引的理解。</p>
+<a id="more"></a>
+<h5 id="硬盘存储结构"><a href="#硬盘存储结构" class="headerlink" title="硬盘存储结构"></a>硬盘存储结构</h5><p>磁盘内部结构如下：</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15273039696533.jpg" alt=""></p>
+<ul>
+<li>很多个盘片被串在一个主轴上，主轴带着他们快速的旋转； </li>
+<li>每个盘片都有很多一圈一圈的磁道，每个磁道又分为一个一个的扇区；</li>
+<li>多个盘片上的同一位置的磁道组成了一个柱面；</li>
+<li>每个盘片上都有可以读写数据的磁头；</li>
+</ul>
+<p>访问数据时，可以说：把1柱面，1磁头，1扇区的数据取出来？</p>
+<p>磁盘会把1磁头挪到1柱面，就是对应的磁道， 这叫“寻道时间”，然后再旋转磁盘，让磁头指向1扇区，开始读取数据，这叫“旋转时间”，转速快的硬盘能更快的旋转到特定扇区，所以性能会更好。</p>
+<p>结构比较复杂，但操作系统给封装了，提供了一个叫做逻辑块的方式，你看到磁盘就是有一个个“块”组成的，编号为1, 2, 3, ..n，把指定的块转化成柱面，磁头，扇区， 按照上面说的方法寻道，旋转，读取数据。</p>
+<p>为了方便我们操作，操作系统又进一步抽象，抽象成了文件，由文件系统去保存和读取数据，我们只需要与文件打交道，文件使用inode结构，通过它可以轻松的找到这个文件所使用的所有磁盘块。</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15273048516010.jpg" alt="inode"></p>
+<blockquote>
+<p>扇区是对硬盘而言，块是对文件系统而言，块是文件存取的最小单位，一般一个块由连续的几个扇区组成。</p>
+</blockquote>
+<p>一个表的数据块以链表的方式串联在一起，数据以行为单位一行一行的存放在磁盘的块中。</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15273104418397.jpg" alt="表在磁盘的存储"></p>
+<h5 id="数据定位过程"><a href="#数据定位过程" class="headerlink" title="数据定位过程"></a>数据定位过程</h5><p>以MySQL的B+树为例，简单说下几种常见场景下，数据的定位过程。</p>
+<p>第一种场景：索引精确查找 </p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> user_info <span class="keyword">where</span> <span class="keyword">id</span> = <span class="number">23</span> ;</span><br></pre></td></tr></table></figure>
+<p>确定定位条件, 找到根节点Page No, 根节点读到内存, 逐层向下查找, 读取叶子节点Page,通过 二分查找找到记录或未命中。</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15273073110433.jpg" alt="索引精确查找"></p>
+<p>第二种场景：索引范围查找</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> user_info <span class="keyword">where</span> <span class="keyword">id</span> &gt;= <span class="number">18</span> <span class="keyword">and</span> <span class="keyword">id</span> &lt; <span class="number">22</span> ;</span><br></pre></td></tr></table></figure>
+<p>读取根节点至内存, 确定索引定位条件id=18, 找到满足条件第一个叶节点, 顺序扫描所有结果, 直到终止条件满足id &gt;=22。</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15273079713353.jpg" alt="索引范围查找"></p>
+<p>第三种场景：全表扫描</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> user_info <span class="keyword">where</span> <span class="keyword">name</span> = <span class="string">'abc'</span> ;</span><br></pre></td></tr></table></figure>
+<p>直接读取叶节点头结点， 顺序扫描， 返回符合条件记录， 到最终节点结束</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15273084943912.jpg" alt="全表扫描"></p>
+<p>第四中场景：二级索引查找</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> table_x(<span class="built_in">int</span> <span class="keyword">id</span> primary <span class="keyword">key</span>, <span class="built_in">varchar</span>(<span class="number">64</span>) <span class="keyword">name</span> , <span class="keyword">key</span> sec_index(<span class="keyword">name</span>) ) ;</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> table_x <span class="keyword">where</span> <span class="keyword">name</span> = <span class="string">'d'</span> ;</span><br></pre></td></tr></table></figure>
+<p>通过二级索引查出对应主键，拿主键回表查主键索引得到数据， 二级索引可筛选掉大量无效记录，提高效率</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15273085387564.jpg" alt="二级索引查找"></p>
+<h4 id="索引的类别"><a href="#索引的类别" class="headerlink" title="索引的类别"></a>索引的类别</h4><p>上面介绍了索引的优点和数据的定位过程，对其有了整体了解，另外，索引有不同种类和不同的实现方式，这节重点梳理下这些概念。</p>
+<h5 id="聚簇索引与非聚簇索引"><a href="#聚簇索引与非聚簇索引" class="headerlink" title="聚簇索引与非聚簇索引"></a>聚簇索引与非聚簇索引</h5><p>简单来说，聚集索引是一种索引组织形式，索引的键值逻辑顺序决定了表数据行的物理存储顺序，而非聚集索引则就是普通索引了，仅仅只是对数据列创建相应的索引，不影响整个表的物理存储顺序。</p>
+<p>聚簇索引的优点有：</p>
+<ul>
+<li>范围查询效率更高；</li>
+<li>特别适合有一小部分热点数据频繁读写的场景；</li>
+<li>通过主键访问数据时快速可达；</li>
+</ul>
+<p>InnoDB引擎是聚集索引组织表，它的聚集索引选择规则是这样的：</p>
+<ul>
+<li>首先选择显式定义的主键索引做为聚集索引；</li>
+<li>如果没有，则选择第一个不允许NULL的唯一索引；</li>
+<li>还是没有的话，就采用InnoDB引擎内置的ROWID作为聚集索引；</li>
+</ul>
+<h5 id="主键索引和辅助索引"><a href="#主键索引和辅助索引" class="headerlink" title="主键索引和辅助索引"></a>主键索引和辅助索引</h5><p>主键索引，简称主键，由一个或多个列组成，用于唯一性标识数据表中的某一条记录。</p>
+<p>InnoDB数据表的主键设计通常遵循几个原则：</p>
+<ul>
+<li>采用一个没有业务用途的自增属性列作为主键；</li>
+<li>主键字段值总是不更新，只有新增或者删除两种操作；</li>
+<li>不选择会动态更新的类型，比如当前时间戳等；</li>
+</ul>
+<p>辅助索引，常规所指的索引，也叫二级索引，又分为唯一索引和非唯一索引。</p>
+<p>InnoDB引擎中，主键索引会被选中作为聚集索引，而唯一索引和普通辅助索引间除了唯一性约束外，在存储上没本质区别。</p>
+<h4 id="MySQL索引演化"><a href="#MySQL索引演化" class="headerlink" title="MySQL索引演化"></a>MySQL索引演化</h4><p>本小节主要介绍索引是如何根据需求一步步演变最终成为B+树结构，基本思路是减少访问数据的总量，相应的减少磁盘IO。</p>
+<h5 id="密集索引（Dense-Index-）"><a href="#密集索引（Dense-Index-）" class="headerlink" title="密集索引（Dense Index ）"></a>密集索引（Dense Index ）</h5><p>根据减少无效数据访问的原则，我们将键的值拿过来存放到独立的块中。并且为每一个键值添加一个指针， 指向原来的数据块。</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15273108499902.jpg" alt="密集索引"></p>
+<p>当进行定位操作时，不再进行表扫描。而是进行索引扫描(Index Scan)，依次读出所有的索引块，进行键值的匹配，这样带来的问题是需要很多空间来存储Dense索引。另外索引的定位效率也比较低，可以通过排序和查找算法来减少IO的访问。</p>
+<p>假设一个块中能存储100行数据，10,000,000行的数据需要100,000个块的存储空间。假设键值列（+指针）占用一行数据1/10的空间。那么大约需要10,000个块来存储Dense索引。因此我们用大约1/10的额外存储空间换来了大约全表扫描10倍的定位效率。</p>
+<h5 id="折半块查找"><a href="#折半块查找" class="headerlink" title="折半块查找"></a>折半块查找</h5><p>需要对Dense进行索引，每个索引块内是有序的，另外，需要一个数组按顺序存储索引块地址，这样整体就有序了，数组也要存储到磁盘上，放在单独的块链中。</p>
+<p>折半查找的时间复杂度是O(log2(N))，在上面的列子中，dense索引总共有10,000个块。假设1个块能存储2000个指针，需要5个块来存储这个数组。通过折半块查找，我们最多只需要读取5（数组块）+ 14（索引块log 2(10000)）+1（数据块）=20个块。</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15273127236653.jpg" alt="折半块查找"></p>
+<p>从图中可以看到，相对于密集索引，编号是有序的。</p>
+<h5 id="稀疏索引（Sparse-Index）"><a href="#稀疏索引（Sparse-Index）" class="headerlink" title="稀疏索引（Sparse Index）"></a>稀疏索引（Sparse Index）</h5><p>介绍基于块的折半查找时发现，读出每个块后只需要和第一行的键值匹配，就可以决定下一个块的位置（方向）。 因此有效数据是每个块的第一行数据，将每一个块的第一行的数据单独拿出来，和索引数组的地址放到一起。这样就可以直接在这个数组上进行折半查找了，这个数组就进化成了Sparse Index了。</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15273127522473.jpg" alt="稀疏索引"></p>
+<p>需要10个块来存储10000个Dense Index块的地址和首行键值，通过Sparse索引，仅需要读取10(Sparse块)+1(Dense块)+1(数据块)=12个块。</p>
+<h5 id="多层稀疏索引"><a href="#多层稀疏索引" class="headerlink" title="多层稀疏索引"></a>多层稀疏索引</h5><p>因为Sparse Index本身是有序的，所以可以为Sparse Index再建sparse Index。通过这个方法，一层一层的建立 Sparse Indexes,直到最上层的Sparse Index只占用一个块为止。</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15273130868585.jpg" alt="多层稀疏索引"></p>
+<p>这个例子中，Sparse Index只有10个块，只需要再建立一个Sparse Index.通过两层Sparse Index和一层Dense Index查找时，只需读取1+1+1+1=4个块。</p>
+<p>如果数据本身是基于某个Key来排序的，那么可以直接在数据上建立sparse索引，而不需要建立一个dense索引层(可以认为数据就是dense索引层)，这就是说的聚集索引。</p>
+<h5 id="B-树"><a href="#B-树" class="headerlink" title="B+树"></a>B+树</h5><p>由于键值是有序的，因此可以进行范围查找。只需要将数据块、Dense Index块分别以双向链表的方式进行连接， 就可以实现高效的范围查找。如下图所示：</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15273135384674.jpg" alt="范围索引"></p>
+<p>这就是我们常说的B+ Tree，倒过来看下：</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15273136161769.jpg" alt="B+树"></p>
+<p>最后总结下它的特点：</p>
+<ul>
+<li>每次进行定位操作时，都从根开始查找；</li>
+<li>每层索引只需要读出一个块；</li>
+<li>最底层的Dense Index或数据称作叶子(leaf)；</li>
+<li>每次查找都必须要搜索到叶子节点，才能定位到数据；</li>
+<li>索引的层数称作索引树的高度(height)；</li>
+<li>索引的IO性能和索引树的高度密切相关，索引树越高，磁盘IO越多；</li>
+<li>进行范围查找时，效率很高；</li>
+</ul>
+<p>参考文章：</p>
+<ol>
+<li><a href="https://www.jianshu.com/p/486a514b0ded" target="_blank" rel="noopener">MYSQL-B+TREE索引原理</a></li>
+<li><a href="https://mp.weixin.qq.com/s?__biz=MzAxOTc0NzExNg==&amp;mid=2665513289&amp;idx=1&amp;sn=ab19dcad7b1dc217463f155fe106091a&amp;mpshare=1&amp;scene=24&amp;srcid=0521qrlt4tJxX3exgNXRFGun&amp;key=48dc650689b02c28821e2426674cae7c4876e382181d02650fefe68aa43f5d83698f58798e2320970b29f4b607971d73a7feecc67597d369e9c69bc0f0d4942a29efb4c5c111302834e85f56629fbe69&amp;ascene=0&amp;uin=MjA1ODI1MTE0MA%3D%3D&amp;devicetype=iMac+MacBookPro11%2C1+OSX+OSX+10.12.5+build16F73" target="_blank" rel="noopener">我是一块硬盘</a></li>
+<li><a href="http://imysql.com/2015/10/29/mysql-faq-clustered-index.shtml" target="_blank" rel="noopener">FAQ系列 | MySQL索引之聚集索引</a></li>
+<li><a href="https://blog.csdn.net/idber/article/details/8109522/" target="_blank" rel="noopener">由浅入深理解索引的实现</a></li>
+</ol>
+<p><strong><font color="green">欢迎扫描下方二维码，关注我的个人微信公众号，查看更多文章</font> ~</strong></p>
+<p><div align="center"><br><img src="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="情情说"></div></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/索引/" rel="tag"># 索引</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/05/20/Spring技术内幕：设计理念和整体架构概述/" rel="next" title="Spring技术内幕：设计理念和整体架构概述">
+                <i class="fa fa-chevron-left"></i> Spring技术内幕：设计理念和整体架构概述
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        
+<script>
+  with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='//bdimg.share.baidu.com/static/api/js/share.js?cdnversion='+~(-new Date()/36e5)];
+</script>
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zNjE2Mi8xMjY5Nw=="></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/head.png"
+                alt="calm" />
+            
+              <p class="site-author-name" itemprop="name">calm</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">47</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">13</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">25</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#为什么需要索引"><span class="nav-number">1.</span> <span class="nav-text">为什么需要索引</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#硬盘存储结构"><span class="nav-number">1.1.</span> <span class="nav-text">硬盘存储结构</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#数据定位过程"><span class="nav-number">1.2.</span> <span class="nav-text">数据定位过程</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#索引的类别"><span class="nav-number">2.</span> <span class="nav-text">索引的类别</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#聚簇索引与非聚簇索引"><span class="nav-number">2.1.</span> <span class="nav-text">聚簇索引与非聚簇索引</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#主键索引和辅助索引"><span class="nav-number">2.2.</span> <span class="nav-text">主键索引和辅助索引</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#MySQL索引演化"><span class="nav-number">3.</span> <span class="nav-text">MySQL索引演化</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#密集索引（Dense-Index-）"><span class="nav-number">3.1.</span> <span class="nav-text">密集索引（Dense Index ）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#折半块查找"><span class="nav-number">3.2.</span> <span class="nav-text">折半块查找</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#稀疏索引（Sparse-Index）"><span class="nav-number">3.3.</span> <span class="nav-text">稀疏索引（Sparse Index）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#多层稀疏索引"><span class="nav-number">3.4.</span> <span class="nav-text">多层稀疏索引</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#B-树"><span class="nav-number">3.5.</span> <span class="nav-text">B+树</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">calm</span>
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

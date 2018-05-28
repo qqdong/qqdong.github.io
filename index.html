@@ -272,6 +272,334 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/05/26/理解索引（上）/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="calm">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/head.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="情情说">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/05/26/理解索引（上）/" itemprop="url">理解索引（上）</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-26T22:00:00+08:00">
+                2018-05-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/数据库/" itemprop="url" rel="index">
+                    <span itemprop="name">数据库</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>最近有个需求，要修改现有存储结构，涉及查询条件和查询效率的考量，看了几篇索引和HBase相关的文章，回忆了相关知识，结合项目需求，说说自己的理解和总结。</p>
+<blockquote>
+<p>部分内容摘录了几个博友的文章，最后会给出文章链接，感谢他们的精彩分析。</p>
+</blockquote>
+<p>会从以下几个方面介绍：</p>
+<ul>
+<li>为什么需要索引</li>
+<li>索引的类别</li>
+<li>MySQL索引演化</li>
+<li>MySQL索引优化</li>
+<li>HBase介绍</li>
+<li>HBase存储结构</li>
+<li>HBase索引介绍</li>
+<li>业务需求及设计</li>
+</ul>
+<p>准备分3篇文章介绍，这篇主要介绍前3小节，理解我们常常说的MySQL索引，第2篇重点介绍索引分析方法和常见索引优化，第3篇介绍下业务中使用的HBase。</p>
+<h4 id="为什么需要索引"><a href="#为什么需要索引" class="headerlink" title="为什么需要索引"></a>为什么需要索引</h4><p>总体来说，索引是为了提高查询速度的，当数据量比较大时，从头到尾依次检索是无法接受的。另外，存储的数据会包含多个属性来描述业务实体，属性可以连续或分开存储，分别对应到MySQL和HBase。</p>
+<p>以MySQL为例，学生这个实体有学号、姓名、性别、所属班级等属性，一般还有个主键ID，现在有个需求：查询学号为002的学生姓名。</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15273022279290.jpg" alt="学生实体"></p>
+<p>数据是存储在磁盘上的，操作系统读取磁盘的最小单位是块，如果没有索引，会加载所有的数据到内存，依次进行检索，加载的总数据会很多，磁盘IO多。</p>
+<p>如果有了索引，会以学号为key创建索引，MySQL采用B+树结构存储，一方面加载的数据只有学号和主键ID，另一方便采用了多叉平衡树，定位到指定学号会很快，根据关联的ID可以快速定位到对应行的数据，所以检索的速度会很快，因为加载的总数据很少，磁盘IO少。</p>
+<p>可见，索引可以大大减少检索数据的范围、减少磁盘IO，使查询速度很快，因为磁盘IO是很慢的，是由它的硬件结构决定的。</p>
+<p>下面，再详细介绍下磁盘存储结构和数据定位过程，加深对索引的理解。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018/05/26/理解索引（上）/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/05/20/Spring技术内幕：设计理念和整体架构概述/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="calm">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/head.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="情情说">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/05/20/Spring技术内幕：设计理念和整体架构概述/" itemprop="url">Spring技术内幕：设计理念和整体架构概述</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-20T22:00:00+08:00">
+                2018-05-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/spring/" itemprop="url" rel="index">
+                    <span itemprop="name">spring</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>程序员都很崇拜技术大神，很大一部分是因为他们发现和解决问题的能力，特别是线上出现紧急问题时，总是能够快速定位和解决。</p>
+<p>一方面，他们有深厚的技术基础，对应用的技术知其所以然，另一方面，在采坑的过程中不断总结，积累了很多经验。</p>
+<p>相信大家都使用过Spring，有些人了解它的核心：IOC和AOP，但只是了解它们的基本概念、使用了反射和动态代理，关于如何管理对象、代理的具体实现了解的比较浅。</p>
+<p>有些人使用Spring MVC，使用Spring集成数据库、事务、消息队列以简化操作，但对集成的具体设计思路和实现了解的也比较浅。</p>
+<p>我也这一块也比较菜，所以，后面的一段时间会梳理和总结Spring相关的技术原理，以「Spring技术内幕：深入解析Spring架构与设计原理」书籍为核心，结合自己的使用经验和疑问，以及网络上大牛的文章，来补足自己这方面的缺失。</p>
+<blockquote>
+<p>这本书作者是计文柯，以Spring源代码为依托，从宏观上揭示了Spring的设计思路和架构思想，从微观上剖析了Spring各功能模块的实现原理和运行机制。一方面希望读者能通过深入了解Spring的底层机制来更好地解决实际开发中遇到的各种难题，另一方面是希望读者能吸收Spring设计和实现中的优秀方法和思想。</p>
+</blockquote>
+<p>全书共三部分，分别阐述了Spring的核心、组件和应用。第一部分详细分析了IOC容器和AOP实现，第二部分阐述了基于Spring IOC容器和AOP的Java EE组件在Spring中的实现，第三部分讲述了一些基于Spring的典型应用的实现。</p>
+<p>本篇先对设计理念和整体架构做个概述，从整体上看看Spring的设计目标和架构，通过本篇，你会了解到：</p>
+<ul>
+<li>Spring的设计目标</li>
+<li>Spring的整体架构</li>
+<li>Spring的各个子项目介绍</li>
+</ul>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018/05/20/Spring技术内幕：设计理念和整体架构概述/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/05/19/项目管理全过程最佳实践（下）/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1516,325 +1844,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/04/21/让数据传输更安全/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="calm">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/head.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="情情说">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/04/21/让数据传输更安全/" itemprop="url">让数据传输更安全</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-21T22:00:00+08:00">
-                2018-04-21
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/安全/" itemprop="url" rel="index">
-                    <span itemprop="name">安全</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>在阅读RabbitMQ数据传输安全的章节时，提到了ssl协议，用了很大篇幅介绍使用openssl生成一些列秘钥和证书，如果没有相关基础，会不太好理解，本篇就来总结下数据安全相关的概念以及浏览器HTTPS的应用。</p>
-<p>通过介绍，你会了解到：</p>
-<ul>
-<li>数据安全的基本概念</li>
-<li>加密算法</li>
-<li>数字证书和证书机构</li>
-<li>ssl和openssl基本介绍</li>
-<li>https应用</li>
-</ul>
-<h4 id="数据安全的基本概念"><a href="#数据安全的基本概念" class="headerlink" title="数据安全的基本概念"></a>数据安全的基本概念</h4><p>数据要在网络中传输，就会存在安全问题，因为任何人都可以获得你发送的数据包，从而获得你的数据，需要对数据进行加密，对于数据发送者，也可能被伪造，需要对双方身份做验证，另外，数据的完整性也需要考虑。</p>
-<p><img src="http://oc3r3rke2.bkt.clouddn.com/15242963891613.jpg" alt="数据安全的问题"></p>
-<p>总结下安全的定义：</p>
-<ul>
-<li>保密性：只有自己和允许的人能看到或看懂数据；</li>
-<li>完整性：数据没有被破坏或篡改；</li>
-<li>可信任性：确保消息是对方发的，不是伪造者发的；</li>
-</ul>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2018/04/21/让数据传输更安全/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/04/14/RabbitMQ实战：界面管理和监控/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="calm">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/head.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="情情说">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/04/14/RabbitMQ实战：界面管理和监控/" itemprop="url">RabbitMQ实战：界面管理和监控</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-14T22:00:00+08:00">
-                2018-04-14
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/消息队列/" itemprop="url" rel="index">
-                    <span itemprop="name">消息队列</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <blockquote>
-<p>本系列是「RabbitMQ实战：高效部署分布式消息队列」书籍的总结笔记。</p>
-</blockquote>
-<p>上一篇总结了可能出现的异常场景，并对RabbitMQ提供的可用性保证进行了分析，在出现服务器宕机后，仍然可以正常服务。另外，需要尽快恢复异常的服务器，重新加入集群，推送未消费的消息，通过监控可第一时间接收到错误并进行处理。</p>
-<p>另外，我们想主动了解消息堆积和消费的情况，以及服务器节点的压力，RabbitMQ提供了几种方式便捷、直观的了解，包括Web管理插件、REST API、rabbitmqadmin脚本。</p>
-<p>通过介绍，你会了解到：</p>
-<ul>
-<li>web管理插件</li>
-<li>REST API</li>
-<li>rabbitmqadmin脚本</li>
-<li>Nagios和监控RabbitMQ</li>
-</ul>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2018/04/14/RabbitMQ实战：界面管理和监控/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1889,7 +1898,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">45</span>
+                  <span class="site-state-item-count">47</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -1900,7 +1909,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">12</span>
+                  <span class="site-state-item-count">13</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -1911,7 +1920,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">23</span>
+                  <span class="site-state-item-count">25</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>

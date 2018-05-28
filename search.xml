@@ -4,6 +4,261 @@
   
     
     <entry>
+      <title><![CDATA[理解索引（上）]]></title>
+      <url>https://qqdong.github.io/2018/05/26/%E7%90%86%E8%A7%A3%E7%B4%A2%E5%BC%95%EF%BC%88%E4%B8%8A%EF%BC%89/</url>
+      <content type="html"><![CDATA[<p>最近有个需求，要修改现有存储结构，涉及查询条件和查询效率的考量，看了几篇索引和HBase相关的文章，回忆了相关知识，结合项目需求，说说自己的理解和总结。</p>
+<blockquote>
+<p>部分内容摘录了几个博友的文章，最后会给出文章链接，感谢他们的精彩分析。</p>
+</blockquote>
+<p>会从以下几个方面介绍：</p>
+<ul>
+<li>为什么需要索引</li>
+<li>索引的类别</li>
+<li>MySQL索引演化</li>
+<li>MySQL索引优化</li>
+<li>HBase介绍</li>
+<li>HBase存储结构</li>
+<li>HBase索引介绍</li>
+<li>业务需求及设计</li>
+</ul>
+<p>准备分3篇文章介绍，这篇主要介绍前3小节，理解我们常常说的MySQL索引，第2篇重点介绍索引分析方法和常见索引优化，第3篇介绍下业务中使用的HBase。</p>
+<h4 id="为什么需要索引"><a href="#为什么需要索引" class="headerlink" title="为什么需要索引"></a>为什么需要索引</h4><p>总体来说，索引是为了提高查询速度的，当数据量比较大时，从头到尾依次检索是无法接受的。另外，存储的数据会包含多个属性来描述业务实体，属性可以连续或分开存储，分别对应到MySQL和HBase。</p>
+<p>以MySQL为例，学生这个实体有学号、姓名、性别、所属班级等属性，一般还有个主键ID，现在有个需求：查询学号为002的学生姓名。</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15273022279290.jpg" alt="学生实体"></p>
+<p>数据是存储在磁盘上的，操作系统读取磁盘的最小单位是块，如果没有索引，会加载所有的数据到内存，依次进行检索，加载的总数据会很多，磁盘IO多。</p>
+<p>如果有了索引，会以学号为key创建索引，MySQL采用B+树结构存储，一方面加载的数据只有学号和主键ID，另一方便采用了多叉平衡树，定位到指定学号会很快，根据关联的ID可以快速定位到对应行的数据，所以检索的速度会很快，因为加载的总数据很少，磁盘IO少。</p>
+<p>可见，索引可以大大减少检索数据的范围、减少磁盘IO，使查询速度很快，因为磁盘IO是很慢的，是由它的硬件结构决定的。</p>
+<p>下面，再详细介绍下磁盘存储结构和数据定位过程，加深对索引的理解。</p>
+<a id="more"></a>
+<h5 id="硬盘存储结构"><a href="#硬盘存储结构" class="headerlink" title="硬盘存储结构"></a>硬盘存储结构</h5><p>磁盘内部结构如下：</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15273039696533.jpg" alt=""></p>
+<ul>
+<li>很多个盘片被串在一个主轴上，主轴带着他们快速的旋转； </li>
+<li>每个盘片都有很多一圈一圈的磁道，每个磁道又分为一个一个的扇区；</li>
+<li>多个盘片上的同一位置的磁道组成了一个柱面；</li>
+<li>每个盘片上都有可以读写数据的磁头；</li>
+</ul>
+<p>访问数据时，可以说：把1柱面，1磁头，1扇区的数据取出来？</p>
+<p>磁盘会把1磁头挪到1柱面，就是对应的磁道， 这叫“寻道时间”，然后再旋转磁盘，让磁头指向1扇区，开始读取数据，这叫“旋转时间”，转速快的硬盘能更快的旋转到特定扇区，所以性能会更好。</p>
+<p>结构比较复杂，但操作系统给封装了，提供了一个叫做逻辑块的方式，你看到磁盘就是有一个个“块”组成的，编号为1, 2, 3, ..n，把指定的块转化成柱面，磁头，扇区， 按照上面说的方法寻道，旋转，读取数据。</p>
+<p>为了方便我们操作，操作系统又进一步抽象，抽象成了文件，由文件系统去保存和读取数据，我们只需要与文件打交道，文件使用inode结构，通过它可以轻松的找到这个文件所使用的所有磁盘块。</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15273048516010.jpg" alt="inode"></p>
+<blockquote>
+<p>扇区是对硬盘而言，块是对文件系统而言，块是文件存取的最小单位，一般一个块由连续的几个扇区组成。</p>
+</blockquote>
+<p>一个表的数据块以链表的方式串联在一起，数据以行为单位一行一行的存放在磁盘的块中。</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15273104418397.jpg" alt="表在磁盘的存储"></p>
+<h5 id="数据定位过程"><a href="#数据定位过程" class="headerlink" title="数据定位过程"></a>数据定位过程</h5><p>以MySQL的B+树为例，简单说下几种常见场景下，数据的定位过程。</p>
+<p>第一种场景：索引精确查找 </p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> user_info <span class="keyword">where</span> <span class="keyword">id</span> = <span class="number">23</span> ;</span><br></pre></td></tr></table></figure>
+<p>确定定位条件, 找到根节点Page No, 根节点读到内存, 逐层向下查找, 读取叶子节点Page,通过 二分查找找到记录或未命中。</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15273073110433.jpg" alt="索引精确查找"></p>
+<p>第二种场景：索引范围查找</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> user_info <span class="keyword">where</span> <span class="keyword">id</span> &gt;= <span class="number">18</span> <span class="keyword">and</span> <span class="keyword">id</span> &lt; <span class="number">22</span> ;</span><br></pre></td></tr></table></figure>
+<p>读取根节点至内存, 确定索引定位条件id=18, 找到满足条件第一个叶节点, 顺序扫描所有结果, 直到终止条件满足id &gt;=22。</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15273079713353.jpg" alt="索引范围查找"></p>
+<p>第三种场景：全表扫描</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> user_info <span class="keyword">where</span> <span class="keyword">name</span> = <span class="string">'abc'</span> ;</span><br></pre></td></tr></table></figure>
+<p>直接读取叶节点头结点， 顺序扫描， 返回符合条件记录， 到最终节点结束</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15273084943912.jpg" alt="全表扫描"></p>
+<p>第四中场景：二级索引查找</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> table_x(<span class="built_in">int</span> <span class="keyword">id</span> primary <span class="keyword">key</span>, <span class="built_in">varchar</span>(<span class="number">64</span>) <span class="keyword">name</span> , <span class="keyword">key</span> sec_index(<span class="keyword">name</span>) ) ;</span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> table_x <span class="keyword">where</span> <span class="keyword">name</span> = <span class="string">'d'</span> ;</span><br></pre></td></tr></table></figure>
+<p>通过二级索引查出对应主键，拿主键回表查主键索引得到数据， 二级索引可筛选掉大量无效记录，提高效率</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15273085387564.jpg" alt="二级索引查找"></p>
+<h4 id="索引的类别"><a href="#索引的类别" class="headerlink" title="索引的类别"></a>索引的类别</h4><p>上面介绍了索引的优点和数据的定位过程，对其有了整体了解，另外，索引有不同种类和不同的实现方式，这节重点梳理下这些概念。</p>
+<h5 id="聚簇索引与非聚簇索引"><a href="#聚簇索引与非聚簇索引" class="headerlink" title="聚簇索引与非聚簇索引"></a>聚簇索引与非聚簇索引</h5><p>简单来说，聚集索引是一种索引组织形式，索引的键值逻辑顺序决定了表数据行的物理存储顺序，而非聚集索引则就是普通索引了，仅仅只是对数据列创建相应的索引，不影响整个表的物理存储顺序。</p>
+<p>聚簇索引的优点有：</p>
+<ul>
+<li>范围查询效率更高；</li>
+<li>特别适合有一小部分热点数据频繁读写的场景；</li>
+<li>通过主键访问数据时快速可达；</li>
+</ul>
+<p>InnoDB引擎是聚集索引组织表，它的聚集索引选择规则是这样的：</p>
+<ul>
+<li>首先选择显式定义的主键索引做为聚集索引；</li>
+<li>如果没有，则选择第一个不允许NULL的唯一索引；</li>
+<li>还是没有的话，就采用InnoDB引擎内置的ROWID作为聚集索引；</li>
+</ul>
+<h5 id="主键索引和辅助索引"><a href="#主键索引和辅助索引" class="headerlink" title="主键索引和辅助索引"></a>主键索引和辅助索引</h5><p>主键索引，简称主键，由一个或多个列组成，用于唯一性标识数据表中的某一条记录。</p>
+<p>InnoDB数据表的主键设计通常遵循几个原则：</p>
+<ul>
+<li>采用一个没有业务用途的自增属性列作为主键；</li>
+<li>主键字段值总是不更新，只有新增或者删除两种操作；</li>
+<li>不选择会动态更新的类型，比如当前时间戳等；</li>
+</ul>
+<p>辅助索引，常规所指的索引，也叫二级索引，又分为唯一索引和非唯一索引。</p>
+<p>InnoDB引擎中，主键索引会被选中作为聚集索引，而唯一索引和普通辅助索引间除了唯一性约束外，在存储上没本质区别。</p>
+<h4 id="MySQL索引演化"><a href="#MySQL索引演化" class="headerlink" title="MySQL索引演化"></a>MySQL索引演化</h4><p>本小节主要介绍索引是如何根据需求一步步演变最终成为B+树结构，基本思路是减少访问数据的总量，相应的减少磁盘IO。</p>
+<h5 id="密集索引（Dense-Index-）"><a href="#密集索引（Dense-Index-）" class="headerlink" title="密集索引（Dense Index ）"></a>密集索引（Dense Index ）</h5><p>根据减少无效数据访问的原则，我们将键的值拿过来存放到独立的块中。并且为每一个键值添加一个指针， 指向原来的数据块。</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15273108499902.jpg" alt="密集索引"></p>
+<p>当进行定位操作时，不再进行表扫描。而是进行索引扫描(Index Scan)，依次读出所有的索引块，进行键值的匹配，这样带来的问题是需要很多空间来存储Dense索引。另外索引的定位效率也比较低，可以通过排序和查找算法来减少IO的访问。</p>
+<p>假设一个块中能存储100行数据，10,000,000行的数据需要100,000个块的存储空间。假设键值列（+指针）占用一行数据1/10的空间。那么大约需要10,000个块来存储Dense索引。因此我们用大约1/10的额外存储空间换来了大约全表扫描10倍的定位效率。</p>
+<h5 id="折半块查找"><a href="#折半块查找" class="headerlink" title="折半块查找"></a>折半块查找</h5><p>需要对Dense进行索引，每个索引块内是有序的，另外，需要一个数组按顺序存储索引块地址，这样整体就有序了，数组也要存储到磁盘上，放在单独的块链中。</p>
+<p>折半查找的时间复杂度是O(log2(N))，在上面的列子中，dense索引总共有10,000个块。假设1个块能存储2000个指针，需要5个块来存储这个数组。通过折半块查找，我们最多只需要读取5（数组块）+ 14（索引块log 2(10000)）+1（数据块）=20个块。</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15273127236653.jpg" alt="折半块查找"></p>
+<p>从图中可以看到，相对于密集索引，编号是有序的。</p>
+<h5 id="稀疏索引（Sparse-Index）"><a href="#稀疏索引（Sparse-Index）" class="headerlink" title="稀疏索引（Sparse Index）"></a>稀疏索引（Sparse Index）</h5><p>介绍基于块的折半查找时发现，读出每个块后只需要和第一行的键值匹配，就可以决定下一个块的位置（方向）。 因此有效数据是每个块的第一行数据，将每一个块的第一行的数据单独拿出来，和索引数组的地址放到一起。这样就可以直接在这个数组上进行折半查找了，这个数组就进化成了Sparse Index了。</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15273127522473.jpg" alt="稀疏索引"></p>
+<p>需要10个块来存储10000个Dense Index块的地址和首行键值，通过Sparse索引，仅需要读取10(Sparse块)+1(Dense块)+1(数据块)=12个块。</p>
+<h5 id="多层稀疏索引"><a href="#多层稀疏索引" class="headerlink" title="多层稀疏索引"></a>多层稀疏索引</h5><p>因为Sparse Index本身是有序的，所以可以为Sparse Index再建sparse Index。通过这个方法，一层一层的建立 Sparse Indexes,直到最上层的Sparse Index只占用一个块为止。</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15273130868585.jpg" alt="多层稀疏索引"></p>
+<p>这个例子中，Sparse Index只有10个块，只需要再建立一个Sparse Index.通过两层Sparse Index和一层Dense Index查找时，只需读取1+1+1+1=4个块。</p>
+<p>如果数据本身是基于某个Key来排序的，那么可以直接在数据上建立sparse索引，而不需要建立一个dense索引层(可以认为数据就是dense索引层)，这就是说的聚集索引。</p>
+<h5 id="B-树"><a href="#B-树" class="headerlink" title="B+树"></a>B+树</h5><p>由于键值是有序的，因此可以进行范围查找。只需要将数据块、Dense Index块分别以双向链表的方式进行连接， 就可以实现高效的范围查找。如下图所示：</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15273135384674.jpg" alt="范围索引"></p>
+<p>这就是我们常说的B+ Tree，倒过来看下：</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15273136161769.jpg" alt="B+树"></p>
+<p>最后总结下它的特点：</p>
+<ul>
+<li>每次进行定位操作时，都从根开始查找；</li>
+<li>每层索引只需要读出一个块；</li>
+<li>最底层的Dense Index或数据称作叶子(leaf)；</li>
+<li>每次查找都必须要搜索到叶子节点，才能定位到数据；</li>
+<li>索引的层数称作索引树的高度(height)；</li>
+<li>索引的IO性能和索引树的高度密切相关，索引树越高，磁盘IO越多；</li>
+<li>进行范围查找时，效率很高；</li>
+</ul>
+<p>参考文章：</p>
+<ol>
+<li><a href="https://www.jianshu.com/p/486a514b0ded" target="_blank" rel="noopener">MYSQL-B+TREE索引原理</a></li>
+<li><a href="https://mp.weixin.qq.com/s?__biz=MzAxOTc0NzExNg==&amp;mid=2665513289&amp;idx=1&amp;sn=ab19dcad7b1dc217463f155fe106091a&amp;mpshare=1&amp;scene=24&amp;srcid=0521qrlt4tJxX3exgNXRFGun&amp;key=48dc650689b02c28821e2426674cae7c4876e382181d02650fefe68aa43f5d83698f58798e2320970b29f4b607971d73a7feecc67597d369e9c69bc0f0d4942a29efb4c5c111302834e85f56629fbe69&amp;ascene=0&amp;uin=MjA1ODI1MTE0MA%3D%3D&amp;devicetype=iMac+MacBookPro11%2C1+OSX+OSX+10.12.5+build16F73" target="_blank" rel="noopener">我是一块硬盘</a></li>
+<li><a href="http://imysql.com/2015/10/29/mysql-faq-clustered-index.shtml" target="_blank" rel="noopener">FAQ系列 | MySQL索引之聚集索引</a></li>
+<li><a href="https://blog.csdn.net/idber/article/details/8109522/" target="_blank" rel="noopener">由浅入深理解索引的实现</a></li>
+</ol>
+<p><strong><font color="green">欢迎扫描下方二维码，关注我的个人微信公众号，查看更多文章</font> ~</strong></p>
+<p><div align="center"><br><img src="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="情情说"></div></p>
+]]></content>
+      
+        <categories>
+            
+            <category> 数据库 </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> 索引 </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Spring技术内幕：设计理念和整体架构概述]]></title>
+      <url>https://qqdong.github.io/2018/05/20/Spring%E6%8A%80%E6%9C%AF%E5%86%85%E5%B9%95%EF%BC%9A%E8%AE%BE%E8%AE%A1%E7%90%86%E5%BF%B5%E5%92%8C%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84%E6%A6%82%E8%BF%B0/</url>
+      <content type="html"><![CDATA[<p>程序员都很崇拜技术大神，很大一部分是因为他们发现和解决问题的能力，特别是线上出现紧急问题时，总是能够快速定位和解决。</p>
+<p>一方面，他们有深厚的技术基础，对应用的技术知其所以然，另一方面，在采坑的过程中不断总结，积累了很多经验。</p>
+<p>相信大家都使用过Spring，有些人了解它的核心：IOC和AOP，但只是了解它们的基本概念、使用了反射和动态代理，关于如何管理对象、代理的具体实现了解的比较浅。</p>
+<p>有些人使用Spring MVC，使用Spring集成数据库、事务、消息队列以简化操作，但对集成的具体设计思路和实现了解的也比较浅。</p>
+<p>我也这一块也比较菜，所以，后面的一段时间会梳理和总结Spring相关的技术原理，以「Spring技术内幕：深入解析Spring架构与设计原理」书籍为核心，结合自己的使用经验和疑问，以及网络上大牛的文章，来补足自己这方面的缺失。</p>
+<blockquote>
+<p>这本书作者是计文柯，以Spring源代码为依托，从宏观上揭示了Spring的设计思路和架构思想，从微观上剖析了Spring各功能模块的实现原理和运行机制。一方面希望读者能通过深入了解Spring的底层机制来更好地解决实际开发中遇到的各种难题，另一方面是希望读者能吸收Spring设计和实现中的优秀方法和思想。</p>
+</blockquote>
+<p>全书共三部分，分别阐述了Spring的核心、组件和应用。第一部分详细分析了IOC容器和AOP实现，第二部分阐述了基于Spring IOC容器和AOP的Java EE组件在Spring中的实现，第三部分讲述了一些基于Spring的典型应用的实现。</p>
+<p>本篇先对设计理念和整体架构做个概述，从整体上看看Spring的设计目标和架构，通过本篇，你会了解到：</p>
+<ul>
+<li>Spring的设计目标</li>
+<li>Spring的整体架构</li>
+<li>Spring的各个子项目介绍</li>
+</ul>
+<a id="more"></a>
+<h4 id="设计目标"><a href="#设计目标" class="headerlink" title="设计目标"></a>设计目标</h4><p>简单来说，Spring的设计目标是为我们提供一个一站式的轻量级应用开发平台，抽象了应用开发中遇到的共性问题。</p>
+<p>作为平台，它考虑到了企业应用资源的使用，比如数据的持久化、数据集成、事务处理、消息中间件、分布式式计算等高效可靠处理企业数据方法的技术抽象。</p>
+<p>轻量级是相对于传统J2EE而言的，传统的J2EE开发，需要依赖按照J2EE规范实现的J2EE应用服务器，设计和实现时，需要遵循一系列的接口标准，这种开发方式耦合性高，使应用在可测试性和部署上都有影响，对技术的理解和要求相对较高。</p>
+<p>使用Spring进行开发，对开发人员比较轻量，可以使用POJO和JavaBean的开发方式，使应用面向接口开发，充分支持了面向对象的设计方法。通过IOC容器减少了直接耦合，通过AOP以动态和非侵入的方式增加了服务的功能，为灵活选取不同的服务实现提供了基础，这也是Spring的核心。</p>
+<p>开发过程中的共性问题，Spring封装成了各种组件，而且Spring通过社区，形成了一个开放的生态系统，比如Spring Security就是来源于一个社区贡献Acegi.</p>
+<h4 id="整体架构"><a href="#整体架构" class="headerlink" title="整体架构"></a>整体架构</h4><p>从总体来看，Spring分为3层，最底层是核心层，包括IOC、AOP等核心模块，中间层是封装的JavaEE服务、作为中间的驱动组件，最上层是各个应用。</p>
+<p>下图是Spring官网的一个架构图，介绍下其组成部分：</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15267878118512.png" alt="Spring Framework架构图"></p>
+<h5 id="核心容器"><a href="#核心容器" class="headerlink" title="核心容器"></a>核心容器</h5><p>由spring-core、spring-beans、spring-context、spring-context-support和spring-expression模块组成：</p>
+<p>spring-core和spring-beans提供框架的基础部分，包括IOC功能，BeanFactory是一个复杂的工厂模式的实现，将配置和特定的依赖从实际程序逻辑中解耦。</p>
+<p>context模块建立在core和beans模块的基础上，增加了对国际化的支持、事件广播、资源加载和创建上下文，ApplicationContext是context模块的重点。</p>
+<p>spring-context-support提供对常见第三个库的支持，集成到spring上下文中，比如缓存(ehcache,guava)、通信(javamail)、调度(commonj,quartz)、模板引擎等(freemarker,velocity)。</p>
+<p>spring-expression模块提供了一个强大的表达式语言用来在运行时查询和操作对象图，这种语言支持对属性值、属性参数、方法调用、数组内容存储、集合和索引、逻辑和算数操作及命名变量，并且通过名称从spring的控制反转容器中取回对象。</p>
+<h5 id="AOP和服务器工具"><a href="#AOP和服务器工具" class="headerlink" title="AOP和服务器工具"></a>AOP和服务器工具</h5><p>spring-aop模块提供面向切面编程实现，单独的spring-aspects模块提供了aspectj的集成和适用。</p>
+<p>spring-instrument提供一些类级的工具支持和ClassLoader级的实现，用于服务器。spring-instrument-tomcat针对tomcat的instrument实现。</p>
+<h5 id="消息组件"><a href="#消息组件" class="headerlink" title="消息组件"></a>消息组件</h5><p>spring框架4包含了spring-messaging模块，从spring集成项目中抽象出来，比如Messge、MessageChannel、MessageHandler及其他用来提供基于消息的基础服务。</p>
+<h5 id="数据访问-集成"><a href="#数据访问-集成" class="headerlink" title="数据访问/集成"></a>数据访问/集成</h5><p>数据访问和集成层由JDBC、ORM、OXM、JMS和事务模块组成。</p>
+<p>spring-jdbc模块提供了不需要编写冗长的JDBC代码和解析数据库厂商特有的错误代码的JDBC抽象出。</p>
+<p>spring-tx模块提供可编程和声明式事务管理。</p>
+<p>spring-orm模块提供了领先的对象关系映射API集成层，如JPA、Hibernate等。</p>
+<p>spring-oxm模块提供抽象层用于支持Object/XML maping的实现，如JAXB、XStream等。</p>
+<p>spring-jms模块包含生产和消费消息的功能，从Spring4.1开始提供集成spring-messaging模块。</p>
+<h5 id="Web"><a href="#Web" class="headerlink" title="Web"></a>Web</h5><p>Web层包含spring-web、spirng-webmvc、spring-websocket和spring-webmvc-portlet模块组成。</p>
+<p>spring-web模块提供了基本的面向web开发的集成功能，例如多文件上传、使用servert listeners和web开发应用程序上下文初始化IOC容器。也包含HTTP客户端以及spring远程访问的支持的web相关部分。</p>
+<p>spring-webmvc包含spring的model-view-controller和REST web services 实现的Web应用程序。</p>
+<p>spring-webmvc-portlet模块提供了MVC模式的portlet实现，protlet与Servlet的最大区别是请求的处理分为action和render阶段，在一个请求中，action阶段只执行一次，但render阶段可能由于用户的浏览器操作而被执行多次。</p>
+<h5 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h5><p>spring-test模块支持通过组合Junit或TestNG来进行单元测试和集成测试，提供了连续的加载ApplicationContext并且缓存这些上下文。</p>
+<h4 id="各个子项目介绍"><a href="#各个子项目介绍" class="headerlink" title="各个子项目介绍"></a>各个子项目介绍</h4><p>从配置到安全，从web应用到大数据——无论您的应用程序需要什么样的基础设施，都有一个Spring项目来帮助您构建它，Spring是模块化的设计。</p>
+<h5 id="Spring-Boot"><a href="#Spring-Boot" class="headerlink" title="Spring Boot"></a>Spring Boot</h5><p>简化新Spring应用的初始搭建以及开发过程，使用特定的方式进行配置，使开发人员不再需要定义样板化的配置，实现快速开发。</p>
+<h5 id="Spring-Cloud"><a href="#Spring-Cloud" class="headerlink" title="Spring Cloud"></a>Spring Cloud</h5><p>为分布式系统开发提供工具集，基于Spring Boot，为基于JVM的云应用开发中的配置管理、服务发现、断路器、智能路由、控制总线、全局锁、决策竞选、分布式会话、集群状态管理等操作提供了一种简单的开发方式，其下有很多子项目。</p>
+<ul>
+<li>分布式/版本化配置：Spring Cloud Config</li>
+<li>服务注册和发现：Netflix Eureka 或者 Spring Cloud Eureka（对前者的二次封装）</li>
+<li>路由：Spring Cloud Zuul，基于 Netflix Zuul</li>
+<li>service - to - service调用：Spring Cloud Feign</li>
+<li>负载均衡：Spring Cloud Ribbon 基于 Netflix Ribbon 实现</li>
+<li>断路器：Spring Cloud Hystrix</li>
+<li>分布式消息传递：Spring Cloud Bus</li>
+</ul>
+<h5 id="Spring-Cloud-Data-Flow"><a href="#Spring-Cloud-Data-Flow" class="headerlink" title="Spring Cloud Data Flow"></a>Spring Cloud Data Flow</h5><p>Data flow 是一个用于开发和执行大范围数据处理、批量运算、持续运算的统一编程模型和托管服务。</p>
+<p>Spring Cloud Data Flow 是基于原生云对Spring XD的重新设计，项目目标是简化大数据应用的开发。Spring XD的流处理和批处理模块的重构分别基于spring boot的stream和task/batch的微服务程序。这些程序原生的支持像 Apache YARN、Apache Mesos和Kubernetes等现代运行环境，都是自动部署单元。</p>
+<h5 id="Spring-Data"><a href="#Spring-Data" class="headerlink" title="Spring Data"></a>Spring Data</h5><p>数据访问模块，提供了对JDBC及ORM很好的支持，随着NOSQL和BigData的兴起，出现了越来越多的新技术，比如非关系型数据库、MapReduce框架，为了让spring开发者能更方便地使用这些新技术，通过Spring Data，开发者可以用Spring提供的相对一致的方式访问位于不同类型的数据存储中的数据。</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15268021920844.jpg" alt="Spring Data"></p>
+<h5 id="Spring-Integration"><a href="#Spring-Integration" class="headerlink" title="Spring Integration"></a>Spring Integration</h5><p>在企业软件开发过程中，经常会遇到与外部系统集成，Spring Integration为Spring编程模型提供了一个支持企业集成模式的扩展，在应用程序中提供轻量级的消息机制，通过声明式的适配器与外部系统进行集成。</p>
+<p>Spring Integraton中有几个基本的概念：</p>
+<ul>
+<li>Message：带有元数据的Java对象；</li>
+<li>Channel：传递消息的管道；</li>
+<li>Message Endpoint：消息的处理端，在处理端可以对消息进行转换、路由、过滤、拆分、聚合等操作；</li>
+</ul>
+<p>还可以使用Channel Adapter，这是应用程序与外界交互的地方，输入是Inbound、输出则是Outbound，可选的连接类型有很多，比如AMQP、JDBC、Web Services、FTP、JMS、XMPP、多种NoSQL数据库等等。只需通过简单的配置文件就能将所有这些东西串联在一起，实现复杂的集成工作。</p>
+<h5 id="Spring-Batch"><a href="#Spring-Batch" class="headerlink" title="Spring Batch"></a>Spring Batch</h5><p>简化及优化大量数据的批处理操作，支持事务、并发、流程、监控、纵向和横向扩展，提供统一的接口管理和任务管理。</p>
+<p>例如它提供了很多方法来读取大型的文件（比如1GB的CSV、XML文件），在数据库中加载或更新几万甚至几十万条记录，如果直接select出所有记录，以至于拖垮整个系统，而使用了Spring Batch，框架会帮助他每次捞取一部分记录进行分页，在更新时分批进行提交。</p>
+<h5 id="Spring-Security"><a href="#Spring-Security" class="headerlink" title="Spring Security"></a>Spring Security</h5><p>一款Spring的认证和安全工具。其前身是Acegi，目标是为Spring应用提供一个安全服务，比如用户认证、授权等。</p>
+<p>它使用Servlet规范中的Filter保护Web请求并限制URL级别的访问，还能够使用Spring AOP保护方法调用——借助于对象代理和使用通知，能够确保只有具备适当权限的用户才能访问安全保护的方法。</p>
+<p>它非常灵活，能够基于各种数据存储来认证用户。它内置了多种常见的用户存储场景，如内存、关系型数据库以及LDAP，还可以编写并插入自定义的用户存储实现。</p>
+<h5 id="Spring-HATEOAS"><a href="#Spring-HATEOAS" class="headerlink" title="Spring HATEOAS"></a>Spring HATEOAS</h5><p>先来理解HATEOAS：大家都听过过REST，它的定位为「分布式超媒体应用」的架构风格，文中提到了HATEOAS(Hypermedia as the engine of application state)的概念，超媒体即应用状态引擎，即返回结果中提供链接，连向其他API方法，使得用户不查文档，也知道下一步应该做什么。</p>
+<p>比如获取一篇文章，非HATEOAS的响应例子是：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">GET</span> <span class="string">/posts/1</span> HTTP/1.1</span><br><span class="line"><span class="attribute">Connection</span>: keep-alive</span><br><span class="line"><span class="attribute">Host</span>: blog.example.com</span><br><span class="line">&#123;</span><br><span class="line">    "id" : 1,</span><br><span class="line">    "body" : "My first blog post",</span><br><span class="line">    "postdate" : "2015-05-30T21:41:12.650Z"</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>而HATEOAS的响应例子是：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="string">"id"</span> : <span class="number">1</span>,</span><br><span class="line">    <span class="string">"body"</span> : <span class="string">"My first blog post"</span>,</span><br><span class="line">    <span class="string">"postdate"</span> : <span class="string">"2015-05-30T21:41:12.650Z"</span>,</span><br><span class="line">    <span class="string">"links"</span> : [</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="string">"rel"</span> : <span class="string">"self"</span>,</span><br><span class="line">            <span class="string">"href"</span> : http:<span class="comment">//blog.example.com/posts/1,</span></span><br><span class="line">            <span class="string">"method"</span> : <span class="string">"GET"</span></span><br><span class="line">        &#125;</span><br><span class="line">    ] </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>为了简化签入或获取超链接等操作，Spring HATEOAS提供了相关的支持。</p>
+<h5 id="Spring-Rest-DOCS"><a href="#Spring-Rest-DOCS" class="headerlink" title="Spring Rest DOCS"></a>Spring Rest DOCS</h5><p>可以生成准确可读的RESTful Service文档，Spring 官方文档都是用Spring REST Docs生成的。</p>
+<p>基于单元测试生成文档片段，不会侵入到源码中，所以就不会使得源码变得越来越臃肿，支持markdown，修改一行配置代码即可支持生成 MarkDown 语法的文档片段。</p>
+<p>默认的，在构建的时候，会首先运行单元测试，便生成了文档片段，然后在打包时，通过添加 asciidoctor-maven-plugin 插件即可生成最终的文档，只要是规范的开发过程，文档都会随版本的每次发布而自动更新。</p>
+<h5 id="Spring-Social"><a href="#Spring-Social" class="headerlink" title="Spring Social"></a>Spring Social</h5><p>使用 Spring Social 的最大好处在于它已经提供了对主流社交网站的支持，只需要简单配置即可，对于一些不太常用的社交网站，也可以从社区中找到相应的组件。</p>
+<h5 id="Spring-AMQP"><a href="#Spring-AMQP" class="headerlink" title="Spring AMQP"></a>Spring AMQP</h5><p>基于Spring框架的AMQP消息解决方案，提供模板化的发送和接收消息的抽象层，提供基于消息驱动的POJO，使在Spring应用中使用AMQP消息服务器变得更为简单，SpringSource旗下的Rabbit MQ就是一个开源的基于AMQP的消息服务器。</p>
+<h5 id="Spring-Web-Flow"><a href="#Spring-Web-Flow" class="headerlink" title="Spring Web Flow"></a>Spring Web Flow</h5><p>Spring Web Flow是Spring MVC 的扩展，它支持开发基于流程的应用程序。它将流程的定义与实现流程行为的类和视图分离开来，具有同时处理多个HTTP请求、管理会话状态、数据事务处理，支持AJAX来构建丰富的客户端体验，并且提供对JSF的支持。</p>
+<h5 id="Spring-LDAP"><a href="#Spring-LDAP" class="headerlink" title="Spring LDAP"></a>Spring LDAP</h5><p>Spring LDAP是一个用于操作LDAP的Java框架。它是基于Spring的JdbcTemplate模式，能够帮助开发人员简化操作。</p>
+<h5 id="Spring-Session"><a href="#Spring-Session" class="headerlink" title="Spring Session"></a>Spring Session</h5><p>Spring Session提供了一套创建和管理Servlet HttpSession的方案。Spring Session提供了集群Session功能，默认采用外置的Redis来存储Session数据，以此来解决Session共享的问题。</p>
+<h5 id="Spring-Shell"><a href="#Spring-Shell" class="headerlink" title="Spring Shell"></a>Spring Shell</h5><p>Spring Shell提供交互式的Shell，可以让你使用简单的基于Spring的编程模型来开发命令。</p>
+<h5 id="Spring-Kafka"><a href="#Spring-Kafka" class="headerlink" title="Spring Kafka"></a>Spring Kafka</h5><p>spring for kafka对原生的kafka client consumer的封装与集成。</p>
+<h5 id="Spring-Statemachine"><a href="#Spring-Statemachine" class="headerlink" title="Spring Statemachine"></a>Spring Statemachine</h5><p>它的主要功能是帮助开发者简化状态机的开发过程，让状态机结构更加层次化。</p>
+<h5 id="Spring-IO-Platform"><a href="#Spring-IO-Platform" class="headerlink" title="Spring IO Platform"></a>Spring IO Platform</h5><p>可以认为是一个依赖维护平台，该平台将相关依赖汇聚到一起，针对每个依赖，都提供了一个版本号。</p>
+<p>主要是解决依赖版本冲突问题，在使用Spring的时候，经常会使用到第三方库，一般大家都是根据经验挑选一个版本号或挑选最新的，风向较大，很容易冲突。</p>
+<p>Spring IO Platform能很好地解决这些问题，我们在添加第三方依赖的时候，不需要写版本号，它能够自动帮我们挑选一个最优的版本。</p>
+<p><strong><font color="green">欢迎扫描下方二维码，关注我的个人微信公众号，查看更多文章</font> ~</strong></p>
+<p><div align="center"><br><img src="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="情情说"></div></p>
+]]></content>
+      
+        <categories>
+            
+            <category> spring </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> Spring </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[项目管理全过程最佳实践（下）]]></title>
       <url>https://qqdong.github.io/2018/05/19/%E9%A1%B9%E7%9B%AE%E7%AE%A1%E7%90%86%E5%85%A8%E8%BF%87%E7%A8%8B%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5%EF%BC%88%E4%B8%8B%EF%BC%89/</url>
       <content type="html"><![CDATA[<p><a href="http://qqidol.com/2018/05/08/%E9%A1%B9%E7%9B%AE%E7%AE%A1%E7%90%86%E5%85%A8%E8%BF%87%E7%A8%8B%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5%EF%BC%88%E4%B8%8A%EF%BC%89/" target="_blank" rel="noopener">上一篇</a> 提到，参加了部门组织的项目管理培训，培训主题是「项目管理全过程最佳实践」，培训时间为1天，讲师是现代卓越的郑晓龙老师，整体感觉，教授氛围和互动方式都很轻松，让人印象深刻，有不少收获，分享给大家。</p>
@@ -1347,37 +1602,6 @@
     </entry>
     
     <entry>
-      <title><![CDATA[送福利：小爱音箱F码]]></title>
-      <url>https://qqdong.github.io/2018/04/03/%E9%80%81%E7%A6%8F%E5%88%A9%EF%BC%9A%E5%B0%8F%E7%88%B1%E9%9F%B3%E7%AE%B1F%E7%A0%81/</url>
-      <content type="html"><![CDATA[<p>一年一度的米粉节活动开始了，活动时间为 4.3 - 4.10，公司给我们发了福利，其中包含4个小爱音箱F码，包括2个小米AI音箱F码，2个小米小爱音箱mini F码，想把这个福利分享给大家，以感谢大家的支持和鼓励。</p>
-<p>开始认真写文章有1个半月了，不说有多大的收获，最起码自己的一部分时间很好的利用了，最开心的是让一些朋友有所收货。</p>
-<a id="more"></a>
-<blockquote>
-<p>小米公司是在2010年4月6日成立的。<br>为了感谢米粉们一路以来对小米公司的支持与陪伴，回馈一路支持的粉丝，每年都会在这一天举办粉丝的盛大狂欢，进行对米粉的答谢活动。<br>所以把这一天命名为米粉节！</p>
-</blockquote>
-<p><img src="http://oc3r3rke2.bkt.clouddn.com/15227310135315.jpg?imageView2/2/w/500" alt="掘金社区成就"></p>
-<p><img src="http://oc3r3rke2.bkt.clouddn.com/15227310755728.jpg?imageView2/2/w/500" alt="网友的感谢"></p>
-<p><img src="http://oc3r3rke2.bkt.clouddn.com/15227311491258.jpg?imageView2/2/w/500" alt="网友的感谢"></p>
-<p>会在「微信公众号」和「掘金社区」分别抽奖，分别为1个小爱音箱F码和1个小爱音箱mini F码。</p>
-<h4 id="抽奖截止时间"><a href="#抽奖截止时间" class="headerlink" title="抽奖截止时间"></a>抽奖截止时间</h4><p>4月9号中午12点</p>
-<h4 id="抽奖规则"><a href="#抽奖规则" class="headerlink" title="抽奖规则"></a>抽奖规则</h4><ul>
-<li>需要关注我的微信公众号才有效；</li>
-<li>使用微信抽奖助手随机抽取；</li>
-</ul>
-<p>抽奖链接：<br><img src="http://oc3r3rke2.bkt.clouddn.com/15227319180470.jpg?imageView2/2/w/500" alt=""></p>
-<p>公众号：<br><img src="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="情情说"></p>
-]]></content>
-      
-        <categories>
-            
-            <category> life </category>
-            
-        </categories>
-        
-        
-    </entry>
-    
-    <entry>
       <title><![CDATA[Netty事件监听和处理（上）]]></title>
       <url>https://qqdong.github.io/2018/04/03/Netty%E4%BA%8B%E4%BB%B6%E7%9B%91%E5%90%AC%E5%92%8C%E5%A4%84%E7%90%86%EF%BC%88%E4%B8%8A%EF%BC%89/</url>
       <content type="html"><![CDATA[<p>陪产假结束了，今天又开始正常上班了，正好赶上米粉节活动，又要忙上一阵了，米粉节活动时间为4.03 - 4.10，有不少优惠，感兴趣的可以关注mi.com或小米商城app。</p>
@@ -1496,6 +1720,37 @@
             <tag> Netty </tag>
             
         </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[送福利：小爱音箱F码]]></title>
+      <url>https://qqdong.github.io/2018/04/03/%E9%80%81%E7%A6%8F%E5%88%A9%EF%BC%9A%E5%B0%8F%E7%88%B1%E9%9F%B3%E7%AE%B1F%E7%A0%81/</url>
+      <content type="html"><![CDATA[<p>一年一度的米粉节活动开始了，活动时间为 4.3 - 4.10，公司给我们发了福利，其中包含4个小爱音箱F码，包括2个小米AI音箱F码，2个小米小爱音箱mini F码，想把这个福利分享给大家，以感谢大家的支持和鼓励。</p>
+<p>开始认真写文章有1个半月了，不说有多大的收获，最起码自己的一部分时间很好的利用了，最开心的是让一些朋友有所收货。</p>
+<a id="more"></a>
+<blockquote>
+<p>小米公司是在2010年4月6日成立的。<br>为了感谢米粉们一路以来对小米公司的支持与陪伴，回馈一路支持的粉丝，每年都会在这一天举办粉丝的盛大狂欢，进行对米粉的答谢活动。<br>所以把这一天命名为米粉节！</p>
+</blockquote>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15227310135315.jpg?imageView2/2/w/500" alt="掘金社区成就"></p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15227310755728.jpg?imageView2/2/w/500" alt="网友的感谢"></p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15227311491258.jpg?imageView2/2/w/500" alt="网友的感谢"></p>
+<p>会在「微信公众号」和「掘金社区」分别抽奖，分别为1个小爱音箱F码和1个小爱音箱mini F码。</p>
+<h4 id="抽奖截止时间"><a href="#抽奖截止时间" class="headerlink" title="抽奖截止时间"></a>抽奖截止时间</h4><p>4月9号中午12点</p>
+<h4 id="抽奖规则"><a href="#抽奖规则" class="headerlink" title="抽奖规则"></a>抽奖规则</h4><ul>
+<li>需要关注我的微信公众号才有效；</li>
+<li>使用微信抽奖助手随机抽取；</li>
+</ul>
+<p>抽奖链接：<br><img src="http://oc3r3rke2.bkt.clouddn.com/15227319180470.jpg?imageView2/2/w/500" alt=""></p>
+<p>公众号：<br><img src="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="情情说"></p>
+]]></content>
+      
+        <categories>
+            
+            <category> life </category>
+            
+        </categories>
+        
         
     </entry>
     
