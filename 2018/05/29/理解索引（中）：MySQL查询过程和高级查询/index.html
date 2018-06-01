@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="索引" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="上一篇 提到，最近有个需求，要修改现有存储结构，涉及查询条件和查询效率的考量，看了几篇索引和HBase相关的文章，回忆了相关知识，结合项目需求，说说自己的理解和总结。 总体目录如下，上篇介绍了前3小节，分析了索引为什么快，总结了它的优点和分类，以及索引的演化过程，中篇会重点介绍索引分析方法和常见索引优化。  为什么需要索引 索引的类别 MySQL索引演化 MySQL索引优化 HBase介绍 HBa">
+<meta name="keywords" content="索引">
+<meta property="og:type" content="article">
+<meta property="og:title" content="理解索引（中）：MySQL查询过程和高级查询">
+<meta property="og:url" content="https://qqdong.github.io/2018/05/29/理解索引（中）：MySQL查询过程和高级查询/index.html">
+<meta property="og:site_name" content="情情说">
+<meta property="og:description" content="上一篇 提到，最近有个需求，要修改现有存储结构，涉及查询条件和查询效率的考量，看了几篇索引和HBase相关的文章，回忆了相关知识，结合项目需求，说说自己的理解和总结。 总体目录如下，上篇介绍了前3小节，分析了索引为什么快，总结了它的优点和分类，以及索引的演化过程，中篇会重点介绍索引分析方法和常见索引优化。  为什么需要索引 索引的类别 MySQL索引演化 MySQL索引优化 HBase介绍 HBa">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15275243182908.jpg">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15275246864350.jpg">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:updated_time" content="2018-05-28T18:35:11.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="理解索引（中）：MySQL查询过程和高级查询">
+<meta name="twitter:description" content="上一篇 提到，最近有个需求，要修改现有存储结构，涉及查询条件和查询效率的考量，看了几篇索引和HBase相关的文章，回忆了相关知识，结合项目需求，说说自己的理解和总结。 总体目录如下，上篇介绍了前3小节，分析了索引为什么快，总结了它的优点和分类，以及索引的演化过程，中篇会重点介绍索引分析方法和常见索引优化。  为什么需要索引 索引的类别 MySQL索引演化 MySQL索引优化 HBase介绍 HBa">
+<meta name="twitter:image" content="http://oc3r3rke2.bkt.clouddn.com/15275243182908.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://qqdong.github.io/2018/05/29/理解索引（中）：MySQL查询过程和高级查询/"/>
+
+
+
+
+
+  <title>理解索引（中）：MySQL查询过程和高级查询 | 情情说</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?e7e93bfed4e516cfa1c99cde191477e5";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">情情说</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">记录工作、学习和生活</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/05/29/理解索引（中）：MySQL查询过程和高级查询/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="calm">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/head.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="情情说">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">理解索引（中）：MySQL查询过程和高级查询</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-29T22:00:00+08:00">
+                2018-05-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/数据库/" itemprop="url" rel="index">
+                    <span itemprop="name">数据库</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><a href="http://qqidol.com/2018/05/26/%E7%90%86%E8%A7%A3%E7%B4%A2%E5%BC%95%EF%BC%88%E4%B8%8A%EF%BC%89/" target="_blank" rel="noopener">上一篇</a> 提到，最近有个需求，要修改现有存储结构，涉及查询条件和查询效率的考量，看了几篇索引和HBase相关的文章，回忆了相关知识，结合项目需求，说说自己的理解和总结。</p>
+<p>总体目录如下，上篇介绍了前3小节，分析了索引为什么快，总结了它的优点和分类，以及索引的演化过程，中篇会重点介绍索引分析方法和常见索引优化。</p>
+<ul>
+<li>为什么需要索引</li>
+<li>索引的类别</li>
+<li>MySQL索引演化</li>
+<li>MySQL索引优化</li>
+<li>HBase介绍</li>
+<li>HBase存储结构</li>
+<li>HBase索引介绍</li>
+<li>业务需求及设计</li>
+</ul>
+<blockquote>
+<p>部分内容摘录了几个博友的文章，最后会给出文章链接，感谢他们的精彩分析。</p>
+</blockquote>
+<p>通过中篇的介绍，你会了解到：</p>
+<ul>
+<li>MySQL查询过程</li>
+<li>高级查询相关概念</li>
+<li>explain命令详细介绍</li>
+<li>索引优化建议</li>
+</ul>
+<h4 id="MySQL查询过程"><a href="#MySQL查询过程" class="headerlink" title="MySQL查询过程"></a>MySQL查询过程</h4><p>想要更好的优化查询，首先要了解其整体查询过程，从客户端发送查询请求，到接收到查询结果，MySQL服务器做了很多工作。</p>
+<a id="more"></a>
+<h5 id="逻辑架构"><a href="#逻辑架构" class="headerlink" title="逻辑架构"></a>逻辑架构</h5><p>MySQL逻辑架构整体分为三层，分别为客户端层、核心服务层、存储引擎层，共同协作完成。</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15275243182908.jpg" alt="MySQL逻辑架构"></p>
+<p>最上层为客户端层，比如：连接处理、授权认证、安全等功能等。</p>
+<p>中间层是MySQL的核心服务，包括查询解析、分析、优化、缓存、内置函数(比如：时间、数学、加密等)，另外，所有的跨存储引擎的功能也在这一层实现：存储过程、触发器、视图等。</p>
+<p>最下层为存储引擎，负责数据存储和提取，中间的服务层通过API与存储引擎通信，这些API接口屏蔽了不同存储引擎间的差异。</p>
+<h5 id="具体执行过程"><a href="#具体执行过程" class="headerlink" title="具体执行过程"></a>具体执行过程</h5><p>重点看下MySQL是如何优化和执行查询的，很多的查询优化工作就是遵循一些原则让MySQL的优化器能够按照预想的方式运行而已。</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15275246864350.jpg" alt="查询具体过程"></p>
+<p>先说下总体流程：</p>
+<ul>
+<li>客户端发送一条查询SQL给服务器；</li>
+<li>服务器先检查查询缓存，如果命中了缓存，则立即返回存储在缓存中的结果；</li>
+<li>服务器端进行SQL解析、预处理，再由优化器生成对应的执行计划；</li>
+<li>查询执行引擎根据优化器生成的执行计划，调用存储引擎的API来执行查询；</li>
+<li>将结果返回给客户端；</li>
+</ul>
+<p>1.客户端/服务端通信协议 </p>
+<p>MySQL客户端和服务器之间的通信协议是「半双工」：在任何一个时刻，要么由服务器向客户端发送数据，要么由客户端向服务器发送数据，不能同时发生，这也就意味着没法进行流量控制。</p>
+<p>客户端用一个单独的数据包将查询请求发送给服务器，服务器响应给用户的数据通常会很多，由多个数据包组成，需要注意的是当服务器响应客户端请求时，客户端必须完整的接收整个返回结果，而不能简单的只取前面几条结果，然后让服务器停止发送。</p>
+<p>2.查询缓存</p>
+<p>如果查询缓存是打开的，会检查这个查询语句是否命中查询缓存中的数据，如果命中，在检查一次用户权限后直接返回缓存中的结果。</p>
+<p>查询缓存系统会跟踪查询中涉及的每个表，在任何的写操作时，MySQL必须将对应表的所有缓存都设置为失效，如果查询缓存非常大或者碎片很多，这个操作就可能带来很大的系统消耗。</p>
+<p>另外，任何的查询语句在开始之前都必须经过检查，即使这条SQL语句永远不会命中缓存，如果查询结果可以被缓存，那么执行完成后，会将结果存入缓存，也会带来额外的系统消耗。</p>
+<p>所以，打开缓存要慎重，只有当缓存带来的资源节约大于其本身消耗的资源时，才会给系统带来性能提升，可以将query_cache_type设置为DEMAND，这时只有加入SQL_CACHE的查询才会走缓存，其他查询则不会。</p>
+<p>3.语法解析和预处理</p>
+<p>通过关键字将SQL语句进行解析，生成一颗解析树，预处理则会根据MySQL规则进一步检查解析树是否合法。</p>
+<p>4.查询优化</p>
+<p>一条查询可以有很多种执行方式，优化器的作用就是找到这其中最好的执行计划，MySQL使用基于成本的优化器，它尝试预测一个查询使用某种执行计划时的成本，并选择其中成本最小的一个。</p>
+<p>5.查询执行引擎</p>
+<p>存储引擎接口提供了非常丰富的功能，但其底层仅有几十个接口，这些接口像搭积木一样完成了一次查询的大部分操作。</p>
+<p>6.返回结果给客户端</p>
+<p>结果集返回客户端是一个增量且逐步返回的过程，这样服务端就无须存储太多结果而消耗过多内存，也可以让客户端第一时间获得返回结果。</p>
+<h5 id="SELECT执行顺序"><a href="#SELECT执行顺序" class="headerlink" title="SELECT执行顺序"></a>SELECT执行顺序</h5><p>下面来看看SQL查询语句的执行顺序，每一步都会生成一个虚拟临时表，作为下一步的输入。</p>
+<p>标准的SQL语法如下：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="keyword">DISTINCT</span></span><br><span class="line">    &lt; select_list &gt;</span><br><span class="line"><span class="keyword">FROM</span></span><br><span class="line">    &lt; left_table &gt; &lt; join_type &gt;</span><br><span class="line"><span class="keyword">JOIN</span> &lt; right_table &gt; <span class="keyword">ON</span> &lt; join_condition &gt;</span><br><span class="line"><span class="keyword">WHERE</span></span><br><span class="line">    &lt; where_condition &gt;</span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span></span><br><span class="line">    &lt; group_by_list &gt;</span><br><span class="line"><span class="keyword">HAVING</span></span><br><span class="line">    &lt; having_condition &gt;</span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span></span><br><span class="line">    &lt; order_by_condition &gt;</span><br><span class="line"><span class="keyword">LIMIT</span> &lt; limit_number &gt;</span><br></pre></td></tr></table></figure>
+<p>但执行顺序是这样的：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">FROM </span><br><span class="line">    &lt;left_table&gt;</span><br><span class="line">ON &lt;join_condition&gt; &lt;join_type&gt; </span><br><span class="line">JOIN &lt;right_table&gt;</span><br><span class="line">WHERE </span><br><span class="line">    &lt;where_condition&gt;</span><br><span class="line">GROUP BY </span><br><span class="line">    &lt;group_by_list&gt;</span><br><span class="line">HAVING </span><br><span class="line">    &lt;having_condition&gt;</span><br><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line"><span class="keyword">DISTINCT</span> </span><br><span class="line">    &lt;select_list&gt;</span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span> </span><br><span class="line">    &lt;order_by_condition&gt;</span><br><span class="line"><span class="keyword">LIMIT</span> </span><br><span class="line">    &lt;limit_number&gt;</span><br></pre></td></tr></table></figure>
+<p>1.FROM</p>
+<p>当涉及多个表的时候，左边表的输出会作为右边表的输入，之后会生成一个虚拟表VT1：</p>
+<ul>
+<li>计算两个相关联表的笛卡尔积(CROSS JOIN) ，生成虚拟表VT1-J1；</li>
+<li>基于虚拟表VT1-J1进行过滤，过滤出所有满足ON谓词条件的行，生成虚拟表VT1-J2；</li>
+<li>如果使用了外连接(LEFT,RIGHT,FULL)，主表（保留表）中的不符合ON条件的列也会被加入到VT1-J2中，生成虚拟表VT1-J3；</li>
+</ul>
+<p>2.WHERE</p>
+<p>对VT1过程中生成的临时表进行过滤，满足WHERE子句的列被插入到VT2表中：</p>
+<ul>
+<li>与ON的区别：如果有外连接，ON针对过滤的是关联表，主表会返回所有的列，如果没有外连接，效果相同；</li>
+<li>对主表的过滤应该放在WHERE；</li>
+<li>于关联表，先条件查询后连接则用ON，先连接后条件查询则用WHERE；</li>
+</ul>
+<p>3.GROUP BY</p>
+<p>这个子句会把VT2中生成的表按照GROUP BY中的列进行分组，生成VT3表：</p>
+<ul>
+<li>其后处理过程的语句，如SELECT,HAVING，所用到的列必须包含在GROUP BY中，对于没有出现的，得用聚合函数；</li>
+</ul>
+<p>4.HAVING</p>
+<p>对VT3表中的不同的组进行过滤，只用于分组后的数据，满足HAVING条件的子句被加入到VT4表中。</p>
+<p>5.SELECT</p>
+<p>这个子句对SELECT子句中的元素进行处理，生成VT5表：</p>
+<ul>
+<li>计算SELECT子句中的表达式，生成VT5-J1；</li>
+<li>DISTINCT：寻找重复列，并删掉，会创建一张内存临时表VT5-J2，和虚拟表VT5-J1一样，不同的是对DISTINCT的列增加唯一索引，以此来除重复数据；</li>
+</ul>
+<p>6.ORDER BY</p>
+<p>从VT5-J2中的表中，根据ORDER BY 子句的条件对结果进行排序，生成VT6表，这是唯一可使用SELECT中别名的地方。</p>
+<p>7.LIMIT</p>
+<p>从上一步得到的VT6虚拟表中选出从指定位置开始的指定行数据。</p>
+<h4 id="高级查询相关概念"><a href="#高级查询相关概念" class="headerlink" title="高级查询相关概念"></a>高级查询相关概念</h4><p>本小节介绍下常用的高级查询概念。</p>
+<h5 id="连接查询"><a href="#连接查询" class="headerlink" title="连接查询"></a>连接查询</h5><p>将多张表按照某个指定的条件进行数据拼接，SQL中将连接查询分成四类: 内连接、外连接、自然连接、交叉连接，其中自然连接和交叉连接很少用到，就不过多介绍了。</p>
+<p>1.内连接 inner join</p>
+<p>从左表中取出每一条记录，分别与右表中所有的记录进行匹配，匹配必须左表和右表中都满足条件，匹配的会保留结果，否则不保留。</p>
+<p>2.外连接 left/right join</p>
+<p>外连接分为两种:</p>
+<ul>
+<li>left join: 左外连接(左连接)，以左表为主表</li>
+<li>right join: 右外连接(右连接)，以右表为主表</li>
+</ul>
+<p>以某张表为主，取出里面的所有记录，不管能不能匹配上条件，主表最终都会保留，然后与另外一张表进行连接，如果不能匹配，其他表的字段都置空NULL。</p>
+<h5 id="子查询"><a href="#子查询" class="headerlink" title="子查询"></a>子查询</h5><p>是在某个查询结果之上再进行查询，也就是一条select语句内部包含了另外一条select语句。</p>
+<p>按子查询所在位置，可以划分为：</p>
+<ul>
+<li>From子查询：子查询跟在from之后；</li>
+<li>Where子查询: 子查询出where条件中；</li>
+<li>exists子查询: 子查询出现在exists里面；</li>
+</ul>
+<p>下面举几个例子：</p>
+<p>查找部门名称前缀为「小米」的所有员工：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="keyword">name</span> , sex ,  sal</span><br><span class="line">       <span class="keyword">FROM</span> emp</span><br><span class="line">       <span class="keyword">WHERE</span> <span class="keyword">no</span> <span class="keyword">in</span> ( </span><br><span class="line">           <span class="keyword">SELECT</span> <span class="keyword">no</span> <span class="keyword">FROM</span> dept </span><br><span class="line">               <span class="keyword">WHERE</span> <span class="keyword">name</span> <span class="keyword">LIKE</span> <span class="string">'小米%'</span></span><br><span class="line">       )；</span><br></pre></td></tr></table></figure>
+<p>查看所有员工的薪水，并按薪水排序：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="keyword">name</span> , sal</span><br><span class="line">       <span class="keyword">FROM</span> (</span><br><span class="line">           <span class="keyword">SELECT</span> <span class="keyword">name</span> , sal </span><br><span class="line">              <span class="keyword">FROM</span> emp <span class="keyword">ORDER</span> <span class="keyword">BY</span> sal</span><br><span class="line">       )；</span><br></pre></td></tr></table></figure>
+<h5 id="联合查询"><a href="#联合查询" class="headerlink" title="联合查询"></a>联合查询</h5><p>将多次查询, 将结果进行拼接，字段不会增加，每一条select语句获取的字段数必须严格一致。</p>
+<p>语法如下：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">Select</span> 语句<span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">Union</span> [<span class="keyword">union</span>选项]</span><br><span class="line"></span><br><span class="line"><span class="keyword">Select</span>语句<span class="number">2.</span>..</span><br></pre></td></tr></table></figure>
+<p>Union选项:</p>
+<ul>
+<li>All: 保留所有；</li>
+<li>Distinct: 去重，默认选项；</li>
+</ul>
+<p>又写多了，再加一篇吧，中篇未完待续。。。</p>
+<p>参考文章：</p>
+<ol>
+<li><a href="http://www.cnblogs.com/zhangyinhua/p/7620964.html" target="_blank" rel="noopener">MySQL优化原理</a></li>
+<li><a href="https://www.cnblogs.com/annsshadow/p/5037667.html" target="_blank" rel="noopener">步步深入：SQL解析顺序</a></li>
+</ol>
+<p><strong><font color="green">欢迎扫描下方二维码，关注我的个人微信公众号，查看更多文章</font> ~</strong></p>
+<p><div align="center"><br><img src="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="情情说"></div></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/索引/" rel="tag"># 索引</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/05/26/理解索引（上）/" rel="next" title="理解索引（上）">
+                <i class="fa fa-chevron-left"></i> 理解索引（上）
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/05/31/理解索引（中）：MySQL执行计划和索引优化md/" rel="prev" title="理解索引（中）：MySQL执行计划和索引优化">
+                理解索引（中）：MySQL执行计划和索引优化 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        
+<script>
+  with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='//bdimg.share.baidu.com/static/api/js/share.js?cdnversion='+~(-new Date()/36e5)];
+</script>
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zNjE2Mi8xMjY5Nw=="></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/head.png"
+                alt="calm" />
+            
+              <p class="site-author-name" itemprop="name">calm</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">49</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">13</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">25</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#MySQL查询过程"><span class="nav-number">1.</span> <span class="nav-text">MySQL查询过程</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#逻辑架构"><span class="nav-number">1.1.</span> <span class="nav-text">逻辑架构</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#具体执行过程"><span class="nav-number">1.2.</span> <span class="nav-text">具体执行过程</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#SELECT执行顺序"><span class="nav-number">1.3.</span> <span class="nav-text">SELECT执行顺序</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#高级查询相关概念"><span class="nav-number">2.</span> <span class="nav-text">高级查询相关概念</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#连接查询"><span class="nav-number">2.1.</span> <span class="nav-text">连接查询</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#子查询"><span class="nav-number">2.2.</span> <span class="nav-text">子查询</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#联合查询"><span class="nav-number">2.3.</span> <span class="nav-text">联合查询</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">calm</span>
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
