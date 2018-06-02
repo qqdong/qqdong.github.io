@@ -24,7 +24,7 @@
 <blockquote>
 <p>部分内容摘录了几个博友的文章，最后会给出文章链接，感谢他们的精彩分析。</p>
 </blockquote>
-<h4 id="explain命令详细介绍"><a href="#explain命令详细介绍" class="headerlink" title="explain命令详细介绍"></a>explain命令详细介绍</h4><p>工作中，MySQL会记录执行时间比较久的SQL语句，找出这些SQL语句是第一步，重要的是查看SQL语句的执行计划，对于MySQL执行计划的获取，可以通过explain方式来查看，这条命令的输出结果能够让我们了解MySQL优化器是如何执行SQL语句的。</p>
+<h4 id="explain命令概述"><a href="#explain命令概述" class="headerlink" title="explain命令概述"></a>explain命令概述</h4><p>工作中，MySQL会记录执行时间比较久的SQL语句，找出这些SQL语句是第一步，重要的是查看SQL语句的执行计划，对于MySQL执行计划的获取，可以通过explain方式来查看，这条命令的输出结果能够让我们了解MySQL优化器是如何执行SQL语句的。</p>
 <p>MySQL优化器是基于开销来工作的，是在每条SQL语句执行的时候动态地计算出来的，命令用法十分简单, 在 SELECT 语句前加上 Explain 就可以了。</p>
 <a id="more"></a>
 <h5 id="先来个示例"><a href="#先来个示例" class="headerlink" title="先来个示例"></a>先来个示例</h5><p>以基本的员工表为例，表的结构如下：</p>
@@ -44,7 +44,7 @@
 <p>rows: 此查询一共扫描了多少行，这个是一个估计值。</p>
 <p>filtered: 表示此查询条件所过滤的数据的百分比。</p>
 <p>extra: 额外的信息，后面会详细介绍。</p>
-<h4 id="select-type字段详细介绍"><a href="#select-type字段详细介绍" class="headerlink" title="select_type字段详细介绍"></a>select_type字段详细介绍</h4><p>表示查询的类型，是简单查询或复杂查询，如果是复杂查询，包含SIMPLE、SIMPLE、UNION、UNION RESULT、SUBQUERY、DEPENDENT、DEPENDENT UNION、DEPENDENT SUBQUERY、DERIVED等，了解这些，可以识别在执行那部分。</p>
+<h4 id="select-type字段详细介绍"><a href="#select-type字段详细介绍" class="headerlink" title="select_type字段详细介绍"></a>select_type字段详细介绍</h4><p>select_type表示查询的类型，是简单查询或复杂查询，如果是复杂查询，包含SIMPLE、SIMPLE、UNION、UNION RESULT、SUBQUERY、DEPENDENT、DEPENDENT UNION、DEPENDENT SUBQUERY、DERIVED等，了解这些，可以识别在执行那部分。</p>
 <h5 id="SIMPLE"><a href="#SIMPLE" class="headerlink" title="SIMPLE"></a>SIMPLE</h5><p>简单select，不使用union或子查询等:</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; explain select * from employee where id =1 ;</span><br><span class="line">+<span class="comment">----+-------------+------------+-------+---------------+---------+---------+-------+------+-------+</span></span><br><span class="line">| id | select_type | table      | type  | possible_keys | key     | key_len | ref   | rows | Extra |</span><br><span class="line">+<span class="comment">----+-------------+------------+-------+---------------+---------+---------+-------+------+-------+</span></span><br><span class="line">|  1 | SIMPLE      | employee | const | PRIMARY       | PRIMARY | 8       | const |    1 | NULL  |</span><br><span class="line">+<span class="comment">----+-------------+------------+-------+---------------+---------+---------+-------+------+-------+</span></span><br></pre></td></tr></table></figure>
 <h5 id="SIMPLE-1"><a href="#SIMPLE-1" class="headerlink" title="SIMPLE"></a>SIMPLE</h5><p>如果是复杂查询，表示是最外层的select：</p>
