@@ -4,6 +4,100 @@
   
     
     <entry>
+      <title><![CDATA[理解索引：索引优化]]></title>
+      <url>https://qqdong.github.io/2018/06/03/%E7%90%86%E8%A7%A3%E7%B4%A2%E5%BC%95%EF%BC%9A%E7%B4%A2%E5%BC%95%E4%BC%98%E5%8C%96/</url>
+      <content type="html"><![CDATA[<blockquote>
+<p>最近有个需求，要修改现有存储结构，涉及查询条件和查询效率的考量，看了几篇索引和HBase相关的文章，回忆了相关知识，结合项目需求，说说自己的理解和总结。</p>
+</blockquote>
+<p>错过的朋友可以先回顾下前3篇文章：</p>
+<ol>
+<li><a href="http://qqidol.com/2018/05/26/%E7%90%86%E8%A7%A3%E7%B4%A2%E5%BC%95%EF%BC%88%E4%B8%8A%EF%BC%89/" target="_blank" rel="noopener">索引结构和数据定位过程</a></li>
+<li><a href="http://qqidol.com/2018/05/29/%E7%90%86%E8%A7%A3%E7%B4%A2%E5%BC%95%EF%BC%9AMySQL%E6%9F%A5%E8%AF%A2%E8%BF%87%E7%A8%8B%E5%92%8C%E9%AB%98%E7%BA%A7%E6%9F%A5%E8%AF%A2/" target="_blank" rel="noopener">查询过程和高级查询</a></li>
+<li><a href="http://qqidol.com/2018/06/02/%E7%90%86%E8%A7%A3%E7%B4%A2%E5%BC%95%EF%BC%9AMySQL%E6%89%A7%E8%A1%8C%E8%AE%A1%E5%88%92%E8%AF%A6%E7%BB%86%E4%BB%8B%E7%BB%8D/" target="_blank" rel="noopener">执行计划详细介绍</a></li>
+</ol>
+<p>上一篇详细介绍了explain命令，通过该命令，可以定位出在哪一步出现了性能问题，下一步就是通过优化索引来解决它。</p>
+<blockquote>
+<p>部分内容摘录了几个博友的文章，最后会给出文章链接，感谢他们的精彩分析。</p>
+</blockquote>
+<h4 id="常见优化方法"><a href="#常见优化方法" class="headerlink" title="常见优化方法"></a>常见优化方法</h4><h5 id="联合索引最左前缀原则"><a href="#联合索引最左前缀原则" class="headerlink" title="联合索引最左前缀原则"></a>联合索引最左前缀原则</h5><p>复合索引遵守「最左前缀」原则，查询条件中，使用了复合索引前面的字段，索引才会被使用，如果不是按照索引的最左列开始查找，则无法使用索引。</p>
+<p>比如在(a,b,c)三个字段上建立联合索引，那么它能够加快a|(a,b)|(a,b,c)三组查询的速度，而不能加快b|(b,a)这种查询顺序。 </p>
+<p>另外，建联合索引的时候，区分度最高的字段在最左边。</p>
+<a id="more"></a>
+<h5 id="不要在列上使用函数和进行运算"><a href="#不要在列上使用函数和进行运算" class="headerlink" title="不要在列上使用函数和进行运算"></a>不要在列上使用函数和进行运算</h5><p>不要在列上使用函数，这将导致索引失效而进行全表扫描。</p>
+<p>例如下面的 SQL 语句：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> artile <span class="keyword">where</span> <span class="keyword">YEAR</span>(create_time) &lt;= <span class="string">'2018'</span>;</span><br></pre></td></tr></table></figure>
+<p>即使 date 上建立了索引，也会全表扫描，可以把计算放到业务层，这样做不仅可以节省数据库的 CPU，还可以起到查询缓存优化效果。</p>
+<h5 id="负向条件查询不能使用索引"><a href="#负向条件查询不能使用索引" class="headerlink" title="负向条件查询不能使用索引"></a>负向条件查询不能使用索引</h5><p>负向条件有：!=、&lt;&gt;、not in、not exists、not like 等。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> artile <span class="keyword">where</span> <span class="keyword">status</span> != <span class="number">1</span> <span class="keyword">and</span> <span class="keyword">status</span> != <span class="number">2</span>;</span><br></pre></td></tr></table></figure>
+<p>可以使用in进行优化：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> artile <span class="keyword">where</span> <span class="keyword">status</span> <span class="keyword">in</span> (<span class="number">0</span>,<span class="number">3</span>)</span><br></pre></td></tr></table></figure>
+<h5 id="使用覆盖索引"><a href="#使用覆盖索引" class="headerlink" title="使用覆盖索引"></a>使用覆盖索引</h5><p>所谓覆盖索引，是指被查询的列，数据能从索引中取得，而不用通过行定位符再到数据表上获取，能够极大的提高性能。</p>
+<p>可以定义一个让索引包含的额外的列，即使这个列对于索引而言是无用的。</p>
+<h5 id="避免强制类型转换"><a href="#避免强制类型转换" class="headerlink" title="避免强制类型转换"></a>避免强制类型转换</h5><p>当查询条件左右两侧类型不匹配的时候会发生强制转换，强制转换可能导致索引失效而进行全表扫描。</p>
+<p>如果phone字段是varchar类型，则下面的SQL不能命中索引：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">user</span> <span class="keyword">where</span> phone=<span class="number">12345678901</span>;</span><br></pre></td></tr></table></figure>
+<p>可以优化为：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">user</span> <span class="keyword">where</span> phone=<span class="string">'12345678901'</span>;</span><br></pre></td></tr></table></figure>
+<h5 id="范围列可以用到索引"><a href="#范围列可以用到索引" class="headerlink" title="范围列可以用到索引"></a>范围列可以用到索引</h5><p>范围条件有：&lt;、&lt;=、&gt;、&gt;=、between等。</p>
+<p>范围列可以用到索引，但是范围列后面的列无法用到索引，索引最多用于一个范围列，如果查询条件中有两个范围列则无法全用到索引。</p>
+<h5 id="更新频繁、数据区分度不高的字段上不宜建立索引"><a href="#更新频繁、数据区分度不高的字段上不宜建立索引" class="headerlink" title="更新频繁、数据区分度不高的字段上不宜建立索引"></a>更新频繁、数据区分度不高的字段上不宜建立索引</h5><p>更新会变更B+树，更新频繁的字段建立索引会大大降低数据库性能。</p>
+<p>「性别」这种区分度不大的属性，建立索引没有意义，不能有效过滤数据，性能与全表扫描类似。</p>
+<p>区分度可以使用 count(distinct(列名))/count(*) 来计算，在80%以上的时候就可以建立索引。</p>
+<h5 id="索引列不允许为null"><a href="#索引列不允许为null" class="headerlink" title="索引列不允许为null"></a>索引列不允许为null</h5><p>单列索引不存null值，复合索引不存全为null的值，如果列允许为 null，可能会得到不符合预期的结果集。</p>
+<h5 id="避免使用or来连接条件"><a href="#避免使用or来连接条件" class="headerlink" title="避免使用or来连接条件"></a>避免使用or来连接条件</h5><p>应该尽量避免在 where 子句中使用 or 来连接条件，因为这会导致索引失效而进行全表扫描，虽然新版的MySQL能够命中索引，但查询优化耗费的 CPU比in多。</p>
+<h5 id="模糊查询"><a href="#模糊查询" class="headerlink" title="模糊查询"></a>模糊查询</h5><p>前导模糊查询不能使用索引，非前导查询可以。</p>
+<h4 id="优化案例"><a href="#优化案例" class="headerlink" title="优化案例"></a>优化案例</h4><h5 id="利用延迟关联或者子查询优化超多分页场景"><a href="#利用延迟关联或者子查询优化超多分页场景" class="headerlink" title="利用延迟关联或者子查询优化超多分页场景"></a>利用延迟关联或者子查询优化超多分页场景</h5><p>MySQL 并不是跳过 offset 行，而是取 offset+N 行，然后返回放弃前 offset 行，返回 N 行。</p>
+<p>当 offset 特别大的时候，效率非常低下，要么控制返回的总页数，要么对超过特定阈值的页数进行SQL改写。</p>
+<p>可以先快速定位需要获取的id段，然后再关联:</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">selecta.* from 表1 a,(select id from 表1 where 条件 limit 1000000 ,10 ) b where a.id=b.id</span><br></pre></td></tr></table></figure>
+<h5 id="如果明确知道只有一条结果返回，limit-1-能够提高效率"><a href="#如果明确知道只有一条结果返回，limit-1-能够提高效率" class="headerlink" title="如果明确知道只有一条结果返回，limit 1 能够提高效率"></a>如果明确知道只有一条结果返回，limit 1 能够提高效率</h5><p>虽然自己知道只有一条结果，但数据库并不知道，明确告诉它，让它主动停止游标移动。</p>
+<h5 id="如何建立索引"><a href="#如何建立索引" class="headerlink" title="如何建立索引"></a>如何建立索引</h5><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">where a=1 and b=1  </span><br><span class="line">where b=1  </span><br><span class="line">where b=1 order by time desc</span><br></pre></td></tr></table></figure>
+<p>建议建立两个索引，即 idx_ab(a,b) 和 idx_b_time(b,time)</p>
+<blockquote>
+<p>MySQL 的查询优化器会自动调整where子句的条件顺序以使用适合的索引，对于上面的第一条 SQL，如果建立索引为idx_ba(b,a) 也是可以用到索引的。</p>
+</blockquote>
+<h5 id="多值匹配和范围匹配"><a href="#多值匹配和范围匹配" class="headerlink" title="多值匹配和范围匹配"></a>多值匹配和范围匹配</h5><p>假如有联合索引(empno、title、fromdate)，下面的 SQL 是否可以用到索引，如果可以的话，会使用几个？</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> employee.titles  </span><br><span class="line"><span class="keyword">where</span> emp_no <span class="keyword">between</span> <span class="string">'10001'</span> <span class="keyword">and</span><span class="string">'10010'</span>  </span><br><span class="line"><span class="keyword">and</span> title=<span class="string">'软件工程师'</span>   </span><br><span class="line"><span class="keyword">and</span> from_date <span class="keyword">between</span> <span class="string">'2008-01-01'</span><span class="keyword">and</span> <span class="string">'2018-01-01'</span></span><br></pre></td></tr></table></figure>
+<p>可以使用索引，可以用到索引全部三个列，这个 SQL看起来是用了两个范围查询，但作用于empno上的between实际上相当于in，也就是说empno 实际是多值精确匹配。</p>
+<blockquote>
+<p>在 MySQL 中要谨慎地区分多值匹配和范围匹配，否则会对 MySQL 的行为产生困惑。</p>
+</blockquote>
+<h5 id="联合索引的最左匹配原则"><a href="#联合索引的最左匹配原则" class="headerlink" title="联合索引的最左匹配原则"></a>联合索引的最左匹配原则</h5><p>假如建立联合索引(a,b,c)，下列语句是否可以使用索引，如果可以，使用了那几列？</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">where a= 3  // 是，使用了a列</span><br><span class="line">where a= 3 and b = 5  // 是，使用了ab列  </span><br><span class="line">where a = 3 and c = 4 and b = 5  // 是，使用了 a，b，c 列  </span><br><span class="line">where b= 3 // 否</span><br><span class="line">where a= 3 and c = 4  // 是，使用了a列  </span><br><span class="line">where a = 3 and b &gt; 10 and c = 7  // 是，使用了 a，b 列  </span><br><span class="line">where a = 3 and b like 'xx%' andc = 7  // 是，使用了 a，b 列</span><br></pre></td></tr></table></figure>
+<h5 id="根据区分度创建索引"><a href="#根据区分度创建索引" class="headerlink" title="根据区分度创建索引"></a>根据区分度创建索引</h5><p>有如下查询语句，查找指定产品已审核(status=1)的评论：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> user_id,title,<span class="keyword">content</span> <span class="keyword">FROM</span> <span class="string">`comment`</span></span><br><span class="line"><span class="keyword">WHERE</span> <span class="keyword">status</span>=<span class="number">1</span> <span class="keyword">AND</span> product_id=<span class="number">1</span></span><br><span class="line"><span class="keyword">LIMIT</span> <span class="number">0</span>,<span class="number">5</span> ;</span><br></pre></td></tr></table></figure>
+<p>可以建立联合索引，status和product_id，但是哪个放左边就要计算区分度：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="keyword">COUNT</span>(<span class="keyword">DISTINCT</span> <span class="keyword">status</span>)/<span class="keyword">COUNT</span>(*) <span class="keyword">AS</span> audit_rate,</span><br><span class="line"><span class="keyword">COUNT</span>(<span class="keyword">DISTINCT</span> product_id)/<span class="keyword">COUNT</span>(*) <span class="keyword">AS</span> product_rate</span><br><span class="line"><span class="keyword">FROM</span> <span class="keyword">comment</span>;</span><br></pre></td></tr></table></figure>
+<p>一般product的区分度会高点，可以创建如下索引：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">INDEX</span> idx_productID_Status <span class="keyword">ON</span> <span class="keyword">comment</span>(product_id,<span class="keyword">status</span>)</span><br></pre></td></tr></table></figure>
+<h5 id="排序字段索引"><a href="#排序字段索引" class="headerlink" title="排序字段索引"></a>排序字段索引</h5><p>查看某个用户最近20条登录记录，按时间排序：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> *  <span class="keyword">from</span> login_history <span class="keyword">where</span> uid = $uid <span class="keyword">order</span> <span class="keyword">by</span> create_time <span class="keyword">desc</span> <span class="keyword">limit</span> <span class="number">20</span>;</span><br></pre></td></tr></table></figure>
+<p>建立uid+timeline复合索引，将排序引入到索引结构中,数据库负载骤降。</p>
+<p>参考文章：</p>
+<ol>
+<li><a href="https://blog.csdn.net/qq_21987433/article/details/79753551" target="_blank" rel="noopener">MySQL 索引及优化实战</a></li>
+<li><a href="https://mp.weixin.qq.com/s?__biz=MzA5NDg3MjAwMQ==&amp;mid=2457102122&amp;idx=1&amp;sn=4b7ab16c24bedb0024dc5ec03bb8c223&amp;chksm=87c8cf84b0bf4692cb27fc0db6511f7896175594bbc86524e5f7d135df66b5f76ebf10e69df8&amp;mpshare=1&amp;scene=1&amp;srcid=0527sVH9YU6CSlck1SibCrJm#rd" target="_blank" rel="noopener">索引使用的注意事项</a></li>
+</ol>
+<p><strong><font color="green">欢迎扫描下方二维码，关注我的个人微信公众号，查看更多文章</font> ~</strong></p>
+<p><div align="center"><br><img src="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="情情说"></div></p>
+]]></content>
+      
+        <categories>
+            
+            <category> 数据库 </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> 索引 </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[理解索引：MySQL执行计划详细介绍]]></title>
       <url>https://qqdong.github.io/2018/06/02/%E7%90%86%E8%A7%A3%E7%B4%A2%E5%BC%95%EF%BC%9AMySQL%E6%89%A7%E8%A1%8C%E8%AE%A1%E5%88%92%E8%AF%A6%E7%BB%86%E4%BB%8B%E7%BB%8D/</url>
       <content type="html"><![CDATA[<blockquote>
@@ -1852,37 +1946,6 @@
     </entry>
     
     <entry>
-      <title><![CDATA[送福利：小爱音箱F码]]></title>
-      <url>https://qqdong.github.io/2018/04/03/%E9%80%81%E7%A6%8F%E5%88%A9%EF%BC%9A%E5%B0%8F%E7%88%B1%E9%9F%B3%E7%AE%B1F%E7%A0%81/</url>
-      <content type="html"><![CDATA[<p>一年一度的米粉节活动开始了，活动时间为 4.3 - 4.10，公司给我们发了福利，其中包含4个小爱音箱F码，包括2个小米AI音箱F码，2个小米小爱音箱mini F码，想把这个福利分享给大家，以感谢大家的支持和鼓励。</p>
-<p>开始认真写文章有1个半月了，不说有多大的收获，最起码自己的一部分时间很好的利用了，最开心的是让一些朋友有所收货。</p>
-<a id="more"></a>
-<blockquote>
-<p>小米公司是在2010年4月6日成立的。<br>为了感谢米粉们一路以来对小米公司的支持与陪伴，回馈一路支持的粉丝，每年都会在这一天举办粉丝的盛大狂欢，进行对米粉的答谢活动。<br>所以把这一天命名为米粉节！</p>
-</blockquote>
-<p><img src="http://oc3r3rke2.bkt.clouddn.com/15227310135315.jpg?imageView2/2/w/500" alt="掘金社区成就"></p>
-<p><img src="http://oc3r3rke2.bkt.clouddn.com/15227310755728.jpg?imageView2/2/w/500" alt="网友的感谢"></p>
-<p><img src="http://oc3r3rke2.bkt.clouddn.com/15227311491258.jpg?imageView2/2/w/500" alt="网友的感谢"></p>
-<p>会在「微信公众号」和「掘金社区」分别抽奖，分别为1个小爱音箱F码和1个小爱音箱mini F码。</p>
-<h4 id="抽奖截止时间"><a href="#抽奖截止时间" class="headerlink" title="抽奖截止时间"></a>抽奖截止时间</h4><p>4月9号中午12点</p>
-<h4 id="抽奖规则"><a href="#抽奖规则" class="headerlink" title="抽奖规则"></a>抽奖规则</h4><ul>
-<li>需要关注我的微信公众号才有效；</li>
-<li>使用微信抽奖助手随机抽取；</li>
-</ul>
-<p>抽奖链接：<br><img src="http://oc3r3rke2.bkt.clouddn.com/15227319180470.jpg?imageView2/2/w/500" alt=""></p>
-<p>公众号：<br><img src="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="情情说"></p>
-]]></content>
-      
-        <categories>
-            
-            <category> life </category>
-            
-        </categories>
-        
-        
-    </entry>
-    
-    <entry>
       <title><![CDATA[Netty事件监听和处理（上）]]></title>
       <url>https://qqdong.github.io/2018/04/03/Netty%E4%BA%8B%E4%BB%B6%E7%9B%91%E5%90%AC%E5%92%8C%E5%A4%84%E7%90%86%EF%BC%88%E4%B8%8A%EF%BC%89/</url>
       <content type="html"><![CDATA[<p>陪产假结束了，今天又开始正常上班了，正好赶上米粉节活动，又要忙上一阵了，米粉节活动时间为4.03 - 4.10，有不少优惠，感兴趣的可以关注mi.com或小米商城app。</p>
@@ -2001,6 +2064,37 @@
             <tag> Netty </tag>
             
         </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[送福利：小爱音箱F码]]></title>
+      <url>https://qqdong.github.io/2018/04/03/%E9%80%81%E7%A6%8F%E5%88%A9%EF%BC%9A%E5%B0%8F%E7%88%B1%E9%9F%B3%E7%AE%B1F%E7%A0%81/</url>
+      <content type="html"><![CDATA[<p>一年一度的米粉节活动开始了，活动时间为 4.3 - 4.10，公司给我们发了福利，其中包含4个小爱音箱F码，包括2个小米AI音箱F码，2个小米小爱音箱mini F码，想把这个福利分享给大家，以感谢大家的支持和鼓励。</p>
+<p>开始认真写文章有1个半月了，不说有多大的收获，最起码自己的一部分时间很好的利用了，最开心的是让一些朋友有所收货。</p>
+<a id="more"></a>
+<blockquote>
+<p>小米公司是在2010年4月6日成立的。<br>为了感谢米粉们一路以来对小米公司的支持与陪伴，回馈一路支持的粉丝，每年都会在这一天举办粉丝的盛大狂欢，进行对米粉的答谢活动。<br>所以把这一天命名为米粉节！</p>
+</blockquote>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15227310135315.jpg?imageView2/2/w/500" alt="掘金社区成就"></p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15227310755728.jpg?imageView2/2/w/500" alt="网友的感谢"></p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15227311491258.jpg?imageView2/2/w/500" alt="网友的感谢"></p>
+<p>会在「微信公众号」和「掘金社区」分别抽奖，分别为1个小爱音箱F码和1个小爱音箱mini F码。</p>
+<h4 id="抽奖截止时间"><a href="#抽奖截止时间" class="headerlink" title="抽奖截止时间"></a>抽奖截止时间</h4><p>4月9号中午12点</p>
+<h4 id="抽奖规则"><a href="#抽奖规则" class="headerlink" title="抽奖规则"></a>抽奖规则</h4><ul>
+<li>需要关注我的微信公众号才有效；</li>
+<li>使用微信抽奖助手随机抽取；</li>
+</ul>
+<p>抽奖链接：<br><img src="http://oc3r3rke2.bkt.clouddn.com/15227319180470.jpg?imageView2/2/w/500" alt=""></p>
+<p>公众号：<br><img src="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="情情说"></p>
+]]></content>
+      
+        <categories>
+            
+            <category> life </category>
+            
+        </categories>
+        
         
     </entry>
     
