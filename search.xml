@@ -4,6 +4,54 @@
   
     
     <entry>
+      <title><![CDATA[最近项目管理感悟2]]></title>
+      <url>https://qqdong.github.io/2018/07/19/%E6%9C%80%E8%BF%91%E9%A1%B9%E7%9B%AE%E7%AE%A1%E7%90%86%E6%84%9F%E6%82%9F2/</url>
+      <content type="html"><![CDATA[<p>前段时间写过一篇 <a href="http://qqidol.com/2018/06/11/%E6%9C%80%E8%BF%91%E9%A1%B9%E7%9B%AE%E7%AE%A1%E7%90%86%E6%84%9F%E6%82%9F/" target="_blank" rel="noopener">项目管理感悟</a>，提到了自己在项目管理中的一些看法，现在看来感触更深了，特别是自己总结的这句话「前期的重视和投入，会产生1+1&gt;2的效果」。</p>
+<p>今天晚上刚刚上线了一个项目，关于即时通讯的，这类项目前后端交互很复杂，需要考虑各种异常情况，会话管理、连接管理、消息可靠传输等也需要全面考虑。虽然最后成功上线了，但开发过程是非常曲折的，究其原因，主要是缺少前期的细节设计和接口文档，各种使用场景考虑的也不够，遭到了前端很多吐槽。</p>
+<p>可见，前期的投入一定不能少。</p>
+<p>最近，接触的人和事情多了，有了更多的感触，无论是自己的表达方式、思维方式，还是关于资源和价值的看法，都有了新的认识，这里进行梳理总结，希望自己能有所进步。</p>
+<h4 id="说话的方式简单点"><a href="#说话的方式简单点" class="headerlink" title="说话的方式简单点"></a>说话的方式简单点</h4><p>我的性格偏内向，有很强的责任感，无论是业务方反馈的问题，还是前端反馈的问题，我都很着急的想协调解决，往往在说话的方式上会让同事感觉被抱怨，如果是不同组，会觉得我在推卸责任。</p>
+<p>我们部门有专门的项目管理组，有个美女负责协调和我们对接的各个组，包括产品、前端组、测试组、其他业务开发组，她在协调解决问题时，就很顺畅，大家也都很喜欢她，我大致总结下她的做事方法。</p>
+<p>遇到问题时，她会组织大家一起进行确认，针对每个问题，不会细究是谁的原因，重点是怎么可以快速解决，会考虑各方的时间，征求大家的意见，不强硬，不自作主张，积极协调，达成一致。</p>
+<p>说话的方式简单点，以问题为导向，共同讨论解决方法。</p>
+<p>向美女同事学习。</p>
+<h4 id="打破思维定式"><a href="#打破思维定式" class="headerlink" title="打破思维定式"></a>打破思维定式</h4><p>相信很多人接手别人的代码，都觉得代码不是特别理想，但有几人会主动去优化改善呢，不但不会，还会继续在其上进行堆砌。</p>
+<p>这其实是一个思维定式，觉得这样写一定有它的意义，修改了线上出问题了怎么办。有些需求，直接改改很快就能实现，懒得去做很大的优化修改。一些本来就该优化的ip hash依赖、冗余的代码、服务的不可实时重启、单独部署的redis分布式锁依赖，因为时间的借口，一推再推。</p>
+<p>我也没能逃脱这种思维定式，该醒醒了。</p>
+<p>如果可以换位思考，打破这些思维定式，花不了太多时间，扩展性、可维护性会有很大提高，自己的所学也会很好的实践，这些才是自己成长的关键。</p>
+<p>后续一段时间，会和同事一起考虑项目的重构和优化，一起成长吧。</p>
+<h4 id="有法可寻"><a href="#有法可寻" class="headerlink" title="有法可寻"></a>有法可寻</h4><p>任何问题都能找到解决的方法，细心一点，耐心一点。</p>
+<p>前段时间做机房迁移，因为机房太老准备下线了，迁移之后，一个服务运行1-2天后，就会频繁的进行Full GC，前端请求时会时不时的高延迟，我和同事做了GC分析、栈分析、堆分析后，发现RabbitMQ的exchange类型配置错了，本该单向发送的变成了多向发送，导致大量消息在机器中堆积。</p>
+<p>最近的日志收集流程改造、复杂的会话异常问题，都从同事身上学到很多，主要的不是排查的过程，而是那种探索、耐心的精神。</p>
+<p>保持对使用技术的探索，细心一点，耐心一点，总有法可寻。</p>
+<p>不管是技术，管理也是一样，向同事学习。</p>
+<h4 id="要支持"><a href="#要支持" class="headerlink" title="要支持"></a>要支持</h4><p>一个项目上线，需要各方的支持，前端、测试、运维、其他业务小组等，项目开始时，就需要协调好，不要临时抱佛脚。</p>
+<p>要支持，要明确你要什么支持，别人才能更好、更有效率的配合你。</p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15320182242753.jpg" alt="要支持"></p>
+<h4 id="价值与收益"><a href="#价值与收益" class="headerlink" title="价值与收益"></a>价值与收益</h4><p>有品商城的客服机器人是我们组支持的，周会汇报时，问到了产品同事，机器人给有品客服带来了什么价值，竟然没有关注。</p>
+<p>给领导汇报时，项目进度是一方面，他们关心的还有项目给业务带来的价值与收益是什么。</p>
+<p>平时评估一些技术方案或决策时，也会考虑投入和收益。</p>
+<p>最近也在梳理项目管理和实施过程中的一些流程规范，等有初步的成效后，会第一时间分享给大家，期待关注。</p>
+<p><strong><font color="green">欢迎扫描下方二维码，关注我的个人微信公众号，查看更多文章</font> ~</strong></p>
+<p><div align="center"><br><img src="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="情情说"></div></p>
+]]></content>
+      
+        <categories>
+            
+            <category> summary </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> 项目管理 </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[最近二三事]]></title>
       <url>https://qqdong.github.io/2018/07/07/%E6%9C%80%E8%BF%91%E4%BA%8C%E4%B8%89%E4%BA%8B/</url>
       <content type="html"><![CDATA[<p>有一段时间没更新了，感谢你们还依然关注着我。</p>
@@ -2284,37 +2332,6 @@
     </entry>
     
     <entry>
-      <title><![CDATA[送福利：小爱音箱F码]]></title>
-      <url>https://qqdong.github.io/2018/04/03/%E9%80%81%E7%A6%8F%E5%88%A9%EF%BC%9A%E5%B0%8F%E7%88%B1%E9%9F%B3%E7%AE%B1F%E7%A0%81/</url>
-      <content type="html"><![CDATA[<p>一年一度的米粉节活动开始了，活动时间为 4.3 - 4.10，公司给我们发了福利，其中包含4个小爱音箱F码，包括2个小米AI音箱F码，2个小米小爱音箱mini F码，想把这个福利分享给大家，以感谢大家的支持和鼓励。</p>
-<p>开始认真写文章有1个半月了，不说有多大的收获，最起码自己的一部分时间很好的利用了，最开心的是让一些朋友有所收货。</p>
-<a id="more"></a>
-<blockquote>
-<p>小米公司是在2010年4月6日成立的。<br>为了感谢米粉们一路以来对小米公司的支持与陪伴，回馈一路支持的粉丝，每年都会在这一天举办粉丝的盛大狂欢，进行对米粉的答谢活动。<br>所以把这一天命名为米粉节！</p>
-</blockquote>
-<p><img src="http://oc3r3rke2.bkt.clouddn.com/15227310135315.jpg?imageView2/2/w/500" alt="掘金社区成就"></p>
-<p><img src="http://oc3r3rke2.bkt.clouddn.com/15227310755728.jpg?imageView2/2/w/500" alt="网友的感谢"></p>
-<p><img src="http://oc3r3rke2.bkt.clouddn.com/15227311491258.jpg?imageView2/2/w/500" alt="网友的感谢"></p>
-<p>会在「微信公众号」和「掘金社区」分别抽奖，分别为1个小爱音箱F码和1个小爱音箱mini F码。</p>
-<h4 id="抽奖截止时间"><a href="#抽奖截止时间" class="headerlink" title="抽奖截止时间"></a>抽奖截止时间</h4><p>4月9号中午12点</p>
-<h4 id="抽奖规则"><a href="#抽奖规则" class="headerlink" title="抽奖规则"></a>抽奖规则</h4><ul>
-<li>需要关注我的微信公众号才有效；</li>
-<li>使用微信抽奖助手随机抽取；</li>
-</ul>
-<p>抽奖链接：<br><img src="http://oc3r3rke2.bkt.clouddn.com/15227319180470.jpg?imageView2/2/w/500" alt=""></p>
-<p>公众号：<br><img src="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="情情说"></p>
-]]></content>
-      
-        <categories>
-            
-            <category> life </category>
-            
-        </categories>
-        
-        
-    </entry>
-    
-    <entry>
       <title><![CDATA[Netty事件监听和处理（上）]]></title>
       <url>https://qqdong.github.io/2018/04/03/Netty%E4%BA%8B%E4%BB%B6%E7%9B%91%E5%90%AC%E5%92%8C%E5%A4%84%E7%90%86%EF%BC%88%E4%B8%8A%EF%BC%89/</url>
       <content type="html"><![CDATA[<p>陪产假结束了，今天又开始正常上班了，正好赶上米粉节活动，又要忙上一阵了，米粉节活动时间为4.03 - 4.10，有不少优惠，感兴趣的可以关注mi.com或小米商城app。</p>
@@ -2433,6 +2450,37 @@
             <tag> Netty </tag>
             
         </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[送福利：小爱音箱F码]]></title>
+      <url>https://qqdong.github.io/2018/04/03/%E9%80%81%E7%A6%8F%E5%88%A9%EF%BC%9A%E5%B0%8F%E7%88%B1%E9%9F%B3%E7%AE%B1F%E7%A0%81/</url>
+      <content type="html"><![CDATA[<p>一年一度的米粉节活动开始了，活动时间为 4.3 - 4.10，公司给我们发了福利，其中包含4个小爱音箱F码，包括2个小米AI音箱F码，2个小米小爱音箱mini F码，想把这个福利分享给大家，以感谢大家的支持和鼓励。</p>
+<p>开始认真写文章有1个半月了，不说有多大的收获，最起码自己的一部分时间很好的利用了，最开心的是让一些朋友有所收货。</p>
+<a id="more"></a>
+<blockquote>
+<p>小米公司是在2010年4月6日成立的。<br>为了感谢米粉们一路以来对小米公司的支持与陪伴，回馈一路支持的粉丝，每年都会在这一天举办粉丝的盛大狂欢，进行对米粉的答谢活动。<br>所以把这一天命名为米粉节！</p>
+</blockquote>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15227310135315.jpg?imageView2/2/w/500" alt="掘金社区成就"></p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15227310755728.jpg?imageView2/2/w/500" alt="网友的感谢"></p>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15227311491258.jpg?imageView2/2/w/500" alt="网友的感谢"></p>
+<p>会在「微信公众号」和「掘金社区」分别抽奖，分别为1个小爱音箱F码和1个小爱音箱mini F码。</p>
+<h4 id="抽奖截止时间"><a href="#抽奖截止时间" class="headerlink" title="抽奖截止时间"></a>抽奖截止时间</h4><p>4月9号中午12点</p>
+<h4 id="抽奖规则"><a href="#抽奖规则" class="headerlink" title="抽奖规则"></a>抽奖规则</h4><ul>
+<li>需要关注我的微信公众号才有效；</li>
+<li>使用微信抽奖助手随机抽取；</li>
+</ul>
+<p>抽奖链接：<br><img src="http://oc3r3rke2.bkt.clouddn.com/15227319180470.jpg?imageView2/2/w/500" alt=""></p>
+<p>公众号：<br><img src="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="情情说"></p>
+]]></content>
+      
+        <categories>
+            
+            <category> life </category>
+            
+        </categories>
+        
         
     </entry>
     
