@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="项目管理" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="最近2个月，间断地写了几篇管理、沟通相关的文章，技术文章没在写了，更新速度也远没有年初几个月那么快，一方面自己慢慢向管理转型，一些流程和规范要慢慢梳理和适应，另一方面就是自己有点懒了，勤快点还是有时间学习和总结技术知识的。 自己的内心和朋友都提醒我，技术不能放下，要一直学习、实践、总结、分享下去。后面我们组有2个重点专项突击项目，我会重点跟进数据清洗和数据分析相关的改进优化，要好好学习一段时间了。">
+<meta name="keywords" content="项目管理">
+<meta property="og:type" content="article">
+<meta property="og:title" content="最近项目管理感悟3">
+<meta property="og:url" content="https://qqdong.github.io/2018/08/05/最近项目管理感悟3/index.html">
+<meta property="og:site_name" content="情情说">
+<meta property="og:description" content="最近2个月，间断地写了几篇管理、沟通相关的文章，技术文章没在写了，更新速度也远没有年初几个月那么快，一方面自己慢慢向管理转型，一些流程和规范要慢慢梳理和适应，另一方面就是自己有点懒了，勤快点还是有时间学习和总结技术知识的。 自己的内心和朋友都提醒我，技术不能放下，要一直学习、实践、总结、分享下去。后面我们组有2个重点专项突击项目，我会重点跟进数据清洗和数据分析相关的改进优化，要好好学习一段时间了。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:updated_time" content="2018-08-05T05:25:57.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="最近项目管理感悟3">
+<meta name="twitter:description" content="最近2个月，间断地写了几篇管理、沟通相关的文章，技术文章没在写了，更新速度也远没有年初几个月那么快，一方面自己慢慢向管理转型，一些流程和规范要慢慢梳理和适应，另一方面就是自己有点懒了，勤快点还是有时间学习和总结技术知识的。 自己的内心和朋友都提醒我，技术不能放下，要一直学习、实践、总结、分享下去。后面我们组有2个重点专项突击项目，我会重点跟进数据清洗和数据分析相关的改进优化，要好好学习一段时间了。">
+<meta name="twitter:image" content="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://qqdong.github.io/2018/08/05/最近项目管理感悟3/"/>
+
+
+
+
+
+  <title>最近项目管理感悟3 | 情情说</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?e7e93bfed4e516cfa1c99cde191477e5";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">情情说</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">记录工作、学习和生活</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/08/05/最近项目管理感悟3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="calm">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/head.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="情情说">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">最近项目管理感悟3</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-08-05T22:00:00+08:00">
+                2018-08-05
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/summary/" itemprop="url" rel="index">
+                    <span itemprop="name">summary</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>最近2个月，间断地写了几篇管理、沟通相关的文章，技术文章没在写了，更新速度也远没有年初几个月那么快，一方面自己慢慢向管理转型，一些流程和规范要慢慢梳理和适应，另一方面就是自己有点懒了，勤快点还是有时间学习和总结技术知识的。</p>
+<p>自己的内心和朋友都提醒我，技术不能放下，要一直学习、实践、总结、分享下去。后面我们组有2个重点专项突击项目，我会重点跟进数据清洗和数据分析相关的改进优化，要好好学习一段时间了。</p>
+<p>管理上，最近1个月也经历了一些事情，从大佬的言行中有一些体会和感悟，从几个方面总结下。之前写过2篇感悟，感兴趣的朋友可以一起讨论：</p>
+<ul>
+<li><a href="http://qqidol.com/2018/06/11/%E6%9C%80%E8%BF%91%E9%A1%B9%E7%9B%AE%E7%AE%A1%E7%90%86%E6%84%9F%E6%82%9F/" target="_blank" rel="noopener">管理感悟篇1</a></li>
+<li><a href="http://qqidol.com/2018/07/19/%E6%9C%80%E8%BF%91%E9%A1%B9%E7%9B%AE%E7%AE%A1%E7%90%86%E6%84%9F%E6%82%9F2/" target="_blank" rel="noopener">管理感悟篇2</a></li>
+</ul>
+<h4 id="做事情的成本和价值意识"><a href="#做事情的成本和价值意识" class="headerlink" title="做事情的成本和价值意识"></a>做事情的成本和价值意识</h4><p>前几天参加了一个讨论会，主要议题是后续的2个大需求。一个需求是要实现一个通用的客户端SDK，可以快速接入我们的客服系统，这个需求是领导提出来的，因为要接入客服系统的业务方会越来越多，提供一个稳定、通用的SDK可以减少接入成本和后续的开发成本。</p>
+<p>另一个需求是，有品想开发一个商家APP，集成客服工作台、工单、各种查询工具等功能，因为只是沟通过程中的一个想法，没有深刻理解和分析，讨论过程中，认识到领导很关注投入产出比，以及后续的价值。</p>
+<p>可以看到，领导很重视做一件事情的成本和价值，如果成本比产生的价值高，做的必要性就不大，除非有别人为你买单或是必须要做的事情，这是判断一件事情要不要做很重要的思路。</p>
+<p>一个需求过来，最终把它实现的是团队的兄弟们，如果可以让他们意识到做事情的价值，会更用心、更多思考、更有劲头地去做，而不仅仅是简单的实现。</p>
+<h4 id="开发质量意识"><a href="#开发质量意识" class="headerlink" title="开发质量意识"></a>开发质量意识</h4><p>我们的客服系统是7*24小时服务的，线上的问题可能会影响很多用户，如果问题比较多，会引起不少投诉，有损公司的形象，丧失一部分用户，这是很严重的事情。</p>
+<p>大家都在网上买过东西，收到东西后如果不满意，可能会通过一些途径联系客服，我们系统提供在线、热线、邮件的渠道，如果在聊天的过程中出现丢消息、会话异常的问题，会很影响自己的心情。</p>
+<p>在开发时，如果有这种意识，就会很注重代码的质量，主动考虑可能发生的异常情况，让系统更稳定，很多人做不到这一点，我做的也不够好。</p>
+<p>如果系统有大的功能变更或优化改造，需要在上线前check下关键场景，在测试环境下验证好。</p>
+<h4 id="对上汇报，要深思熟虑"><a href="#对上汇报，要深思熟虑" class="headerlink" title="对上汇报，要深思熟虑"></a>对上汇报，要深思熟虑</h4><p>工作过程中会产生很多想法，包括自己对一些问题的思考，或者和业务方沟通过程中，了解到他们的一些想法，有时我会比较着急，急着去实施或者向领导汇报，但效果不是特别好，这是我以后要注意的。</p>
+<p>一个想法从诞生到实施需要做很多事情，整合、梳理自己的想法，和同事或有经验的人交流意见，给出一个初步的实施方案，开会确认方案的可行性和完整性。领导关心的是实施方案，而不仅仅是一个想法，不要急于汇报自己没想清楚的事情。</p>
+<p>对上汇报的事情，是要对其负责的，不是说说那么简单，如果领导只听到你的「雄心」、你的规划，而迟迟没有成果，或者你经常夸大一些事情，慢慢地会失去领导的信任，得不到重用。</p>
+<p>对上汇报，要深思熟虑，说的话要有意义和价值。</p>
+<h4 id="加强沟通和协作"><a href="#加强沟通和协作" class="headerlink" title="加强沟通和协作"></a>加强沟通和协作</h4><p>部门之间有座大墙，小组之间有座小墙，人与人之间有个鸿沟。</p>
+<p>要把一件事情做好，绝不是一个人的事情，需要团队协作，小组、部门相互合作，平时主动了解他们在做什么，使用了哪些好的技术方案，需要的时候好找他们合作。</p>
+<p>开发也只是其中一部分，视野要广阔些，不要只看着自己手上的一摊事，多和需求涉及方沟通，发现真正的问题，才能够更好的解决。</p>
+<p>执行过程中，以「把事情做好」为最终目的，对事不对人，推进一些事情的时候，多沟通，不要有太多顾虑，不要担心会不会打扰别人时间、一些问题会不会很菜等。</p>
+<h4 id="细节决定成败"><a href="#细节决定成败" class="headerlink" title="细节决定成败"></a>细节决定成败</h4><p>在一次给部门大Boos汇报的会议上，明显感觉到他很注重细节，特别是用户体验相关的。</p>
+<p>想想也对，如果在细节上做的都很好，整体上也不会差，这是一种态度。</p>
+<p>做事情时，不要忽略每一个细节，特别是和直接用户相关的。</p>
+<p><strong><font color="green">欢迎扫描下方二维码，关注我的个人微信公众号，查看更多文章</font> ~</strong></p>
+<p><div align="center"><br><img src="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="情情说"></div></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/项目管理/" rel="tag"># 项目管理</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/07/29/非暴力沟通阅读分享（二）/" rel="next" title="非暴力沟通阅读分享（二）">
+                <i class="fa fa-chevron-left"></i> 非暴力沟通阅读分享（二）
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/08/20/最近项目管理感悟4/" rel="prev" title="最近项目管理感悟4">
+                最近项目管理感悟4 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        
+<script>
+  with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='//bdimg.share.baidu.com/static/api/js/share.js?cdnversion='+~(-new Date()/36e5)];
+</script>
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zNjE2Mi8xMjY5Nw=="></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/head.png"
+                alt="calm" />
+            
+              <p class="site-author-name" itemprop="name">calm</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">61</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">13</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">28</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#做事情的成本和价值意识"><span class="nav-number">1.</span> <span class="nav-text">做事情的成本和价值意识</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#开发质量意识"><span class="nav-number">2.</span> <span class="nav-text">开发质量意识</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#对上汇报，要深思熟虑"><span class="nav-number">3.</span> <span class="nav-text">对上汇报，要深思熟虑</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#加强沟通和协作"><span class="nav-number">4.</span> <span class="nav-text">加强沟通和协作</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#细节决定成败"><span class="nav-number">5.</span> <span class="nav-text">细节决定成败</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">calm</span>
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

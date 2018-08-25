@@ -272,6 +272,671 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/06/08/理解索引：HBase介绍和架构/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="calm">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/head.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="情情说">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/06/08/理解索引：HBase介绍和架构/" itemprop="url">理解索引：HBase介绍和架构</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-06-08T22:00:00+08:00">
+                2018-06-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/数据库/" itemprop="url" rel="index">
+                    <span itemprop="name">数据库</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <blockquote>
+<p>最近有个需求，要修改现有存储结构，涉及查询条件和查询效率的考量，看了几篇索引和HBase相关的文章，回忆了相关知识，结合项目需求，说说自己的理解和总结。</p>
+</blockquote>
+<p>前几篇文章重点介绍MySQL索引相关的知识，从索引优点、索引结构演化过程，到SQL查询过程、执行计划，再到最后的索引优化，错过的朋友可以回顾下前几篇文章：</p>
+<ol>
+<li><a href="http://qqidol.com/2018/05/26/%E7%90%86%E8%A7%A3%E7%B4%A2%E5%BC%95%EF%BC%88%E4%B8%8A%EF%BC%89/" target="_blank" rel="noopener">索引结构和数据定位过程</a></li>
+<li><a href="http://qqidol.com/2018/05/29/%E7%90%86%E8%A7%A3%E7%B4%A2%E5%BC%95%EF%BC%9AMySQL%E6%9F%A5%E8%AF%A2%E8%BF%87%E7%A8%8B%E5%92%8C%E9%AB%98%E7%BA%A7%E6%9F%A5%E8%AF%A2/" target="_blank" rel="noopener">查询过程和高级查询</a></li>
+<li><a href="http://qqidol.com/2018/06/02/%E7%90%86%E8%A7%A3%E7%B4%A2%E5%BC%95%EF%BC%9AMySQL%E6%89%A7%E8%A1%8C%E8%AE%A1%E5%88%92%E8%AF%A6%E7%BB%86%E4%BB%8B%E7%BB%8D/" target="_blank" rel="noopener">执行计划详细介绍</a></li>
+<li><a href="http://qqidol.com/2018/06/03/%E7%90%86%E8%A7%A3%E7%B4%A2%E5%BC%95%EF%BC%9A%E7%B4%A2%E5%BC%95%E4%BC%98%E5%8C%96/" target="_blank" rel="noopener">索引优化</a></li>
+</ol>
+<p>后面会开始介绍HBase索引相关的，和MySQL对比下，以加深对索引的理解，本篇先介绍下HBase，它的一些特性和整体架构，为后面介绍索引做准备，通过介绍，你会了解到：</p>
+<ul>
+<li>为什么会出现HBase</li>
+<li>HBase的特性</li>
+<li>HBase的整体架构</li>
+</ul>
+<blockquote>
+<p>部分内容摘录了几个博友的文章，最后会给出文章链接，感谢他们的精彩分析。</p>
+</blockquote>
+<h4 id="为什么会出现HBase"><a href="#为什么会出现HBase" class="headerlink" title="为什么会出现HBase"></a>为什么会出现HBase</h4><p>任何一个技术的出现都是有原因的，了解它为什么出现，以及它解决了什么问题，更有助于理解它的特性和设计思想。</p>
+<h5 id="MySQL瓶颈"><a href="#MySQL瓶颈" class="headerlink" title="MySQL瓶颈"></a>MySQL瓶颈</h5><p>MySQL是一个关系型数据库，有很高的数据一致性和持久性保证，当访问量特别高时，特别是写入操作，会有很大的O性能瓶颈。</p>
+<p>虽然可以通过主从读写分离、分库分表的方式解决，但随着数据量不断增大、并发不断增高，MySQL应用开发越来越复杂，也越来越具有技术挑战性。</p>
+<p>另外，分表分库的规则的设定都是需要经验的，虽然有Cobar、MyCat、Sharding-JDBC、TDDL、DBProxy中间件层来屏蔽开发者的复杂性，但是避免不了整个架构的复杂性。</p>
+<p>分库分表的子库到一定阶段又面临扩展问题，需求的变更可能又需要一种新的sharding。</p>
+<p>MySQL的扩展性差、大数据下IO压力大、表结构更改困难，正是MySQL开发人员面临的问题，也是MySQL的瓶颈。</p>
+<p>虽然有这些瓶颈，但对数据一致性要求特别高的业务，还是要使用它，但是有的应用场景不需要太高的一致性，在大数据量、高并发的业务中，可以选择其他存储方案。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018/06/08/理解索引：HBase介绍和架构/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/06/03/理解索引：索引优化/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="calm">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/head.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="情情说">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/06/03/理解索引：索引优化/" itemprop="url">理解索引：索引优化</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-06-03T22:00:00+08:00">
+                2018-06-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/数据库/" itemprop="url" rel="index">
+                    <span itemprop="name">数据库</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <blockquote>
+<p>最近有个需求，要修改现有存储结构，涉及查询条件和查询效率的考量，看了几篇索引和HBase相关的文章，回忆了相关知识，结合项目需求，说说自己的理解和总结。</p>
+</blockquote>
+<p>错过的朋友可以先回顾下前3篇文章：</p>
+<ol>
+<li><a href="http://qqidol.com/2018/05/26/%E7%90%86%E8%A7%A3%E7%B4%A2%E5%BC%95%EF%BC%88%E4%B8%8A%EF%BC%89/" target="_blank" rel="noopener">索引结构和数据定位过程</a></li>
+<li><a href="http://qqidol.com/2018/05/29/%E7%90%86%E8%A7%A3%E7%B4%A2%E5%BC%95%EF%BC%9AMySQL%E6%9F%A5%E8%AF%A2%E8%BF%87%E7%A8%8B%E5%92%8C%E9%AB%98%E7%BA%A7%E6%9F%A5%E8%AF%A2/" target="_blank" rel="noopener">查询过程和高级查询</a></li>
+<li><a href="http://qqidol.com/2018/06/02/%E7%90%86%E8%A7%A3%E7%B4%A2%E5%BC%95%EF%BC%9AMySQL%E6%89%A7%E8%A1%8C%E8%AE%A1%E5%88%92%E8%AF%A6%E7%BB%86%E4%BB%8B%E7%BB%8D/" target="_blank" rel="noopener">执行计划详细介绍</a></li>
+</ol>
+<p>上一篇详细介绍了explain命令，通过该命令，可以定位出在哪一步出现了性能问题，下一步就是通过优化索引来解决它。</p>
+<blockquote>
+<p>部分内容摘录了几个博友的文章，最后会给出文章链接，感谢他们的精彩分析。</p>
+</blockquote>
+<h4 id="常见优化方法"><a href="#常见优化方法" class="headerlink" title="常见优化方法"></a>常见优化方法</h4><h5 id="联合索引最左前缀原则"><a href="#联合索引最左前缀原则" class="headerlink" title="联合索引最左前缀原则"></a>联合索引最左前缀原则</h5><p>复合索引遵守「最左前缀」原则，查询条件中，使用了复合索引前面的字段，索引才会被使用，如果不是按照索引的最左列开始查找，则无法使用索引。</p>
+<p>比如在(a,b,c)三个字段上建立联合索引，那么它能够加快a|(a,b)|(a,b,c)三组查询的速度，而不能加快b|(b,a)这种查询顺序。 </p>
+<p>另外，建联合索引的时候，区分度最高的字段在最左边。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018/06/03/理解索引：索引优化/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/06/02/理解索引：MySQL执行计划详细介绍/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="calm">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/head.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="情情说">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/06/02/理解索引：MySQL执行计划详细介绍/" itemprop="url">理解索引：MySQL执行计划详细介绍</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-06-02T22:00:00+08:00">
+                2018-06-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/数据库/" itemprop="url" rel="index">
+                    <span itemprop="name">数据库</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <blockquote>
+<p>最近有个需求，要修改现有存储结构，涉及查询条件和查询效率的考量，看了几篇索引和HBase相关的文章，回忆了相关知识，结合项目需求，说说自己的理解和总结。</p>
+</blockquote>
+<p>前2篇介绍了索引的优点、索引结构的演化过程以及SQL的执行过程，重点分析了SQL的执行顺序和数据的定位过程，错过的朋友可以先回顾下：</p>
+<ol>
+<li><a href="http://qqidol.com/2018/05/26/%E7%90%86%E8%A7%A3%E7%B4%A2%E5%BC%95%EF%BC%88%E4%B8%8A%EF%BC%89/" target="_blank" rel="noopener">索引结构和数据定位过程</a></li>
+<li><a href="http://qqidol.com/2018/05/29/%E7%90%86%E8%A7%A3%E7%B4%A2%E5%BC%95%EF%BC%9AMySQL%E6%9F%A5%E8%AF%A2%E8%BF%87%E7%A8%8B%E5%92%8C%E9%AB%98%E7%BA%A7%E6%9F%A5%E8%AF%A2/" target="_blank" rel="noopener">查询过程和高级查询</a></li>
+</ol>
+<p>这篇进入正题，介绍如何查看和分析SQL执行情况、排查SQL的性能问题，通过本篇介绍，你会了解到：</p>
+<ul>
+<li>explain命令概述</li>
+<li>select_type字段详细介绍</li>
+<li>type字段详细介绍</li>
+<li>extra字段详细介绍</li>
+</ul>
+<blockquote>
+<p>部分内容摘录了几个博友的文章，最后会给出文章链接，感谢他们的精彩分析。</p>
+</blockquote>
+<h4 id="explain命令概述"><a href="#explain命令概述" class="headerlink" title="explain命令概述"></a>explain命令概述</h4><p>工作中，MySQL会记录执行时间比较久的SQL语句，找出这些SQL语句是第一步，重要的是查看SQL语句的执行计划，对于MySQL执行计划的获取，可以通过explain方式来查看，这条命令的输出结果能够让我们了解MySQL优化器是如何执行SQL语句的。</p>
+<p>MySQL优化器是基于开销来工作的，是在每条SQL语句执行的时候动态地计算出来的，命令用法十分简单, 在 SELECT 语句前加上 Explain 就可以了。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018/06/02/理解索引：MySQL执行计划详细介绍/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/05/29/理解索引：MySQL查询过程和高级查询/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="calm">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/head.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="情情说">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/05/29/理解索引：MySQL查询过程和高级查询/" itemprop="url">理解索引：MySQL查询过程和高级查询</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-29T22:00:00+08:00">
+                2018-05-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/数据库/" itemprop="url" rel="index">
+                    <span itemprop="name">数据库</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p><a href="http://qqidol.com/2018/05/26/%E7%90%86%E8%A7%A3%E7%B4%A2%E5%BC%95%EF%BC%88%E4%B8%8A%EF%BC%89/" target="_blank" rel="noopener">上一篇</a> 提到，最近有个需求，要修改现有存储结构，涉及查询条件和查询效率的考量，看了几篇索引和HBase相关的文章，回忆了相关知识，结合项目需求，说说自己的理解和总结。</p>
+<p>总体目录如下，上篇介绍了前3小节，分析了索引为什么快，总结了它的优点和分类，以及索引的演化过程，中篇会重点介绍索引分析方法和常见索引优化。</p>
+<ul>
+<li>为什么需要索引</li>
+<li>索引的类别</li>
+<li>MySQL索引演化</li>
+<li>MySQL索引优化</li>
+<li>HBase介绍</li>
+<li>HBase存储结构</li>
+<li>HBase索引介绍</li>
+<li>业务需求及设计</li>
+</ul>
+<blockquote>
+<p>部分内容摘录了几个博友的文章，最后会给出文章链接，感谢他们的精彩分析。</p>
+</blockquote>
+<p>通过中篇的介绍，你会了解到：</p>
+<ul>
+<li>MySQL查询过程</li>
+<li>高级查询相关概念</li>
+<li>explain命令详细介绍</li>
+<li>索引优化建议</li>
+</ul>
+<h4 id="MySQL查询过程"><a href="#MySQL查询过程" class="headerlink" title="MySQL查询过程"></a>MySQL查询过程</h4><p>想要更好的优化查询，首先要了解其整体查询过程，从客户端发送查询请求，到接收到查询结果，MySQL服务器做了很多工作。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018/05/29/理解索引：MySQL查询过程和高级查询/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/05/26/理解索引（上）/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1226,629 +1891,11 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/04/30/推荐2个工具/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="calm">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/head.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="情情说">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/04/30/推荐2个工具/" itemprop="url">推荐2个工具</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-30T22:00:00+08:00">
-                2018-04-30
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/tool/" itemprop="url" rel="index">
-                    <span itemprop="name">tool</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>5.1假期第二天，依然窝在家里，不过今天来客了，我的好朋友「晓哥」来看小宝，中午喝了点，各自「吹嘘」了一阵，聊聊各自职业的发展，工作中遇到的问题，以及对未来的规划。</p>
-<p>他现在发展的特别好，在一家近千人开发的公司，主管北京地区的业务，包括需求洽谈、研发、项目推进和验收等，公司业务是为多家银行做app端，和我分享了他在管理上的一些经验，真心为他高兴，祝越来越好。</p>
-<p>话题一转，说说今天的主角：2个工具，一个是抓包工具Charles，一个是API调试工具Postman。前几天，尝试使用Charles抓取Websocket的消息，折腾了好久才成功，Postman也一样，安装了app版本，也遇到了一些问题，想把过程分享给需要的朋友。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2018/04/30/推荐2个工具/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/04/29/RabbitMQ实战：扩展RabbitMQ与系列总结/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="calm">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/head.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="情情说">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/04/29/RabbitMQ实战：扩展RabbitMQ与系列总结/" itemprop="url">RabbitMQ实战：扩展RabbitMQ与系列总结</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-29T22:00:00+08:00">
-                2018-04-29
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/消息队列/" itemprop="url" rel="index">
-                    <span itemprop="name">消息队列</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <blockquote>
-<p>本系列是「RabbitMQ实战：高效部署分布式消息队列」书籍的总结笔记。</p>
-</blockquote>
-<p>本篇是「RabbitMQ实战」系列的最后一篇，主要介绍RabbitMQ插件，了解如何安装和启用它，列举一些常用的插件，以及如何自定义。</p>
-<p>在介绍之前，先总结下本系列的主要内容，把它们串起来。</p>
-<h4 id="系列总结"><a href="#系列总结" class="headerlink" title="系列总结"></a>系列总结</h4><p>开篇时，这样定义过RabbitMQ：它是一个开源的消息代理和队列服务器，可以通过基本协议在完全不同的应用之间共享数据，可以将作业排队以便让分布式服务进行处理。</p>
-<p>这句话有几个关键词：消息代理、队列服务器、共享数据、分布式处理，分别来说明下，以加深理解。</p>
-<p>消息代理：可以把RabbitMQ看成一个代理服务器，一方面把消息生产者和消费者进行了解耦，更灵活；一方面，消息如何分发不用生产者考虑了，RabbitMQ提供多种分发策略。</p>
-<p>队列服务器：消息最终是缓存在队列中的，消费者从指定的队列中消费消息，所以需要管理队列和队列中的消息。</p>
-<p>共享数据：主要是说消息可以在不同应用间传输数据，通过AMQP协议进行规范，达到共享数据的目的。</p>
-<p>分布式处理：多个消费者可以订阅同一个队列，这样，多台机器就可以同时处理同一批数据，达到分布式处理的效果。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2018/04/29/RabbitMQ实战：扩展RabbitMQ与系列总结/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/04/25/部门季度总结会引发的思考/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="calm">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/head.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="情情说">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/04/25/部门季度总结会引发的思考/" itemprop="url">部门老大的发言引发的思考</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-25T22:00:00+08:00">
-                2018-04-25
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/summary/" itemprop="url" rel="index">
-                    <span itemprop="name">summary</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>4月25号，部门召开了一季度的总结会，部门老大最后的总结发言，有很多值得学习的地方，在此做个记录。</p>
-<p>另外，上级领导也开始慢慢放权，让我负责更多系统的管理工作，感激的同时多了不少压力，于是想引以为鉴，时常警惕自己。</p>
-<p>部门老大，大家都叫他「海大人」，小米刚成立时，就跟着雷总干，他是开发出身，一股工程师的气息，很敬业，思路清晰、敏捷。</p>
-<p>最后总结发言用了30多分钟，尽力领会他想表达的，映射到自己。</p>
-<blockquote>
-<p>总结的这些，都是我要为之努力的，我还只是一个小兵。</p>
-</blockquote>
-<h4 id="细节很重要"><a href="#细节很重要" class="headerlink" title="细节很重要"></a>细节很重要</h4><p>海大人很关注细节：会场两边的显示屏亮了（上一次不亮），每个项目组之间的PPT衔接更顺畅了，演讲的超时时间也少了，他对这次会议的准备提出了表扬。</p>
-<p>工作上，细节也很重要，如果项目的分析、规划和执行不够细致，很容易延期，团队的协作也会很乱，上线后，项目的可用性和稳定性也不敢保证。</p>
-<p>所以，做任何事情，都要细心，不放过任何一个细节，有些问题可以不解决，但也要了解，前期的细心分析和规划，会让执行更有章法和自信。</p>
-<h4 id="企业以盈利为目的"><a href="#企业以盈利为目的" class="headerlink" title="企业以盈利为目的"></a>企业以盈利为目的</h4><p>企业最终是要赚钱的，需求要不要做，系统是自研还是外采，都要考虑其产出比。</p>
-<p>我们部门，很多项目都是服务于各个业务部门的，比如订单、仓库、物流、销售、客服等，海大人提出了要进行内部核算，和每个业务口核算成本，项目成本占他们营收的成本有多少。</p>
-<p>所以，做项目、接需求时，要把价值说清楚，做好体验，让业务方满意，才能让对方认可你的成本。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2018/04/25/部门季度总结会引发的思考/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/04/22/RabbitMQ实战：性能和安全/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="calm">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/head.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="情情说">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/04/22/RabbitMQ实战：性能和安全/" itemprop="url">RabbitMQ实战：性能和安全</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-22T22:00:00+08:00">
-                2018-04-22
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/消息队列/" itemprop="url" rel="index">
-                    <span itemprop="name">消息队列</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <blockquote>
-<p>本系列是「RabbitMQ实战：高效部署分布式消息队列」书籍的总结笔记。</p>
-</blockquote>
-<p>前两篇介绍了RabbitMQ在可用性、监控方面的考虑，这是基础保障，因为在某些场景下是不容许丢失消息的，但它和性能往往是对立的，需要根据业务场景做取舍。</p>
-<p>当处理一些敏感数据时，比如银行卡信息，需要考虑安全性问题，上一篇总结了数据传输安全方面的知识点，这里就比较好理解了。</p>
-<p>通过介绍，你会了解到：</p>
-<ul>
-<li>对速度的考虑</li>
-<li>对内存和进程的考虑</li>
-<li>对安全的考虑</li>
-</ul>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2018/04/22/RabbitMQ实战：性能和安全/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -1898,7 +1945,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">57</span>
+                  <span class="site-state-item-count">61</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
