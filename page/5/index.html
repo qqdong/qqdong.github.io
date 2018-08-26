@@ -272,6 +272,155 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/03/26/深入浅出MyBatis：MyBatis的配置/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="calm">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/head.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="情情说">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/03/26/深入浅出MyBatis：MyBatis的配置/" itemprop="url">深入浅出MyBatis：MyBatis的所有配置</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-26T22:00:00+08:00">
+                2018-03-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/MyBatis/" itemprop="url" rel="index">
+                    <span itemprop="name">MyBatis</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>上一篇介绍了JDBC的相关概念、MyBatis的特性与Hibernate的区别、MyBatis的基本组件与生命周期，基本可以使用MyBatis了。</p>
+<p>这一篇详细介绍MyBatis的配置，首先看下配置XML文件的层次结构，然后详细介绍每个配置项，说明每项的作用，值的取值与含义。</p>
+<p>下面列出MyBatis配置XML文件的层次结构，这些层次是不能够颠倒顺序的。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="php"><span class="meta">&lt;?</span>xml version=<span class="string">"1.0"</span> encoding=<span class="string">"UTF-8"</span><span class="meta">?&gt;</span></span>  </span><br><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">properties</span>/&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">settings</span>/&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">typeAliases</span>/&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">typeHandles</span>/&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">objectFactory</span>/&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">plugins</span>/&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">environments</span>&gt;</span>  </span><br><span class="line">        <span class="tag">&lt;<span class="name">environment</span>&gt;</span>  </span><br><span class="line">            <span class="tag">&lt;<span class="name">transanctionManager</span>/&gt;</span> <span class="comment">&lt;!-- 配置事务管理器 --&gt;</span>  </span><br><span class="line">            <span class="tag">&lt;<span class="name">dataSource</span>/&gt;</span> <span class="comment">&lt;!-- 配置数据源 --&gt;</span>  </span><br><span class="line">        <span class="tag">&lt;/<span class="name">environment</span>&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;/<span class="name">environments</span>&gt;</span>  </span><br><span class="line">  </span><br><span class="line">    <span class="tag">&lt;<span class="name">databaseIdProvider</span>/&gt;</span> <span class="comment">&lt;!-- 数据库厂商标识 --&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">mappers</span>/&gt;</span> <span class="comment">&lt;!-- 映射器 --&gt;</span>  </span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018/03/26/深入浅出MyBatis：MyBatis的配置/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/03/25/深入浅出MyBatis：JDBC和MyBatis介绍/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1639,161 +1788,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/02/28/单点登录本质之二：重定向/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="calm">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/head.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="情情说">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/02/28/单点登录本质之二：重定向/" itemprop="url">单点登录与权限管理本质：HTTP重定向</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-02-28T22:00:00+08:00">
-                2018-02-28
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/单点登录与权限管理/" itemprop="url" rel="index">
-                    <span itemprop="name">单点登录与权限管理</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>继续介绍「单点登录与权限管理」系列的第一部分：单点登录与权限管理本质，本篇说说HTTP重定向，它也是完成单点登录的基础知识。</p>
-<p>该系列的完整写作计划，可见文章：<a href="http://qqidol.com/2018/02/24/%E5%8D%95%E7%82%B9%E7%99%BB%E5%BD%95%E4%B8%8E%E6%9D%83%E9%99%90%E7%AE%A1%E7%90%86%E7%B3%BB%E5%88%97/" target="_blank" rel="noopener">系列概述</a></p>
-<p>单点登录需要在多个web项目之间相互跳转，使用重定向技术，自动完成登录操作。另外，当实际资源被迁移到其他URL时，可使用重定向技术，将访问原有URL的请求，自动跳转到新URL，保持原有URL有效。</p>
-<p>本篇主要从以下几个方面介绍：</p>
-<ul>
-<li>重定向基本概念</li>
-<li>Nginx重定向</li>
-<li>Servlet重定向</li>
-<li>Spring使用重定向</li>
-</ul>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2018/02/28/单点登录本质之二：重定向/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1848,7 +1842,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">61</span>
+                  <span class="site-state-item-count">62</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
