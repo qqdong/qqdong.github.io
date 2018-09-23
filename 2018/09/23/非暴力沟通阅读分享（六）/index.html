@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="负载均衡" />
+  <meta name="keywords" content="沟通" />
 
 
 
@@ -79,26 +79,21 @@
 
 
 
-<meta name="description" content="文章来自刘欣老师「码农翻身」公众号  上一篇介绍负载均衡的2种实现方式：NAT、DR，这一篇介绍负载均衡器的可用性，使用互为主备的方式既可以提高处理效率和机器利用率，又可以避免一台负载均衡器挂掉的影响。  夜半惊魂上次讲到，张大胖在Bill的指导下，成功地开发了一个四层的负载均衡软件， 把流量“均匀地”分发到了后面的几个服务器中， 获得了老板的1000块钱奖励。  但是张大胖心中隐隐不安，总觉得">
-<meta name="keywords" content="负载均衡">
+<meta name="description" content="每逢佳节倍思亲，中秋节要到了，老婆和老妈都回老家了，「孤零零」的只剩我一人。放假第一天想着放松一下，就在家追了一个老剧，看的时间长了，头昏脑涨的，颓废的一天就这样过去了。很羡慕那些有自己兴趣爱好的人，一个人也可以很真实，做着有意义的事情。 今天的北京，云彩特别漂亮，加上这个季节的秋高气爽，很适合出去游玩。明天就是中秋节了，祝愿你及你们的家人身体健康，幸福美满。 本篇继续分享非暴力沟通，是最后一部分">
+<meta name="keywords" content="沟通">
 <meta property="og:type" content="article">
-<meta property="og:title" content="双机热备原理（转）">
-<meta property="og:url" content="https://qqdong.github.io/2018/05/09/双机热备原理/index.html">
+<meta property="og:title" content="非暴力沟通阅读分享（六）">
+<meta property="og:url" content="https://qqdong.github.io/2018/09/23/非暴力沟通阅读分享（六）/index.html">
 <meta property="og:site_name" content="情情说">
-<meta property="og:description" content="文章来自刘欣老师「码农翻身」公众号  上一篇介绍负载均衡的2种实现方式：NAT、DR，这一篇介绍负载均衡器的可用性，使用互为主备的方式既可以提高处理效率和机器利用率，又可以避免一台负载均衡器挂掉的影响。  夜半惊魂上次讲到，张大胖在Bill的指导下，成功地开发了一个四层的负载均衡软件， 把流量“均匀地”分发到了后面的几个服务器中， 获得了老板的1000块钱奖励。  但是张大胖心中隐隐不安，总觉得">
+<meta property="og:description" content="每逢佳节倍思亲，中秋节要到了，老婆和老妈都回老家了，「孤零零」的只剩我一人。放假第一天想着放松一下，就在家追了一个老剧，看的时间长了，头昏脑涨的，颓废的一天就这样过去了。很羡慕那些有自己兴趣爱好的人，一个人也可以很真实，做着有意义的事情。 今天的北京，云彩特别漂亮，加上这个季节的秋高气爽，很适合出去游玩。明天就是中秋节了，祝愿你及你们的家人身体健康，幸福美满。 本篇继续分享非暴力沟通，是最后一部分">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15258282169103.jpg">
-<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15258282340877.jpg">
-<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15258282477106.jpg">
-<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15258282642583.jpg">
-<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15258282986402.jpg">
-<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15258282782686.jpg">
+<meta property="og:image" content="http://oc3r3rke2.bkt.clouddn.com/15376917248526.jpg">
 <meta property="og:image" content="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2018-05-19T05:27:23.000Z">
+<meta property="og:updated_time" content="2018-09-23T08:35:59.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="双机热备原理（转）">
-<meta name="twitter:description" content="文章来自刘欣老师「码农翻身」公众号  上一篇介绍负载均衡的2种实现方式：NAT、DR，这一篇介绍负载均衡器的可用性，使用互为主备的方式既可以提高处理效率和机器利用率，又可以避免一台负载均衡器挂掉的影响。  夜半惊魂上次讲到，张大胖在Bill的指导下，成功地开发了一个四层的负载均衡软件， 把流量“均匀地”分发到了后面的几个服务器中， 获得了老板的1000块钱奖励。  但是张大胖心中隐隐不安，总觉得">
-<meta name="twitter:image" content="http://oc3r3rke2.bkt.clouddn.com/15258282169103.jpg">
+<meta name="twitter:title" content="非暴力沟通阅读分享（六）">
+<meta name="twitter:description" content="每逢佳节倍思亲，中秋节要到了，老婆和老妈都回老家了，「孤零零」的只剩我一人。放假第一天想着放松一下，就在家追了一个老剧，看的时间长了，头昏脑涨的，颓废的一天就这样过去了。很羡慕那些有自己兴趣爱好的人，一个人也可以很真实，做着有意义的事情。 今天的北京，云彩特别漂亮，加上这个季节的秋高气爽，很适合出去游玩。明天就是中秋节了，祝愿你及你们的家人身体健康，幸福美满。 本篇继续分享非暴力沟通，是最后一部分">
+<meta name="twitter:image" content="http://oc3r3rke2.bkt.clouddn.com/15376917248526.jpg">
 
 
 
@@ -128,13 +123,13 @@
 
 
 
-  <link rel="canonical" href="https://qqdong.github.io/2018/05/09/双机热备原理/"/>
+  <link rel="canonical" href="https://qqdong.github.io/2018/09/23/非暴力沟通阅读分享（六）/"/>
 
 
 
 
 
-  <title>双机热备原理（转） | 情情说</title>
+  <title>非暴力沟通阅读分享（六） | 情情说</title>
   
 
 
@@ -281,7 +276,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/05/09/双机热备原理/">
+    <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/09/23/非暴力沟通阅读分享（六）/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="calm">
@@ -298,7 +293,7 @@
 
         
         
-          <h2 class="post-title" itemprop="name headline">双机热备原理（转）</h2>
+          <h2 class="post-title" itemprop="name headline">非暴力沟通阅读分享（六）</h2>
         
 
         <div class="post-meta">
@@ -310,8 +305,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-09T22:00:00+08:00">
-                2018-05-09
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-09-23T22:00:00+08:00">
+                2018-09-23
               </time>
             
 
@@ -333,8 +328,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/负载均衡/" itemprop="url" rel="index">
-                    <span itemprop="name">负载均衡</span>
+                  <a href="/categories/summary/" itemprop="url" rel="index">
+                    <span itemprop="name">summary</span>
                   </a>
                 </span>
 
@@ -370,69 +365,48 @@
       
 
       
-        <blockquote>
-<p>文章来自刘欣老师「码农翻身」公众号</p>
+        <p>每逢佳节倍思亲，中秋节要到了，老婆和老妈都回老家了，「孤零零」的只剩我一人。放假第一天想着放松一下，就在家追了一个老剧，看的时间长了，头昏脑涨的，颓废的一天就这样过去了。很羡慕那些有自己兴趣爱好的人，一个人也可以很真实，做着有意义的事情。</p>
+<p>今天的北京，云彩特别漂亮，加上这个季节的秋高气爽，很适合出去游玩。明天就是中秋节了，祝愿你及你们的家人身体健康，幸福美满。</p>
+<p>本篇继续分享非暴力沟通，是最后一部分了，感兴趣的可以回顾下前面的分享。</p>
+<h4 id="倾听内心的声音"><a href="#倾听内心的声音" class="headerlink" title="倾听内心的声音"></a>倾听内心的声音</h4><p>在成长的过程中，我们学习了许多无益的知识，这些知识来自善意的父母、老师或别的人，由于这些教诲看起来是那样天经地义，也就不再去探讨它们的合理性。同样的，我们在社会文化影响下形成的一些不良积习，渗透了生活的各个方面，以致我们察觉不到它们的存在。只有深入了解我们的生存状态，才能看清它们的危害，并形成新的想法及行为方式，来满足身心健康的需要。</p>
+<p>然而，对于大部分人来说，倾听和表达自己的需要并不容易。一般来说，我们的文化倾向于把个人需要看作是消极的、具有破坏性的。</p>
+<h4 id="心灵环保"><a href="#心灵环保" class="headerlink" title="心灵环保"></a>心灵环保</h4><p>在生活中，有时我们会感到沮丧，是因为一个人处于激烈的内心冲突之中，无所适从。沮丧意味着，我们不了解自己的需要–我们不知道自己到底想要什么以及如何满足愿望。</p>
+<p>如果以苛刻的态度对人对己，我们的心情也好不到哪里去。通过运用非暴力沟通，不再试图分析自己或他人有什么毛病，而是用心去了解我们的需要，我们的内心就会逐渐变得平和。</p>
+<p>作者举了一个例子：为了能够更好地照顾自己，一位女士报名参加了一个历时三天的非暴力沟通研讨班，在活动期间，她发现自己的生活态度有了明显的改变。</p>
+<blockquote>
+<p>女士回忆说，在第二天清晨醒来时，她头痛得十分厉害。在过去，我的第一反应就是检讨自己到底做错了什么，是否吃了不好的食物？是不是给自己施加了太大的压力？</p>
+<p>这一次，在学习了非暴力沟通之后，我问自己的问题是「我现在需要做什么来缓解头痛」。</p>
+<p>我坐了起来，做了一些柔和的头部运动，接着，起床到外面走了走，回来后又做了一些别的事情，让自己放松下来。过了一会儿，头没那么痛了。</p>
+<p>这时，我想了想昨天在研讨班中的经历，我发现，头痛很可能是因为昨天我不怎么留意身体的状态，现在，身体是通过头痛来提醒我「请留意我的需要」。</p>
+<p>于是，在接下来两天的研讨班中，我就用心体会身体的状态，并注意调节和放松。</p>
 </blockquote>
-<p>上一篇介绍负载均衡的2种实现方式：NAT、DR，这一篇介绍负载均衡器的可用性，使用互为主备的方式既可以提高处理效率和机器利用率，又可以避免一台负载均衡器挂掉的影响。</p>
-<hr>
-<h4 id="夜半惊魂"><a href="#夜半惊魂" class="headerlink" title="夜半惊魂"></a>夜半惊魂</h4><p>上次讲到，张大胖在Bill的指导下，成功地开发了一个四层的负载均衡软件， 把流量“均匀地”分发到了后面的几个服务器中， 获得了老板的1000块钱奖励。</p>
-<p><img src="http://oc3r3rke2.bkt.clouddn.com/15258282169103.jpg" alt=""></p>
-<p>但是张大胖心中隐隐不安，总觉得系统埋着一颗定时炸弹，随时会引爆，这个炸弹就是：  Load Balancer 只有一台服务器，万一这个服务器挂掉了怎么办？</p>
-<a id="more"></a>
-<p>没有了Load Balancer这个入口，用户的请求无法分发过来，后面的这些服务器只能干瞪眼了。</p>
-<p>系统有“单点失败（Single Point of Failure）”的风险就是这个意思。</p>
-<p>有一天晚上张大胖做了一个梦，梦见这个Load Balancer在高峰期挂掉了，导致整个系统瘫痪，看到损失了无数的订单， 愤怒的老板不停地向他咆哮：扣你小子半年工资。</p>
-<p>吓得张大胖半夜醒来，出了一身冷汗。</p>
-<p>不想单点失败该怎么办？ 张大胖稍微思索下就能想到解决方案： 上两台Load Balancer ！</p>
-<p>可问题是：客户端究竟要访问哪一个？</p>
-<p><img src="http://oc3r3rke2.bkt.clouddn.com/15258282340877.jpg" alt=""></p>
-<p>还用DNS轮询的方式？ 那就回到最原始的问题了。</p>
-<p>在这两个Load Balancer之前再加一个Load Balancer？  那岂不又是单点失败？</p>
-<p>不，这个路子是走不通的。</p>
-<p>张大胖准备另辟蹊径。</p>
-<p>在客户端看来，这两个Load Balancer 最好是一个整体，就像一个虚拟的服务器， 这个虚拟的服务对外提供一个IP (简称VIP)。</p>
-<p><img src="http://oc3r3rke2.bkt.clouddn.com/15258282477106.jpg" alt=""></p>
-<p>两个Load Balancer中，一个叫做Master， 另外一个可以叫做Backup ， 平时Master 负责干活， Backup待命，一旦Master挂掉， Backup 服务器立刻接管。  在外界看来，那个虚拟的服务器还在工作，并不知道内部发生的“大地震”。</p>
-<p>想到这里，张大胖激动起来，竟然睡不着了， 干脆爬起来看邮件，写代码。</p>
-<h4 id="详细设计"><a href="#详细设计" class="headerlink" title="详细设计"></a>详细设计</h4><p>第二天，张大胖七点就来到了公司，想着把昨晚的方案给Bill 汇报下。</p>
-<p>可是他来得太早了，公司空无一人。 罢了，很多细节还没有完善，先不着急。</p>
-<p>首先是这个虚拟的VIP ， 怎么才能实现在两个服务器之间的“IP漂移”呢？</p>
-<p>张大胖曾经记得，一个网卡可以设置多个地址，比如在Linux上eth0表示网卡1，它可以绑定一个IP， 与此同时，还可以设置一个ip alias  或者 secondary ip 。</p>
-<p>eth0 –&gt; 192.168.1.10</p>
-<p>eth0:1  –&gt; 192.168.1.100</p>
-<p>张大胖想： 我可以让这个192.168.1.100为VIP，如果服务器是Master， 就可以把这个IP给绑定上， 如果是Backup，那就不绑定。</p>
-<p>换句话说，通过动态地绑定/解绑 就可以让这个VIP在两个服务器之间来回“漂移”了。</p>
-<p><img src="http://oc3r3rke2.bkt.clouddn.com/15258282642583.jpg" alt=""></p>
-<p>“IP漂移”的问题可以这么解决， 但是那个Backup 怎么知道Master 挂掉了呢？</p>
-<p>从道理上说，很简单，只需要让Master不断地给Backup发“心跳”消息即可(可以采用广播的方式发消息)， 这个Backup(LoadBalancer2)得有个定时器， 如果在一个特定的时间（嗯，这个时间应该可以设置）内收不到心跳，那就认为Master完蛋了，就需要挺身而出，擦干眼泪，继承前任的遗志，很Happy地绑定VIP , 继续伟大的革命事业。</p>
-<p>可是那个之前的Master（LoadBalancer1）如果又活了呢？</p>
-<p>LoadBalancer2 该怎么办？革命的康庄大道还没走几步， 就要拱手让出还没捂热乎的VIP吗？</p>
-<p>如果LoadBalancer1是个性能更加强悍的机器，同志们肯定希望由他来统领全局。</p>
-<p>这里得定义一个策略，每个机器都得有个优先级（一个整数），在允许抢占的情况下，谁的优先级高，谁就是Master！</p>
-<p>张大胖想到： 看来需要我开发一个软件了，实现这些通信“协议”和策略， 这个软件需要安装运行在每个Load Balancer上，让他们组成单个虚拟的Load Balancer， 对外提供服务。</p>
-<p>在每个Load Balancer中，状态转换是这样的， 张大胖画了一张图：</p>
-<p><img src="http://oc3r3rke2.bkt.clouddn.com/15258282986402.jpg" alt=""></p>
-<h4 id="汇报工作"><a href="#汇报工作" class="headerlink" title="汇报工作"></a>汇报工作</h4><p>到了9点钟， CTO Bill 准时上班， 张大胖赶忙跑去向领导汇报昨晚和今早的思想动态。</p>
-<p>Bill 听完，沉吟片刻，说道：“这个主意不错，我支持！ 可是。。。。。。”</p>
-<p>张大胖立刻紧张起来， 自己想得挺完善的啊，难道还有问题？</p>
-<p>只听Bill 说道：“你可以让那个IP地址在两个主机之间漂移，实现主备切换， 但是MAC地址怎么办？ ”</p>
-<p>张大胖说：“MAC地址 ? 关MAC地址什么事？ ”</p>
-<p>啊 ！ 他突然明白了，确实是忽略了， IP包是被封装在以太网帧中发送的，其中需要MAC地址。</p>
-<p><img src="http://oc3r3rke2.bkt.clouddn.com/15258282782686.jpg" alt=""></p>
-<p>在发送第一个请求的时候，客户端（确切说是直接向Load Balancer发数据的那个机器）先是知道了VIP（如：192.168.1.100）， 接下来它需要知道这个VIP的MAC地址，这样才能发送数据。</p>
-<p>为了拿到MAC地址，它需要发起ARP查询： 这个VIP（192.168.1.100)的 MAC的地址是什么？</p>
-<p>如果Load Balancer 1是Master ，就会回复： 是23:39:8D:9C:0A:33  （记为 MAC1）</p>
-<p>这时候客户端就会缓存，记下来。</p>
-<p>然后Load Balancer 1 挂掉， Load Balancer 2 成为 Master。</p>
-<p>此时客户端如果再次发送数据，还会往MAC1去放送，于是就出错了。</p>
-<p>想通了这一层， 张大胖犯了愁， 这可怎么办？</p>
-<p>Bill 提醒道：“你不是有个虚拟的IP地址吗？ 是不是也可以搞一个虚拟的MAC地址啊！”</p>
-<p>张大胖如梦方醒： “对对， 无论是哪个机器成为Master， 每次响应ARP请求的时候，都返回这个虚拟的MAC地址。这样客户端面对的MAC地址就唯一了。”</p>
-<p>看来虚拟IP + 虚拟的MAC 地址才能完整地解决问题！</p>
-<h4 id="申请机器"><a href="#申请机器" class="headerlink" title="申请机器"></a>申请机器</h4><p>张大胖把软件开发出来了，小心翼翼地向抠门的老板去申请机器，老板看了方案，提了一个让张大胖大跌眼镜的问题： “你这里整了两个Load Balancer服务器， 但是平时只用一个，另外一个一直空闲，是不是极大的浪费啊？”</p>
-<p>怎么办？张大胖挠了挠头，犯难了。</p>
-<p>答：可以使用keepalived，两台Load balancer都作为master，分别为不同的业务做负载均衡，并且同时设置为对方的slave。</p>
-<p><strong><font color="green">欢迎扫描下方二维码，关注我的个人微信公众号，分享我的工作、学习和生活</font> ~</strong></p>
+<h4 id="表达感激"><a href="#表达感激" class="headerlink" title="表达感激"></a>表达感激</h4><p>用非暴力沟通的方式表达感激时，我们只是为了庆祝他人的行为提升了我们的生活品质，而不是想得到任何回报。</p>
+<p>表达感激的方式包含三个部分：第一，对方做了什么事情使我们的生活得到了改善；第二，我们有哪些需要得到了满足；第三，我们的心情怎么样。在表达感激时，这三部分的先后次序并不重要，用语言具体地描述这三部分，可以确保对方能够明白我们的意思。</p>
+<p>作者举了一个例子，是作者和一个非暴力研讨班参加者的一段对话：</p>
+<blockquote>
+<p>参加者：（在研讨班结束后走进我）马歇尔，你真了不起！</p>
+<p>作者：我想知道你为什么这么说。</p>
+<p>参加者：为什么呢？</p>
+<p>作者：在我的一生中，人们用各种各样的话来评价我，这对我并没有多大帮助，我需要更多的信息来理解你的评论。</p>
+<p>参加者：什么样的信息？</p>
+<p>作者：首先，我想知道，我做了什么，你认为对你的生活有帮助？</p>
+<p>参加者：（她想了想，然后拿起笔记本，指着其中的两段话说）就是这两点，你今天在研讨班中提到它们。</p>
+<p>作者：哦，你很欣赏这两个观点。听到这两个观点时，你的心情怎么样？</p>
+<p>参加者：我感觉一阵轻松，对将来更有信心了。</p>
+<p>作者：现在，我想知道，这两个观点使你什么样的需要得到了满足？</p>
+<p>参加者：我没法和儿子沟通，他今年18岁了，我一直盼着能有办法和他沟通，你今天的这两个观点给我很大的启发。</p>
+</blockquote>
+<h4 id="接受别人的感激"><a href="#接受别人的感激" class="headerlink" title="接受别人的感激"></a>接受别人的感激</h4><p>在听到别人表达对我们的感激时，会觉得别扭。我们不知道自己是否真的那么好。甚至会担心别人对我们有所期待，特别是老师或经理试图通过赞扬来提高我们的学习和工作效率。此外，还可能担心在将来失去别人的赏识。</p>
+<p>生活在商品社会中，我们也许不太习惯单纯地付出与接受。然而，非暴力沟通鼓励我们注意倾听别人所表达的感激：我们做了什么有益的事情，他们有哪些需要得到了满足，以及这激发了他们怎样的情感。</p>
+<p>我们每个人都有能力提升他人的生活品质。</p>
+<p>虽然人们在听到感激时会不太自在，但绝大多数的人渴望得到他人的肯定和感激。对感激的渴望不仅存在于工作场合，而且也存在于家庭中。</p>
+<p>作者提到了下面的事情：</p>
+<blockquote>
+<p>有一天晚上，当我向我的儿子布莱特指出他没做好家务活时，他反驳说「爸，你想想，你是不是倾向于指出问题，而很少肯定我」，他的话在我脑海中盘绕了许久，我发现我总是想做得更好，却很少肯定已有的成绩。</p>
+<p>我刚刚结束一个有100多人参加的研讨班，除了一个人，其他人都高度评价这次的研讨班，然而，我牢记的却是那个人的不满。</p>
+<p>从那以后，我就更加留意生活中积极的一面，并表达我的感激之情。</p>
+</blockquote>
+<p><img src="http://oc3r3rke2.bkt.clouddn.com/15376917248526.jpg" alt="北京今天的云"></p>
 <p><div align="center"><br><img src="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="情情说"></div></p>
 
       
@@ -451,7 +425,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/负载均衡/" rel="tag"># 负载均衡</a>
+            <a href="/tags/沟通/" rel="tag"># 沟通</a>
           
         </div>
       
@@ -464,8 +438,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/05/08/负载均衡的原理/" rel="next" title="负载均衡的原理（转）">
-                <i class="fa fa-chevron-left"></i> 负载均衡的原理（转）
+              <a href="/2018/09/09/非暴力沟通阅读分享（五）/" rel="next" title="非暴力沟通阅读分享（五）">
+                <i class="fa fa-chevron-left"></i> 非暴力沟通阅读分享（五）
               </a>
             
           </div>
@@ -473,10 +447,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2018/05/16/项目管理全过程最佳实践（上）/" rel="prev" title="项目管理全过程最佳实践（上）">
-                项目管理全过程最佳实践（上） <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -623,7 +593,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#夜半惊魂"><span class="nav-number">1.</span> <span class="nav-text">夜半惊魂</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#详细设计"><span class="nav-number">2.</span> <span class="nav-text">详细设计</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#汇报工作"><span class="nav-number">3.</span> <span class="nav-text">汇报工作</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#申请机器"><span class="nav-number">4.</span> <span class="nav-text">申请机器</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#倾听内心的声音"><span class="nav-number">1.</span> <span class="nav-text">倾听内心的声音</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#心灵环保"><span class="nav-number">2.</span> <span class="nav-text">心灵环保</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#表达感激"><span class="nav-number">3.</span> <span class="nav-text">表达感激</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#接受别人的感激"><span class="nav-number">4.</span> <span class="nav-text">接受别人的感激</span></a></li></ol></div>
             
 
           </div>
