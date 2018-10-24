@@ -272,315 +272,6 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/04/12/RabbitMQ实战：可用性分析和实现/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="calm">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/head.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="情情说">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/04/12/RabbitMQ实战：可用性分析和实现/" itemprop="url">RabbitMQ实战：可用性分析和实现</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-12T22:00:00+08:00">
-                2018-04-12
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/消息队列/" itemprop="url" rel="index">
-                    <span itemprop="name">消息队列</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <blockquote>
-<p>本系列是「RabbitMQ实战：高效部署分布式消息队列」书籍的总结笔记。</p>
-</blockquote>
-<p>上一篇介绍了各种场景下的最佳实践，大部分场景可以使用「发后即忘」的模式，不需要响应，如果需要响应，可以使用RabbitMQ的RPC模型。</p>
-<p>RabbitMQ以异步的方式解耦系统间的关系，调用者将业务请求发送到Rabbit服务器，就可以返回了，Rabbit会确保请求被正确处理，即使遇到网络异常、Rabbit服务器崩溃、整个机房断电等特殊场景，针对这些场景，Rabbit提供了各种机制确保其可用性。</p>
-<p>本篇通过总结可能出现的特殊场景，对Rabbit提供的可用性保证进行分析，学习它的实现方式，你会了解到：</p>
-<ul>
-<li>总结异常场景</li>
-<li>集群并处理失败</li>
-<li>连接丢失和故障转移</li>
-<li>主/备方式</li>
-<li>跨机房复制</li>
-</ul>
-<blockquote>
-<p><strong><font color="green">推广下我的个人公众号「情情说」，第一时间分享我的工作、学习和生活，如果对你有帮助，希望可以关注下。</font></strong></p>
-</blockquote>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2018/04/12/RabbitMQ实战：可用性分析和实现/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/04/08/写好一个项目不容易/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="calm">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/head.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="情情说">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/04/08/写好一个项目不容易/" itemprop="url">写好一个项目不容易</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-08T22:00:00+08:00">
-                2018-04-08
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/summary/" itemprop="url" rel="index">
-                    <span itemprop="name">summary</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>曾几何时，我多少次吐槽自己接触的项目，数落它们的种种不是，项目文件结构混乱、代码层次不清晰、严重的代码冗余、巨型代码块、缺少注释和日志、散落在各处的静态配置项、混乱的数据校验和异常捕获、脆弱的稳定性和扩展性，每一次功能升级和问题解决，都是胆战心惊的。</p>
-<p>这些问题仅仅是后端开发阶段可能出现的问题，加上需求分析、功能确认、界面设计、架构设计、技术选型、测试等阶段，会有更多问题暴露出来，每个阶段都是相互递进、相互补充的，需要得到大部分同事的认同才可以往下执行，过程中，需要反复的沟通和讨论，团队成员要合理划分、有所成长，项目成本和进度也要合理的控制。</p>
-<p>可见，对于一个大项目，写好多不容易。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2018/04/08/写好一个项目不容易/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/04/07/RabbitMQ实战：消息通信模式和最佳实践/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -685,7 +376,7 @@
 </ul>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2018/04/07/RabbitMQ实战：消息通信模式和最佳实践/#more" rel="contents">
+            <a class="btn" href="/2018/04/07/RabbitMQ实战：消息通信模式和最佳实践/#espandi" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -842,7 +533,7 @@
 </ul>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2018/04/06/RabbitMQ实战：运行和管理Rabbit/#more" rel="contents">
+            <a class="btn" href="/2018/04/06/RabbitMQ实战：运行和管理Rabbit/#espandi" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -997,7 +688,154 @@
 <p>文章末尾有福利 ~</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2018/04/04/Netty事件监听和处理（下）/#more" rel="contents">
+            <a class="btn" href="/2018/04/04/Netty事件监听和处理（下）/#espandi" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/04/03/送福利：小爱音箱F码/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="calm">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/head.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="情情说">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/04/03/送福利：小爱音箱F码/" itemprop="url">送福利：小爱音箱F码</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-03T22:00:00+08:00">
+                2018-04-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/life/" itemprop="url" rel="index">
+                    <span itemprop="name">life</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>一年一度的米粉节活动开始了，活动时间为 4.3 - 4.10，公司给我们发了福利，其中包含4个小爱音箱F码，包括2个小米AI音箱F码，2个小米小爱音箱mini F码，想把这个福利分享给大家，以感谢大家的支持和鼓励。</p>
+<p>开始认真写文章有1个半月了，不说有多大的收获，最起码自己的一部分时间很好的利用了，最开心的是让一些朋友有所收货。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018/04/03/送福利：小爱音箱F码/#espandi" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1155,154 +993,7 @@
 <p>本篇最后会说明下福利的抽取规则，大家积极参与 &gt;_&lt;</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2018/04/03/Netty事件监听和处理（上）/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/04/03/送福利：小爱音箱F码/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="calm">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/head.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="情情说">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/04/03/送福利：小爱音箱F码/" itemprop="url">送福利：小爱音箱F码</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-03T22:00:00+08:00">
-                2018-04-03
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/life/" itemprop="url" rel="index">
-                    <span itemprop="name">life</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>一年一度的米粉节活动开始了，活动时间为 4.3 - 4.10，公司给我们发了福利，其中包含4个小爱音箱F码，包括2个小米AI音箱F码，2个小米小爱音箱mini F码，想把这个福利分享给大家，以感谢大家的支持和鼓励。</p>
-<p>开始认真写文章有1个半月了，不说有多大的收获，最起码自己的一部分时间很好的利用了，最开心的是让一些朋友有所收货。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2018/04/03/送福利：小爱音箱F码/#more" rel="contents">
+            <a class="btn" href="/2018/04/03/Netty事件监听和处理（上）/#espandi" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1461,7 +1152,7 @@
 </ul>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2018/04/01/RabbitMQ实战：理解消息通信/#more" rel="contents">
+            <a class="btn" href="/2018/04/01/RabbitMQ实战：理解消息通信/#espandi" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1622,7 +1313,7 @@
 </ul>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2018/03/31/MyBatis与Spring集成及实用场景/#more" rel="contents">
+            <a class="btn" href="/2018/03/31/MyBatis与Spring集成及实用场景/#espandi" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1779,7 +1470,315 @@
 </ul>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2018/03/30/深入浅出MyBatis：MyBatis插件及开发过程/#more" rel="contents">
+            <a class="btn" href="/2018/03/30/深入浅出MyBatis：MyBatis插件及开发过程/#espandi" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/03/29/深入浅出MyBatis：MyBatis解析和运行原理/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="calm">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/head.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="情情说">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/03/29/深入浅出MyBatis：MyBatis解析和运行原理/" itemprop="url">深入浅出MyBatis：MyBatis解析和运行原理</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-29T22:00:00+08:00">
+                2018-03-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/MyBatis/" itemprop="url" rel="index">
+                    <span itemprop="name">MyBatis</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>上一篇介绍了反射和动态代理基础，主要是为本篇文章做个铺垫，反射使配置和灵活性大大提高，可以给很多配置设置参数，动态代理可以在运行时创建代理对象，做一些特殊的处理。</p>
+<p>本篇会介绍MyBatis解析和运行原理，下一篇介绍插件及应用，目的是更好地编写插件，通过本篇的介绍，你会了解到：</p>
+<ul>
+<li>构建SqlSessionFactory过程</li>
+<li>映射器的动态代理</li>
+<li>SqlSession的4大对象</li>
+<li>sql执行的过程</li>
+</ul>
+<p>SqlSessionFactory和SqlSession是MyBatis的核心组件，在文章 <a href="http://qqidol.com/2018/03/25/%E6%B7%B1%E5%85%A5%E6%B5%85%E5%87%BAMyBatis%EF%BC%9A%E4%BB%8B%E7%BB%8D%E5%92%8C%E9%85%8D%E7%BD%AE/" target="_blank" rel="noopener">JDBC和MyBatis介绍</a> 中有详细说明。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018/03/29/深入浅出MyBatis：MyBatis解析和运行原理/#espandi" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/03/28/深入浅出MyBatis：反射和动态代理基础/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="calm">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/head.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="情情说">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/03/28/深入浅出MyBatis：反射和动态代理基础/" itemprop="url">深入浅出MyBatis：反射和动态代理</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-28T22:00:00+08:00">
+                2018-03-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/MyBatis/" itemprop="url" rel="index">
+                    <span itemprop="name">MyBatis</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>前三篇详细总结了Mybatis的基本特性、常用配置、映射器，相对于Hibernate，映射器的配置相对复杂，但有很好的灵活性和扩展性，可以应对各种业务场景。熟练掌握这些内容，可以流畅的使用MyBatis进行开发了。</p>
+<p>后面准备介绍MyBatis的解析和运行原理以及自定义插件，今天看了书籍的这部分，都会涉及到反射和动态代理这些基础，本篇文章总结下这些，便于理解原理。</p>
+<p>通过本篇的介绍，你会了解到：</p>
+<ul>
+<li>反射和动态代理是解决什么问题的</li>
+<li>Class对象</li>
+<li>反射能做什么</li>
+<li>动态代理的实现方式：JDK动态代理、CGLIB</li>
+</ul>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018/03/28/深入浅出MyBatis：反射和动态代理基础/#espandi" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1871,7 +1870,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">65</span>
+                  <span class="site-state-item-count">63</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
