@@ -272,6 +272,160 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/03/28/深入浅出MyBatis：反射和动态代理基础/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="calm">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/head.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="情情说">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/03/28/深入浅出MyBatis：反射和动态代理基础/" itemprop="url">深入浅出MyBatis：反射和动态代理</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-28T22:00:00+08:00">
+                2018-03-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/MyBatis/" itemprop="url" rel="index">
+                    <span itemprop="name">MyBatis</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>前三篇详细总结了Mybatis的基本特性、常用配置、映射器，相对于Hibernate，映射器的配置相对复杂，但有很好的灵活性和扩展性，可以应对各种业务场景。熟练掌握这些内容，可以流畅的使用MyBatis进行开发了。</p>
+<p>后面准备介绍MyBatis的解析和运行原理以及自定义插件，今天看了书籍的这部分，都会涉及到反射和动态代理这些基础，本篇文章总结下这些，便于理解原理。</p>
+<p>通过本篇的介绍，你会了解到：</p>
+<ul>
+<li>反射和动态代理是解决什么问题的</li>
+<li>Class对象</li>
+<li>反射能做什么</li>
+<li>动态代理的实现方式：JDK动态代理、CGLIB</li>
+</ul>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018/03/28/深入浅出MyBatis：反射和动态代理基础/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/03/27/深入浅出MyBatis：「映射器」全了解/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -382,7 +536,7 @@
 </ul>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2018/03/27/深入浅出MyBatis：「映射器」全了解/#espandi" rel="contents">
+            <a class="btn" href="/2018/03/27/深入浅出MyBatis：「映射器」全了解/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -531,7 +685,7 @@
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="php"><span class="meta">&lt;?</span>xml version=<span class="string">"1.0"</span> encoding=<span class="string">"UTF-8"</span><span class="meta">?&gt;</span></span>  </span><br><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">properties</span>/&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">settings</span>/&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">typeAliases</span>/&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">typeHandles</span>/&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">objectFactory</span>/&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">plugins</span>/&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">environments</span>&gt;</span>  </span><br><span class="line">        <span class="tag">&lt;<span class="name">environment</span>&gt;</span>  </span><br><span class="line">            <span class="tag">&lt;<span class="name">transanctionManager</span>/&gt;</span> <span class="comment">&lt;!-- 配置事务管理器 --&gt;</span>  </span><br><span class="line">            <span class="tag">&lt;<span class="name">dataSource</span>/&gt;</span> <span class="comment">&lt;!-- 配置数据源 --&gt;</span>  </span><br><span class="line">        <span class="tag">&lt;/<span class="name">environment</span>&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;/<span class="name">environments</span>&gt;</span>  </span><br><span class="line">  </span><br><span class="line">    <span class="tag">&lt;<span class="name">databaseIdProvider</span>/&gt;</span> <span class="comment">&lt;!-- 数据库厂商标识 --&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">mappers</span>/&gt;</span> <span class="comment">&lt;!-- 映射器 --&gt;</span>  </span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2018/03/26/深入浅出MyBatis：MyBatis的配置/#espandi" rel="contents">
+            <a class="btn" href="/2018/03/26/深入浅出MyBatis：MyBatis的配置/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -679,7 +833,7 @@
 <p>本篇分享MyBatis书籍的第一篇，首先回忆下JDBC的相关概念，了解Java提供的访问数据库最基本的方式，然后介绍下MyBatis的基本特性和核心组件，最后说下书的整体结构，了解后续文章的大致内容。</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2018/03/25/深入浅出MyBatis：JDBC和MyBatis介绍/#espandi" rel="contents">
+            <a class="btn" href="/2018/03/25/深入浅出MyBatis：JDBC和MyBatis介绍/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -987,7 +1141,7 @@
 <h5 id="创建新分支"><a href="#创建新分支" class="headerlink" title="创建新分支　"></a>创建新分支　</h5><p>git checkout -b &lt;分支名称＞　　创建新分支并切换到新分支</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2018/03/14/git分支管理和工作流规范：不同场景细化和演示 /#espandi" rel="contents">
+            <a class="btn" href="/2018/03/14/git分支管理和工作流规范：不同场景细化和演示 /#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1134,7 +1288,7 @@
 <p>本篇介绍具体的规范，包括分支的划分和命名规范，不同类型的分支应对不同的场景，然后会介绍下工作流工具git-flow，如何简化我们的操作。</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2018/03/13/git分支管理和工作流规范：具体规范/#espandi" rel="contents">
+            <a class="btn" href="/2018/03/13/git分支管理和工作流规范：具体规范/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1302,7 +1456,7 @@
 </ul>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2018/03/12/git分支管理和工作流规范：基本概念/#espandi" rel="contents">
+            <a class="btn" href="/2018/03/12/git分支管理和工作流规范：基本概念/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1457,7 +1611,7 @@
 </ul>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2018/03/11/单点登录本质之五：权限管理介绍/#espandi" rel="contents">
+            <a class="btn" href="/2018/03/11/单点登录本质之五：权限管理介绍/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1608,156 +1762,7 @@
 <p>首先会介绍下2个攻击，XSS可获取用户的cookie，CSRF可利用用户的cookie伪造请求，然后介绍下HTTPS及它的重要性，最后说下跨域访问cookie的限制，HTTP设置cookie时对cookie操作的控制。</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2018/03/10/单点登录本质之四：cookie安全问题/#espandi" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/03/05/外公，一切安好/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="calm">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/head.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="情情说">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/03/05/外公，一切安好/" itemprop="url">外公，一切安好</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-05T23:55:00+08:00">
-                2018-03-05
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/life/" itemprop="url" rel="index">
-                    <span itemprop="name">life</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>2018年3月1号，妈妈的一通电话打破了内心的安定，外公突发高血压导致脑干出血，进了重病监护室，情况十分严重，心突然一下沉沉的。</p>
-<p>小的时候，外公一直带我，宠着我、疼着我、有时也会教育我。一起在平房上、院子里睡觉数星星的夜晚，偷偷塞给我的零花钱，拉着驾车子推着我去看脚，做错事轻轻打我后又立刻哄我，这些将成为我永远美好的回忆。</p>
-<p>2018年3月3号，上午做了简单的工作交接，下午就赶回家了。到家时，外公已经在家了，冷冰冰的氧气管一直插到喉咙里，还有凉凉的输液，勉强在维持着呼吸，外公被医院“判了死刑”。</p>
-<p>周围围了不少同村的人，都是来看看外公的，有人在喊，外公的眼睛竟微微的睁开了下，我和小妹还是一直坚信奇迹的发生，从接到电话的那一刻。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2018/03/05/外公，一切安好/#espandi" rel="contents">
+            <a class="btn" href="/2018/03/10/单点登录本质之四：cookie安全问题/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1849,7 +1854,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">63</span>
+                  <span class="site-state-item-count">64</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>

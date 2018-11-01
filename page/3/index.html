@@ -272,6 +272,166 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/05/20/Spring技术内幕：设计理念和整体架构概述/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="calm">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/head.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="情情说">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/05/20/Spring技术内幕：设计理念和整体架构概述/" itemprop="url">Spring技术内幕：设计理念和整体架构概述</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-20T22:00:00+08:00">
+                2018-05-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/spring/" itemprop="url" rel="index">
+                    <span itemprop="name">spring</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>程序员都很崇拜技术大神，很大一部分是因为他们发现和解决问题的能力，特别是线上出现紧急问题时，总是能够快速定位和解决。</p>
+<p>一方面，他们有深厚的技术基础，对应用的技术知其所以然，另一方面，在采坑的过程中不断总结，积累了很多经验。</p>
+<p>相信大家都使用过Spring，有些人了解它的核心：IOC和AOP，但只是了解它们的基本概念、使用了反射和动态代理，关于如何管理对象、代理的具体实现了解的比较浅。</p>
+<p>有些人使用Spring MVC，使用Spring集成数据库、事务、消息队列以简化操作，但对集成的具体设计思路和实现了解的也比较浅。</p>
+<p>我也这一块也比较菜，所以，后面的一段时间会梳理和总结Spring相关的技术原理，以「Spring技术内幕：深入解析Spring架构与设计原理」书籍为核心，结合自己的使用经验和疑问，以及网络上大牛的文章，来补足自己这方面的缺失。</p>
+<blockquote>
+<p>这本书作者是计文柯，以Spring源代码为依托，从宏观上揭示了Spring的设计思路和架构思想，从微观上剖析了Spring各功能模块的实现原理和运行机制。一方面希望读者能通过深入了解Spring的底层机制来更好地解决实际开发中遇到的各种难题，另一方面是希望读者能吸收Spring设计和实现中的优秀方法和思想。</p>
+</blockquote>
+<p>全书共三部分，分别阐述了Spring的核心、组件和应用。第一部分详细分析了IOC容器和AOP实现，第二部分阐述了基于Spring IOC容器和AOP的Java EE组件在Spring中的实现，第三部分讲述了一些基于Spring的典型应用的实现。</p>
+<p>本篇先对设计理念和整体架构做个概述，从整体上看看Spring的设计目标和架构，通过本篇，你会了解到：</p>
+<ul>
+<li>Spring的设计目标</li>
+<li>Spring的整体架构</li>
+<li>Spring的各个子项目介绍</li>
+</ul>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018/05/20/Spring技术内幕：设计理念和整体架构概述/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/05/09/双机热备原理/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -374,7 +534,7 @@
 <p>但是张大胖心中隐隐不安，总觉得系统埋着一颗定时炸弹，随时会引爆，这个炸弹就是：  Load Balancer 只有一台服务器，万一这个服务器挂掉了怎么办？</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2018/05/09/双机热备原理/#espandi" rel="contents">
+            <a class="btn" href="/2018/05/09/双机热备原理/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -523,7 +683,7 @@
 <p>本篇分享第一篇，说说负载均衡的原理，重点介绍其两种实现方式。</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2018/05/08/负载均衡的原理/#espandi" rel="contents">
+            <a class="btn" href="/2018/05/08/负载均衡的原理/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -671,7 +831,7 @@
 <p>话题一转，说说今天的主角：2个工具，一个是抓包工具Charles，一个是API调试工具Postman。前几天，尝试使用Charles抓取Websocket的消息，折腾了好久才成功，Postman也一样，安装了app版本，也遇到了一些问题，想把过程分享给需要的朋友。</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2018/04/30/推荐2个工具/#espandi" rel="contents">
+            <a class="btn" href="/2018/04/30/推荐2个工具/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -827,7 +987,7 @@
 <p>分布式处理：多个消费者可以订阅同一个队列，这样，多台机器就可以同时处理同一批数据，达到分布式处理的效果。</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2018/04/29/RabbitMQ实战：扩展RabbitMQ与系列总结/#espandi" rel="contents">
+            <a class="btn" href="/2018/04/29/RabbitMQ实战：扩展RabbitMQ与系列总结/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -985,7 +1145,7 @@
 <p>所以，做项目、接需求时，要把价值说清楚，做好体验，让业务方满意，才能让对方认可你的成本。</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2018/04/25/部门季度总结会引发的思考/#espandi" rel="contents">
+            <a class="btn" href="/2018/04/25/部门季度总结会引发的思考/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1141,7 +1301,7 @@
 </ul>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2018/04/22/RabbitMQ实战：性能和安全/#espandi" rel="contents">
+            <a class="btn" href="/2018/04/22/RabbitMQ实战：性能和安全/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1303,7 +1463,7 @@
 </ul>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2018/04/21/让数据传输更安全/#espandi" rel="contents">
+            <a class="btn" href="/2018/04/21/让数据传输更安全/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1460,7 +1620,7 @@
 </ul>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2018/04/14/RabbitMQ实战：界面管理和监控/#espandi" rel="contents">
+            <a class="btn" href="/2018/04/14/RabbitMQ实战：界面管理和监控/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1621,155 +1781,7 @@
 </blockquote>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2018/04/12/RabbitMQ实战：可用性分析和实现/#espandi" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/04/08/写好一个项目不容易/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="calm">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/head.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="情情说">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/04/08/写好一个项目不容易/" itemprop="url">写好一个项目不容易</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-08T22:00:00+08:00">
-                2018-04-08
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/summary/" itemprop="url" rel="index">
-                    <span itemprop="name">summary</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>曾几何时，我多少次吐槽自己接触的项目，数落它们的种种不是，项目文件结构混乱、代码层次不清晰、严重的代码冗余、巨型代码块、缺少注释和日志、散落在各处的静态配置项、混乱的数据校验和异常捕获、脆弱的稳定性和扩展性，每一次功能升级和问题解决，都是胆战心惊的。</p>
-<p>这些问题仅仅是后端开发阶段可能出现的问题，加上需求分析、功能确认、界面设计、架构设计、技术选型、测试等阶段，会有更多问题暴露出来，每个阶段都是相互递进、相互补充的，需要得到大部分同事的认同才可以往下执行，过程中，需要反复的沟通和讨论，团队成员要合理划分、有所成长，项目成本和进度也要合理的控制。</p>
-<p>可见，对于一个大项目，写好多不容易。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2018/04/08/写好一个项目不容易/#espandi" rel="contents">
+            <a class="btn" href="/2018/04/12/RabbitMQ实战：可用性分析和实现/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1861,7 +1873,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">63</span>
+                  <span class="site-state-item-count">64</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
