@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="基础" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="一直对「程序如何在计算机中跑起来的」很感兴趣，也看过一些相关的书籍和文章，前段时间在多看阅读上看到一本相关的书，用了几天时间看完后，觉得很不错，用简单易懂的语言，围绕计算机是怎样跑起来的，把相关的知识串起来，虽然每块讲的都很浅，但令人印象深刻。 书的作者是日本的矢泽久雄，作者那个年代，计算机还是8比特微型计算机，面对为数不多的技术，可以从容地把时间花在学习计算机基础上。但这些基础知识，即使到了今天">
+<meta name="keywords" content="基础">
+<meta property="og:type" content="article">
+<meta property="og:title" content="计算机是怎样跑起来的">
+<meta property="og:url" content="https://qqdong.github.io/2018/11/24/计算机是怎样跑起来的/index.html">
+<meta property="og:site_name" content="情情说">
+<meta property="og:description" content="一直对「程序如何在计算机中跑起来的」很感兴趣，也看过一些相关的书籍和文章，前段时间在多看阅读上看到一本相关的书，用了几天时间看完后，觉得很不错，用简单易懂的语言，围绕计算机是怎样跑起来的，把相关的知识串起来，虽然每块讲的都很浅，但令人印象深刻。 书的作者是日本的矢泽久雄，作者那个年代，计算机还是8比特微型计算机，面对为数不多的技术，可以从容地把时间花在学习计算机基础上。但这些基础知识，即使到了今天">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/115629-8acdb481e131f72d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/115629-cf6036ae75fbec66.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/115629-0e6065769fb56ba1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/400">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/115629-a9dc21f47f2128e6.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/200">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:updated_time" content="2018-11-24T15:16:45.186Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="计算机是怎样跑起来的">
+<meta name="twitter:description" content="一直对「程序如何在计算机中跑起来的」很感兴趣，也看过一些相关的书籍和文章，前段时间在多看阅读上看到一本相关的书，用了几天时间看完后，觉得很不错，用简单易懂的语言，围绕计算机是怎样跑起来的，把相关的知识串起来，虽然每块讲的都很浅，但令人印象深刻。 书的作者是日本的矢泽久雄，作者那个年代，计算机还是8比特微型计算机，面对为数不多的技术，可以从容地把时间花在学习计算机基础上。但这些基础知识，即使到了今天">
+<meta name="twitter:image" content="https://upload-images.jianshu.io/upload_images/115629-8acdb481e131f72d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://qqdong.github.io/2018/11/24/计算机是怎样跑起来的/"/>
+
+
+
+
+
+  <title>计算机是怎样跑起来的 | 情情说</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?e7e93bfed4e516cfa1c99cde191477e5";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">情情说</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">记录工作、学习和生活</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/11/24/计算机是怎样跑起来的/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="calm">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/head.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="情情说">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">计算机是怎样跑起来的</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-24T22:00:00+08:00">
+                2018-11-24
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/summary/" itemprop="url" rel="index">
+                    <span itemprop="name">summary</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>一直对「程序如何在计算机中跑起来的」很感兴趣，也看过一些相关的书籍和文章，前段时间在多看阅读上看到一本相关的书，用了几天时间看完后，觉得很不错，用简单易懂的语言，围绕计算机是怎样跑起来的，把相关的知识串起来，虽然每块讲的都很浅，但令人印象深刻。</p>
+<p>书的作者是日本的矢泽久雄，作者那个年代，计算机还是8比特微型计算机，面对为数不多的技术，可以从容地把时间花在学习计算机基础上。但这些基础知识，即使到了今天也没有太大变化，即便是面对复杂的最新技术，一旦回归到计算机的基础知识，就会很好理解。</p>
+<blockquote>
+<p>其实不仅是计算机，其他学问亦是如此。首先要划出一个「知识范围」，精通一门学问所必知必会的知识都在这个范围内。其次是掌握该范围内每个知识点中基础中的基础知识。最后是能独当一面的目标，即掌握了这些知识可以做什么。</p>
+</blockquote>
+<p><img src="https://upload-images.jianshu.io/upload_images/115629-8acdb481e131f72d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="目录"></p>
+<p>下面是我的阅读笔记，把重点进行归纳总结。</p>
+<a id="more"></a>
+<h4 id="计算机的三大原则"><a href="#计算机的三大原则" class="headerlink" title="计算机的三大原则"></a>计算机的三大原则</h4><blockquote>
+<p>计算机是执行输入、运算、输出的机器</p>
+</blockquote>
+<p>计算机的硬件是由大量IC组成，每块IC上带有很多引脚，这些引脚有的用于输入，有的用于输出。IC会在其内部对外部输入的信息进行运算，把运算结果输出到外部。</p>
+<p>其实计算机就是台简单的机器，因为它只能做这三件事。</p>
+<blockquote>
+<p>程序是指令和数据的集合</p>
+</blockquote>
+<p>无论程序多么复杂，内容都是指令和数据，学习过汇编的应该很清楚。</p>
+<p>所谓指令，就是控制计算机进行输入、运算、输出的命令。把向计算机发出的指令一条条列出来，就得到了程序。</p>
+<p>数据是指令的对象，编程时，程序员会为数据赋予名字，称其为变量。</p>
+<blockquote>
+<p>计算机的处理方式有时与人的思维习惯不同</p>
+</blockquote>
+<p>用数字表示所有信息，这就是一个很具有代表性的计算机式的处理方法，和人类思维习惯不一样。例如，人们会用蓝色之类的词语描述有关颜色，计算机会使用0,0,255表示蓝色。对文字也是一样，会把文字编码成相应的数字再做处理。</p>
+<h4 id="试着制造一台计算机"><a href="#试着制造一台计算机" class="headerlink" title="试着制造一台计算机"></a>试着制造一台计算机</h4><p>上面提到，计算机内部主要由被称作集成电路的元件组成，虽然有各种IC，最重要的三种是：CPU、内存、I/O，只要用电路把CPU、内存以及I/O上的引脚相互连接起来，为每块IC提供电源，再为CPU提供时钟信号，硬件上的计算机就组装起来了。</p>
+<p>时钟信号带有一个时钟，滴答滴答地每隔一定时间就变换一次电压的高低，输出时钟信号的元件叫做「时钟发生器」，里面带有晶振，根据其自身的频率产生时钟信号。时钟信号的频率可以衡量CPU的运转速度。</p>
+<p>书中选取Z80 CPU作为CPU，TC5517作为内存，Z80 PIO作为I/O为主要器件，一步一步教我们如何制作一个微型计算机。书中提供了一个电路图，我跟着作者的逐步介绍，用彩色笔一步步描画相应的电路，印象深刻。</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/115629-cf6036ae75fbec66.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="电路图"></p>
+<p>具体步骤细节我就不再赘述了，感兴趣的可以阅读原书，主要总结下令我印象深刻的几个点。</p>
+<blockquote>
+<p>IC与普通电器一样，只有接通电源才能工作，三大器件都分别带有Vcc引脚和GND引脚，这一对儿引脚用于为Vcc引脚供电，将+5V电源连接到各个IC的Vcc引脚，将0V电源连接到各个IC的GND引脚，时钟发生器也要连接上，这样接通电源后这些IC和时钟发生器就可以工作了。</p>
+<p>微信计算机所使用的IC属于数字IC，每个引脚上的电压要么是0V，要么是+5V，Vcc和GND引脚上的电压是恒定不变的，其他引脚上的电压，会随着计算机的操作在+5V和OV质检不断变化。</p>
+</blockquote>
+<p>可以想成0V表示数字0、+5V表示数字1，那么数字IC就是在用二进制数的形式收发信息。</p>
+<blockquote>
+<p>计算机以CPU为中心运转，要与内存和I/O进行数据的输入输出，为了指定输入输出数据时的源头或目的地，CPU上备有「地址总线引脚」。Z80 CPU 地址总线引脚共有16个，所能指定的地址共有2^16，可以指定65536个数据存取单元。</p>
+<p>一旦指定了存取数据的地址，就可以使用数据总线引脚进行数据的输入输出了。Z80的数据总线引脚有8个， 可以一次性地输入输出8比特的数据，意味着如果想要输入输出位数大于8比特的数据，就要以8比特为单位切分这个数据。</p>
+<p>CPU的地址总线引脚和数据总线引脚要与I/O和内存对应的引脚相连。</p>
+</blockquote>
+<p>有一个问题，从上面电路图可以看到，Z80 CPU 使用同一组地址总线引脚和数据总线引脚连接到了内存和I/O上，CPU如何区分访问的是内存存储单元，还是I/O中的寄存器呢。Z80 CPU上的MREQ和IORQ引脚解决了这个问题，当和内存之间有数据输入输出时，MREQ引脚上的值是0，反之是1。</p>
+<p>对内存和I/O而言，还要分清CPU是要输入数据还是输出数据，需要用到CPU的RD引脚和WR引脚，与内存和IO对应的引脚连接起来。</p>
+<p>介绍这么多，就是让大家对计算机硬件之间的交互方式有个直观的认识，程序在这种结构中就可以跑起来，看到想要的结果。</p>
+<h4 id="体验一次手工汇编"><a href="#体验一次手工汇编" class="headerlink" title="体验一次手工汇编"></a>体验一次手工汇编</h4><p>先来描述下实现场景：把由指拨开关输入的数据输入CPU，然后CPU再把这些数据原封不动地输出到LED，也就是说，可以通过拨动指拨开关控制LED的亮或灭。</p>
+<p>使用汇编语言来编程，汇编语言是根据表示指令功能的英语单词起一个相似的昵称，并将这个昵称赋予给0和1的组合，这种英文单词叫做助记符。</p>
+<p>汇编语言的语法很简单，即把标签、操作码、操作数并排写在一起，标签的作用为为该行代码对应的内存地址起一个名字，这样后面可以直接跳转到这个地方。操作码就是表示做什么，提供了多少操作码，CPU就有多少功能。操作数表示的是指令执行的对象，CPU的寄存器、内存地址、I/O地址或者直接给出的数字都可以作为操作数。如果某个指令需要多个操作数，用逗号分割，操作数的个数取决于指令类型。</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/115629-0e6065769fb56ba1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/400" alt="常用指令"></p>
+<p>再来说下寄存器。既然数据的运算是在CPU中进行的，那么CPU内部就应该有存储数据的地方，就是寄存器。CPU带有什么样的寄存器取决于CPU的种类。Z80 CPU 所带有的寄存器如下：</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/115629-a9dc21f47f2128e6.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/200" alt="寄存器"></p>
+<p>比如，A寄存器叫做累加器，是运算的核心，F寄存器叫做标志寄存器，用于存储运算结果的状态，比如是否发生了进位，数字大小的比较结果等。PC寄存器存储着指向CPU接下来要执行的指令的地址。操作数必须是已存储在CPU寄存器中的数字。</p>
+<p>好了，下面使用汇编语言实现上面说的场景，主要思路是：设定Z80 PIO，为每个端口设定输入输出模式，然后与其进行输入输出。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">// 设置端口(2)为输入模式，这样用括号括起来的数字，表示的是地址编号，207表示通知将要设置输入输出模式</span><br><span class="line">LD A,207 //把207写入到寄存器A</span><br><span class="line">OUT (2),A  //把寄存器A中的数据写入到IO地址对应的寄存器中</span><br><span class="line">LD A,255 </span><br><span class="line">OUT (2),A</span><br><span class="line"></span><br><span class="line">// 设置端口(3)输入输出模式</span><br><span class="line">LD A,207</span><br><span class="line">OUT (3),A </span><br><span class="line">LD A,0</span><br><span class="line">OUT (3),A</span><br><span class="line"></span><br><span class="line">// 进入一段死循环，用于把指拨开关输入的数据输出到LED灯</span><br><span class="line">LOOP: IN A,(0)</span><br><span class="line">      OUT(1),A</span><br><span class="line">      JP LOOP</span><br></pre></td></tr></table></figure>
+<h4 id="知识的范围"><a href="#知识的范围" class="headerlink" title="知识的范围"></a>知识的范围</h4><p>这块内容包括流程控制、数据结构、算法、面向对象，他们是现代编程的基础，熟练掌握这些知识，编写实际业务时就简单了。这些知识都包含的很多内容，大家也都了解，就不再介绍了。</p>
+<h4 id="数据库和网络"><a href="#数据库和网络" class="headerlink" title="数据库和网络"></a>数据库和网络</h4><p>这块也比较熟悉，数据库是数据的基地，方便数据的结构化存储和检索，网络解决了机器之间的数据传递，要约定好传输协议和数据格式，传输过程中要考虑数据安全问题。</p>
+<p>这块也不过多介绍了，涉及的知识包括MYSQL等数据库、TCP/IP等网络协议、数据加密和和签名、XML可扩展标记语言等。</p>
+<p>大家平时工作时，要有意识的累积和思考这些知识，它们是比较稳定的，是其他知识的基础，是程序员的内功。</p>
+<p><strong><font color="green">欢迎扫描下方二维码，关注我的个人微信公众号，查看更多文章</font> ~</strong></p>
+<p><div align="center"><br><img src="http://upload-images.jianshu.io/upload_images/115629-5a140433dc5e61ad.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="情情说"></div></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/基础/" rel="tag"># 基础</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/11/23/良师/" rel="next" title="榜样">
+                <i class="fa fa-chevron-left"></i> 榜样
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        
+<script>
+  with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='//bdimg.share.baidu.com/static/api/js/share.js?cdnversion='+~(-new Date()/36e5)];
+</script>
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zNjE2Mi8xMjY5Nw=="></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/head.png"
+                alt="calm" />
+            
+              <p class="site-author-name" itemprop="name">calm</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">66</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">13</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">29</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#计算机的三大原则"><span class="nav-number">1.</span> <span class="nav-text">计算机的三大原则</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#试着制造一台计算机"><span class="nav-number">2.</span> <span class="nav-text">试着制造一台计算机</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#体验一次手工汇编"><span class="nav-number">3.</span> <span class="nav-text">体验一次手工汇编</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#知识的范围"><span class="nav-number">4.</span> <span class="nav-text">知识的范围</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#数据库和网络"><span class="nav-number">5.</span> <span class="nav-text">数据库和网络</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">calm</span>
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

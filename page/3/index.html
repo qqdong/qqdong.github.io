@@ -272,6 +272,174 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/05/29/理解索引：MySQL查询过程和高级查询/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="calm">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/head.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="情情说">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/05/29/理解索引：MySQL查询过程和高级查询/" itemprop="url">理解索引：MySQL查询过程和高级查询</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-29T22:00:00+08:00">
+                2018-05-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/数据库/" itemprop="url" rel="index">
+                    <span itemprop="name">数据库</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p><a href="http://qqidol.com/2018/05/26/%E7%90%86%E8%A7%A3%E7%B4%A2%E5%BC%95%EF%BC%88%E4%B8%8A%EF%BC%89/" target="_blank" rel="noopener">上一篇</a> 提到，最近有个需求，要修改现有存储结构，涉及查询条件和查询效率的考量，看了几篇索引和HBase相关的文章，回忆了相关知识，结合项目需求，说说自己的理解和总结。</p>
+<p>总体目录如下，上篇介绍了前3小节，分析了索引为什么快，总结了它的优点和分类，以及索引的演化过程，中篇会重点介绍索引分析方法和常见索引优化。</p>
+<ul>
+<li>为什么需要索引</li>
+<li>索引的类别</li>
+<li>MySQL索引演化</li>
+<li>MySQL索引优化</li>
+<li>HBase介绍</li>
+<li>HBase存储结构</li>
+<li>HBase索引介绍</li>
+<li>业务需求及设计</li>
+</ul>
+<blockquote>
+<p>部分内容摘录了几个博友的文章，最后会给出文章链接，感谢他们的精彩分析。</p>
+</blockquote>
+<p>通过中篇的介绍，你会了解到：</p>
+<ul>
+<li>MySQL查询过程</li>
+<li>高级查询相关概念</li>
+<li>explain命令详细介绍</li>
+<li>索引优化建议</li>
+</ul>
+<h4 id="MySQL查询过程"><a href="#MySQL查询过程" class="headerlink" title="MySQL查询过程"></a>MySQL查询过程</h4><p>想要更好的优化查询，首先要了解其整体查询过程，从客户端发送查询请求，到接收到查询结果，MySQL服务器做了很多工作。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018/05/29/理解索引：MySQL查询过程和高级查询/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/05/26/理解索引（上）/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1669,163 +1837,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2018/04/14/RabbitMQ实战：界面管理和监控/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="calm">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/head.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="情情说">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/04/14/RabbitMQ实战：界面管理和监控/" itemprop="url">RabbitMQ实战：界面管理和监控</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-14T22:00:00+08:00">
-                2018-04-14
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/消息队列/" itemprop="url" rel="index">
-                    <span itemprop="name">消息队列</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <blockquote>
-<p>本系列是「RabbitMQ实战：高效部署分布式消息队列」书籍的总结笔记。</p>
-</blockquote>
-<p>上一篇总结了可能出现的异常场景，并对RabbitMQ提供的可用性保证进行了分析，在出现服务器宕机后，仍然可以正常服务。另外，需要尽快恢复异常的服务器，重新加入集群，推送未消费的消息，通过监控可第一时间接收到错误并进行处理。</p>
-<p>另外，我们想主动了解消息堆积和消费的情况，以及服务器节点的压力，RabbitMQ提供了几种方式便捷、直观的了解，包括Web管理插件、REST API、rabbitmqadmin脚本。</p>
-<p>通过介绍，你会了解到：</p>
-<ul>
-<li>web管理插件</li>
-<li>REST API</li>
-<li>rabbitmqadmin脚本</li>
-<li>Nagios和监控RabbitMQ</li>
-</ul>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2018/04/14/RabbitMQ实战：界面管理和监控/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1880,7 +1891,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">65</span>
+                  <span class="site-state-item-count">66</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -1902,7 +1913,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">28</span>
+                  <span class="site-state-item-count">29</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
