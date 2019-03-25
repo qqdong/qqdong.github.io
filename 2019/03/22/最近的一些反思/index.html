@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="个人反思" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="好久没更新了，对不住大家，4月中旬会恢复常规更新。 距离上次更新已经3个月，上一篇提到一个产品同事的离职，表达了自己的不舍之情，现在自己也要离开小米了，下一个起点还没最终确定，有点期待。 过去3个月，对一些事情又有了新的感悟。 对自己的缺点认识更深刻，老好人的性格，让关键任务的进度一再延期，团队略显疲态。 自己的技术能力、架构能力还需要进一步实践和提升，带人、激发人的能力还有很长一段路要走，自己下">
+<meta name="keywords" content="个人反思">
+<meta property="og:type" content="article">
+<meta property="og:title" content="最近的一些反思">
+<meta property="og:url" content="https://qqdong.github.io/2019/03/22/最近的一些反思/index.html">
+<meta property="og:site_name" content="情情说">
+<meta property="og:description" content="好久没更新了，对不住大家，4月中旬会恢复常规更新。 距离上次更新已经3个月，上一篇提到一个产品同事的离职，表达了自己的不舍之情，现在自己也要离开小米了，下一个起点还没最终确定，有点期待。 过去3个月，对一些事情又有了新的感悟。 对自己的缺点认识更深刻，老好人的性格，让关键任务的进度一再延期，团队略显疲态。 自己的技术能力、架构能力还需要进一步实践和提升，带人、激发人的能力还有很长一段路要走，自己下">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-03-25T01:46:33.055Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="最近的一些反思">
+<meta name="twitter:description" content="好久没更新了，对不住大家，4月中旬会恢复常规更新。 距离上次更新已经3个月，上一篇提到一个产品同事的离职，表达了自己的不舍之情，现在自己也要离开小米了，下一个起点还没最终确定，有点期待。 过去3个月，对一些事情又有了新的感悟。 对自己的缺点认识更深刻，老好人的性格，让关键任务的进度一再延期，团队略显疲态。 自己的技术能力、架构能力还需要进一步实践和提升，带人、激发人的能力还有很长一段路要走，自己下">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://qqdong.github.io/2019/03/22/最近的一些反思/"/>
+
+
+
+
+
+  <title>最近的一些反思 | 情情说</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?e7e93bfed4e516cfa1c99cde191477e5";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">情情说</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">记录工作、学习和生活</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://qqdong.github.io/2019/03/22/最近的一些反思/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="calm">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/head.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="情情说">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">最近的一些反思</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-22T22:00:00+08:00">
+                2019-03-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/summary/" itemprop="url" rel="index">
+                    <span itemprop="name">summary</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>好久没更新了，对不住大家，4月中旬会恢复常规更新。</p>
+<p>距离上次更新已经3个月，上一篇提到一个产品同事的离职，表达了自己的不舍之情，现在自己也要离开小米了，下一个起点还没最终确定，有点期待。</p>
+<p>过去3个月，对一些事情又有了新的感悟。</p>
+<p>对自己的缺点认识更深刻，老好人的性格，让关键任务的进度一再延期，团队略显疲态。</p>
+<p>自己的技术能力、架构能力还需要进一步实践和提升，带人、激发人的能力还有很长一段路要走，自己下一阶段的目标渐渐清晰了。</p>
+<p>下面来总结下这段时间的思考和想法。</p>
+<h4 id="我看我们组"><a href="#我看我们组" class="headerlink" title="我看我们组"></a>我看我们组</h4><p>我们对接的业务方很多，包括国内小米商城、小米有品、小米之家、公司内部呼叫中心、海外印度、海外其他国家等，每个业务方都会单独向我们提需求，对接到我们的产品。</p>
+<p>产品和业务方对接完需求细节后，就开始召集研发、测试、设计开需求宣讲会，大家对需求没有问题，就开始排期开发了。</p>
+<p>我觉得这中间有个很严重的问题，没有站在整个系统的角度，去分析这个需求要不要做，与系统整体的规划和迭代有没有冲突，如何设计会更好。每个业务方的需求必应，分割地去设计和实现每一个需求，开发成本和维护成本大大提高，效果也会比较差。</p>
+<p>我们组面对的是做不完的零散需求和反馈不断的线上问题，都显得很疲惫，更别说有什么业务和技术上的成长了。</p>
+<p>这是我和产品的锅，虽然年初有年度规划，每季度有季度规划，但还是割裂的去看每个业务方提出的需求，缺少整合和分析，更别说自己对整个客服产品的思考和规划了，有也是只停留在PPT。</p>
+<p>业务比较强势，整个部门也没有特别好的解决方案，业务方面的人才也是缺失的。我们组武汉有几个人，很有想法和魄力，正在按自己的规划主动进行整体技术改造，祝福他们能够取得想要的成果。</p>
+<p>技术专家很重要，业务专家更重要。</p>
+<h4 id="管事和管人"><a href="#管事和管人" class="headerlink" title="管事和管人"></a>管事和管人</h4><p>作为管理者，管事和管人是很重要的2部分。</p>
+<p>做事情需要考虑投入、产出，给团队和公司带来的价值，这也是评估一个需求要不要做很好的一种方式，我很缺失这方面的考虑，关注的还是一个一个的需求如何实现。</p>
+<p>做成一件事情，需要协调各方面的资源，可能涉及到跨组、跨部门，沟通能力和协调能力显得很重要，为人处事能力比较好的人会显得更自如。</p>
+<p>实施计划以及跟进同样重要，尽量避免研发人员受外部的干扰，事情负责人有过滤&amp;排期需求变更、新需求插入、线上问题的义务，这样不仅能保证事情按时按质地完成，还能让研发人员更专地注研究业务和技术。</p>
+<p>一个公司最大的资产就是人才，选人很重要，招聘一定要严格把关，阿里的面试流程就很严格和规范。其次，有严格的奖惩制度，能人多捞，阿里有严格的361考核制度，30%的人绩效打的好，60%的人绩效一般，10%的人强制淘汰，这样能激发大家的投入力，避免养老和不负责任的同事坏了一锅汤。</p>
+<p>优秀的人难寻，深刻感受到能人的重要性。</p>
+<p>管人方面，我的经验太欠缺了，给团队带来了很多问题，很多是因为我的老好人性格导致的。</p>
+<p>对事不对人，放任和宽容反而会害了他人，坏了整个团队。</p>
+<h4 id="面试"><a href="#面试" class="headerlink" title="面试"></a>面试</h4><p>各种原因，有了换工作的想法，年初就开始有意识的准备面试，准备的时候，才发现好多基础知识已忘之脑后，意识到平时的主动学习和积累多么重要。</p>
+<p>这次求职的主要决策点是，加入一家真正技术驱动/产品驱动的公司，提升自己在高并发、大数据方向的技术能力，为自己以后成为偏技术的leader打下基础。</p>
+<p>我从年初就开始陆陆续续投简历，前后面试了头条、美团、去哪儿、神策数据、58转转、搜狗、阿里云等，大家都说今年是互联网寒冬，一些公司停止招聘或者HC少，但如果你为你之前的职场努力付出了，机会还是有很多的，只是对人的能力要求提高了。</p>
+<p>从面试过程来看，基础知识还是最看重的，比如多线程并发处理、IO相关知识、网络相关知识、常用的数据结构和算法。对自己参与过的项目一定要熟悉，后面轮的面试会问一些技术细节、遇到的问题、自己的优化想法、对以后的规划等。</p>
+<p>不同公司会有一些偏重，头条比较重视算法，一般会要求手写代码，我挂在了二面的一个算法上，阿里和美团比较注重实际工作中的一些技术，要对项目架构和用到的技术做到心中有数。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/个人反思/" rel="tag"># 个人反思</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/12/12/不粘锅/" rel="next" title="不粘锅">
+                <i class="fa fa-chevron-left"></i> 不粘锅
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        
+<script>
+  with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='//bdimg.share.baidu.com/static/api/js/share.js?cdnversion='+~(-new Date()/36e5)];
+</script>
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zNjE2Mi8xMjY5Nw=="></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/head.png"
+                alt="calm" />
+            
+              <p class="site-author-name" itemprop="name">calm</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">68</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">13</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">31</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#我看我们组"><span class="nav-number">1.</span> <span class="nav-text">我看我们组</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#管事和管人"><span class="nav-number">2.</span> <span class="nav-text">管事和管人</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#面试"><span class="nav-number">3.</span> <span class="nav-text">面试</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">calm</span>
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
